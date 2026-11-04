@@ -12,3 +12,5 @@ coverage
 .pnpm-store
 tsconfig.tsbuildinfo
 uploads
+data/scraped/*.json
+!data/scraped/.gitkeep

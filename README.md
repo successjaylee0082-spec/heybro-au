@@ -33,4 +33,13 @@ corepack pnpm start
 
 Listings in this preview are fictional demo data. Interior photos are illustrative. Configure `NEXT_PUBLIC_SITE_URL` before emitting absolute canonical/social URLs.
 
+## Scrape Sydney brothel listings
+
+```bash
+pnpm scrape                 # writes data/scraped/sydney-brothels.json
+pnpm scrape:seed            # dry-run upsert preview
+```
+
+Live DB injection requires the scraped-venues migration plus private Supabase credentials. See [docs/scrape-brothels.md](docs/scrape-brothels.md).
+
 See `ASSETS.md`, `plan.md` and `TODO.md` for brand assets and the longer product roadmap.
