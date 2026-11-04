@@ -44,7 +44,7 @@ export function Footer() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} Hey Bro Australia. Demo directory preview.</span>
+          <span>© {new Date().getFullYear()} Hey Bro Australia. Nightlife directory.</span>
           <span>
             <Shield className="h-3.5 w-3.5" />
             18+ self-declaration required
