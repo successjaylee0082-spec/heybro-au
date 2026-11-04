@@ -1013,25 +1013,7 @@
     padding: 5px;
     color: #c9c9cf;
   }
-  .mobile-nav {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    left: 0;
-    top: 70px;
-    width: 100%;
-    padding: 13px 18px;
-    background: #111113;
-    border-bottom: 1px solid #2c2c30;
-  }
-  .mobile-nav button {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px 5px;
-    color: #c2c2c9;
-    font-size: 13px;
-    text-align: left;
-  }
+  /* Bottom tab bar styles live in navigation.css */
   .city-nav {
     min-height: 62px;
     overflow-x: auto;
