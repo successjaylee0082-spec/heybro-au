@@ -9,10 +9,10 @@ Node.js 20.9+ and pnpm 11.25.0:
 ```bash
 corepack enable
 corepack pnpm install --frozen-lockfile
-corepack pnpm dev --hostname 0.0.0.0 --port 43123
+corepack pnpm dev
 ```
 
-Open [http://127.0.0.1:43123/en](http://127.0.0.1:43123/en).
+Open [http://127.0.0.1:3000/en](http://127.0.0.1:3000/en). The Cloud Agent environment forwards port **3000** (`0.0.0.0`) for the built-in browser — use that port, not a random alternate.
 
 Production-style server:
 

@@ -1,0 +1,10 @@
+{
+  "install": "corepack enable && corepack prepare pnpm@11.25.0 --activate && corepack pnpm install --frozen-lockfile",
+  "start": "corepack pnpm exec next dev --hostname 0.0.0.0 --port 3000",
+  "ports": [
+    {
+      "name": "Hey Bro",
+      "port": 3000
+    }
+  ]
+}
