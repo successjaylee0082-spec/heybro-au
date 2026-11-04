@@ -25,13 +25,13 @@ corepack pnpm start
 
 - `/en` and `/zh` locale routes with middleware language headers
 - 18+ age gate (self-declaration, 30-day local preference)
-- City/category filters, search, demo venue cards and detail pages
-- Device-local saved places
+- City/category filters, search, and venue detail pages backed by Supabase `venues`
+- Device-local saved places (resolved against the live directory when connected)
 - Community discussions entry + Reddit source links (honest unavailable feed state)
 - Journal stubs, local empty/unavailable preview landings, health API, PWA manifest/SW shell
 - Docker standalone image via `Dockerfile`
 
-Listings in this preview are fictional demo data. Interior photos are illustrative. Configure `NEXT_PUBLIC_SITE_URL` before emitting absolute canonical/social URLs.
+Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (or the server-side `SUPABASE_*` equivalents) so the home directory can query the `venues` table. Without those variables the home page shows an unavailable state instead of demo cards. Configure `NEXT_PUBLIC_SITE_URL` before emitting absolute canonical/social URLs.
 
 ## Scrape Sydney brothel listings
 

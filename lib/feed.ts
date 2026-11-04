@@ -200,14 +200,16 @@ export function getVenueById(id: string): Venue | undefined {
 }
 
 export function filterVenues(options: {
+  venues?: Venue[];
   city?: CityId | "all";
   category?: CategoryId | "all";
   query?: string;
   savedIds?: string[];
   savedOnly?: boolean;
 }): Venue[] {
+  const list = options.venues ?? feedVenues;
   const query = options.query?.trim().toLowerCase() ?? "";
-  return feedVenues.filter((venue) => {
+  return list.filter((venue) => {
     if (options.city && options.city !== "all" && venue.city !== options.city) {
       return false;
     }

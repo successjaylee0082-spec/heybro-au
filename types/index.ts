@@ -30,10 +30,10 @@ export interface Venue {
   tagsZh?: string[];
   phone?: string;
   address: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   verified?: boolean;
-  fictional: true;
+  fictional: boolean;
   hours?: string;
   website?: string;
 }

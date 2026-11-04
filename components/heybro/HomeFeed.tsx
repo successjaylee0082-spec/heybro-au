@@ -17,13 +17,25 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { categories, cities } from "@/lib/cities";
 import { filterVenues } from "@/lib/feed";
-import type { CategoryId, CityId } from "@/types";
+import type { CategoryId, CityId, Venue } from "@/types";
 
-export function HomeFeed() {
+export function HomeFeed({
+  venues: directoryVenues,
+  source,
+  error,
+}: {
+  venues: Venue[];
+  source: "supabase" | "unavailable";
+  error?: string;
+}) {
   const { locale, t } = useCopy();
   const { city, setCity, category, setCategory, query, setQuery } =
     useNavigation();
-  const venues = filterVenues({ city, category, query });
+  const venues =
+    source === "supabase"
+      ? filterVenues({ venues: directoryVenues, city, category, query })
+      : [];
+  const live = source === "supabase";
 
   return (
     <div className="home-feed">
@@ -43,7 +55,7 @@ export function HomeFeed() {
         </div>
         <div className="aussie-note">
           <ShieldCheck className="h-3.5 w-3.5" />
-          Aussie nightlife directory preview
+          Aussie nightlife directory
         </div>
       </div>
 
@@ -135,7 +147,7 @@ export function HomeFeed() {
           <MapPin /> City filters
         </span>
         <span>
-          <Sparkles /> Demo inventory
+          <Sparkles /> {live ? "Live inventory" : "Directory offline"}
         </span>
       </div>
 
@@ -154,7 +166,24 @@ export function HomeFeed() {
         </div>
       </div>
 
-      {venues.length === 0 ? (
+      {!live ? (
+        <div className="empty-state">
+          <Sparkles className="h-8 w-8" />
+          <h3>
+            {locale === "zh" ? "目录暂时不可用" : "Directory unavailable"}
+          </h3>
+          <p>
+            {locale === "zh"
+              ? "请配置 Supabase 环境变量后重新加载 venues 表数据。"
+              : "Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to load venues from Supabase."}
+          </p>
+          {error ? (
+            <p className="text-sm opacity-70" style={{ marginTop: 8 }}>
+              {error}
+            </p>
+          ) : null}
+        </div>
+      ) : venues.length === 0 ? (
         <div className="empty-state">
           <Sparkles className="h-8 w-8" />
           <h3>{t("emptyTitle")}</h3>
@@ -172,7 +201,9 @@ export function HomeFeed() {
       )}
 
       <div className="result-notice">
-        Showing {venues.length} demo listing{venues.length === 1 ? "" : "s"}
+        {live
+          ? `Showing ${venues.length} listing${venues.length === 1 ? "" : "s"}`
+          : "Live venue data is not connected"}
       </div>
 
       <div className="business-banner">

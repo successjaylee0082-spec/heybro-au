@@ -1,16 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { feedVenues } from "@/lib/feed";
 
 export const BOOKMARK_KEY = "heybro-saved";
 
 function validIds(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
-  const allowed = new Set(feedVenues.map((venue) => venue.id));
   return [
     ...new Set(
-      raw.filter((id): id is string => typeof id === "string" && allowed.has(id)),
+      raw.filter(
+        (id): id is string =>
+          typeof id === "string" &&
+          id.trim().length > 0 &&
+          id.trim().length < 200,
+      ),
     ),
   ];
 }

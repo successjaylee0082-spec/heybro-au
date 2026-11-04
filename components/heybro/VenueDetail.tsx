@@ -95,10 +95,12 @@ export function VenueDetail({ venue }: { venue: Venue }) {
         ) : null}
       </div>
       <p className="detail-body">{description}</p>
-      <div className="demo-note" style={{ marginTop: 18 }}>
-        This profile is a fictional demo listing. Photographs are illustrative
-        interiors and are not photographs of a registered Australian business.
-      </div>
+      {venue.fictional ? (
+        <div className="demo-note" style={{ marginTop: 18 }}>
+          This profile is a fictional demo listing. Photographs are illustrative
+          interiors and are not photographs of a registered Australian business.
+        </div>
+      ) : null}
       <div className="venue-actions detail-actions">
         {transit ? (
           <a href={transit} target="_blank" rel="noopener noreferrer">

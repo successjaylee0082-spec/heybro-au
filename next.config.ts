@@ -2,7 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  images: { unoptimized: true },
+  images: {
+    unoptimized: true,
+    remotePatterns: [
+      { protocol: "https", hostname: "*.supabase.co" },
+      { protocol: "https", hostname: "brothels.com.au" },
+      { protocol: "https", hostname: "*.brothels.com.au" },
+    ],
+  },
+
   poweredByHeader: false,
   async redirects() {
     // Next config supports relative destinations; middleware response constructors

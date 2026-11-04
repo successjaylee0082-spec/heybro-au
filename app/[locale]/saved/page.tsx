@@ -1,36 +1,17 @@
-"use client";
+import { SavedVenues } from "@/components/heybro/SavedVenues";
+import { isLocale } from "@/lib/i18n";
+import { getDirectoryVenues } from "@/lib/venues";
+import { notFound } from "next/navigation";
 
-import { HeyBroCard } from "@/components/HeyBroCard";
-import { useCopy } from "@/components/i18n/LocaleProvider";
-import { useNavigation } from "@/components/layout/NavigationProvider";
-import { filterVenues } from "@/lib/feed";
+export const dynamic = "force-dynamic";
 
-export default function SavedPage() {
-  const { t } = useCopy();
-  const { savedIds } = useNavigation();
-  const venues = filterVenues({ savedIds, savedOnly: true });
-
-  return (
-    <div className="saved-page">
-      <div className="section-heading">
-        <div>
-          <div className="eyebrow">{t("saved")}</div>
-          <h1 style={{ fontSize: 32 }}>{t("saved")}</h1>
-          <p>{t("resultsHint")}</p>
-        </div>
-      </div>
-      {venues.length === 0 ? (
-        <div className="empty-state">
-          <h3>{t("emptyTitle")}</h3>
-          <p>{t("emptyBody")}</p>
-        </div>
-      ) : (
-        <div className="venue-list">
-          {venues.map((venue) => (
-            <HeyBroCard key={venue.id} venue={venue} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+export default async function SavedPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const { venues, source } = await getDirectoryVenues();
+  return <SavedVenues venues={source === "supabase" ? venues : []} />;
 }

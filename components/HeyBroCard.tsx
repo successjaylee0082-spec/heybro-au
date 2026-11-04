@@ -49,16 +49,14 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
             sizes="(max-width: 820px) 50vw, 33vw"
           />
         </Link>
-        <span className="pick-badge">
-          {venue.verified ? (
-            <>
-              <ShieldCheck className="h-3 w-3" />
-              {t("verified")}
-            </>
-          ) : (
-            t("demoBadge")
-          )}
-        </span>
+        {venue.fictional ? (
+          <span className="pick-badge">{t("demoBadge")}</span>
+        ) : venue.verified ? (
+          <span className="pick-badge">
+            <ShieldCheck className="h-3 w-3" />
+            {t("verified")}
+          </span>
+        ) : null}
         <button
           type="button"
           className={saved ? "save-button is-saved" : "save-button"}
