@@ -1,9 +1,25 @@
 import { createHash } from "node:crypto";
 
-const UA = "HeyBroDirectoryBot/0.1 (+https://localhost; respectful crawl; dry-run by default)";
+/** Chrome-like desktop UA used for listing + detail fetches. */
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 export function userAgent(): string {
   return UA;
+}
+
+/** Common browser request headers paired with the spoofed UA. */
+export function browserHeaders(extra: Record<string, string> = {}): Record<string, string> {
+  return {
+    "User-Agent": userAgent(),
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    Pragma: "no-cache",
+    "Upgrade-Insecure-Requests": "1",
+    ...extra,
+  };
 }
 
 export function sleep(ms: number): Promise<void> {

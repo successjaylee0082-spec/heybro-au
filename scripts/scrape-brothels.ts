@@ -19,6 +19,7 @@ import { chromium, type Page } from "@playwright/test";
 import type { ScrapedStaffMember, ScrapedVenue } from "../types/scraped-venue";
 import {
   absoluteUrl,
+  browserHeaders,
   cleanText,
   isLikelyStaffImage,
   normalizePhone,
@@ -28,6 +29,9 @@ import {
   sourceIdFromUrl,
   userAgent,
 } from "./lib/scrape-utils";
+
+/** Delay between detail-page fetches to reduce bot/rate-limit pressure. */
+const DETAIL_REQUEST_DELAY_MS = 2500;
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const LISTING_URL = "https://brothels.com.au/brothels-in-sydney/";
@@ -51,7 +55,7 @@ function argValue(flag: string): string | undefined {
 
 async function assertRobotsAllows(pathname: string): Promise<void> {
   const { data } = await axios.get<string>("https://brothels.com.au/robots.txt", {
-    headers: { "User-Agent": userAgent() },
+    headers: browserHeaders(),
     timeout: 15000,
     responseType: "text",
     validateStatus: (status) => status >= 200 && status < 400,
@@ -213,10 +217,9 @@ function parseDetailHtml(
 
 async function fetchDetail(sourceUrl: string) {
   const { data, status } = await axios.get<string>(sourceUrl, {
-    headers: {
-      "User-Agent": userAgent(),
-      Accept: "text/html,application/xhtml+xml",
-    },
+    headers: browserHeaders({
+      Referer: LISTING_URL,
+    }),
     timeout: 30000,
     responseType: "text",
     maxRedirects: 5,
@@ -263,7 +266,12 @@ async function main() {
   await assertRobotsAllows("/brothels-in-sydney/");
 
   const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage({ userAgent: userAgent() });
+  const page = await browser.newPage({
+    userAgent: userAgent(),
+    extraHTTPHeaders: {
+      "Accept-Language": "en-AU,en-GB;q=0.9,en-US;q=0.8,en;q=0.7",
+    },
+  });
   let cards: ListingCard[] = [];
   try {
     cards = await collectListingCards(page);
@@ -310,7 +318,7 @@ async function main() {
         }),
       );
     }
-    await sleep(750);
+    await sleep(DETAIL_REQUEST_DELAY_MS);
   }
 
   mkdirSync(dirname(OUT_FILE), { recursive: true });

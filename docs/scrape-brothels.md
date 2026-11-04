@@ -24,6 +24,6 @@ Apply `supabase/migrations/20261104_scraped_venues.sql` before the first live se
 ## Notes
 
 - Defaults to JSON output / dry-run. No hosted writes happen unless `--apply` is set.
-- Checks `robots.txt` before crawling and waits between detail requests.
+- Checks `robots.txt` before crawling, sends a Chrome-like User-Agent, and waits **2.5s** between detail requests.
 - Extracts name, address, suburb, phone, hours (when published), feature/service chips, cover image, and staff-like gallery URLs when present.
 - Operator remains responsible for site terms, copyright, and publication decisions. Do not schedule aggressive crawls.
