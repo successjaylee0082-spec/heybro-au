@@ -1,0 +1,11 @@
+packages:
+  - '.'
+
+# Explicitly approve the native optional packages Next.js may install.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.31

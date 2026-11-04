@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+.turbo
+.DS_Store
+.env
+.env.local
+.env.*.local
+audit-results
+coverage
+*.log
+.pnpm-store
+tsconfig.tsbuildinfo
+uploads
