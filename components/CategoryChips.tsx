@@ -1,10 +1,10 @@
 "use client";
 
 import {
+  Building2,
+  CalendarDays,
   Footprints,
-  MoonStar,
   ShoppingBag,
-  Sparkles,
   Theater,
 } from "lucide-react";
 import { categories } from "@/lib/cities";
@@ -12,12 +12,12 @@ import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import type { CategoryId } from "@/types";
 
-const icons: Record<CategoryId, typeof MoonStar> = {
+const icons: Record<CategoryId, typeof Theater> = {
+  brothels: Building2,
+  "escorts-massage": Footprints,
   "strip-clubs": Theater,
-  nightlife: MoonStar,
-  massage: Footprints,
-  wellness: Sparkles,
-  retail: ShoppingBag,
+  "adult-retail": ShoppingBag,
+  "nightlife-events": CalendarDays,
 };
 
 export function CategoryChips() {

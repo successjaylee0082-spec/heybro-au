@@ -9,11 +9,11 @@ export type CityId =
   | "adelaide";
 
 export type CategoryId =
+  | "brothels"
+  | "escorts-massage"
   | "strip-clubs"
-  | "nightlife"
-  | "massage"
-  | "wellness"
-  | "retail";
+  | "adult-retail"
+  | "nightlife-events";
 
 export interface Venue {
   id: string;

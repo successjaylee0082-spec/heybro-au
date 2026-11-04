@@ -10,11 +10,11 @@ export const cities: CityMeta[] = [
 ];
 
 export const categories: CategoryMeta[] = [
+  { id: "brothels", label: "Brothels", labelZh: "妓院" },
+  { id: "escorts-massage", label: "Escorts & Massage", labelZh: "伴游与按摩" },
   { id: "strip-clubs", label: "Strip Clubs", labelZh: "脱衣舞俱乐部" },
-  { id: "nightlife", label: "Nightlife", labelZh: "夜生活" },
-  { id: "massage", label: "Massage", labelZh: "按摩" },
-  { id: "wellness", label: "Wellness", labelZh: "健康护理" },
-  { id: "retail", label: "Retail", labelZh: "零售" },
+  { id: "adult-retail", label: "Adult Retail", labelZh: "成人零售" },
+  { id: "nightlife-events", label: "Nightlife & Events", labelZh: "夜生活与活动" },
 ];
 
 export function cityLabel(

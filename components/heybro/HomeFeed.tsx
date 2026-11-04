@@ -15,8 +15,9 @@ import { HeyBroCard } from "@/components/HeyBroCard";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
-import { cities } from "@/lib/cities";
+import { categories, cities } from "@/lib/cities";
 import { filterVenues } from "@/lib/feed";
+import type { CategoryId, CityId } from "@/types";
 
 export function HomeFeed() {
   const { locale, t } = useCopy();
@@ -86,9 +87,7 @@ export function HomeFeed() {
               <MapPin className="h-3.5 w-3.5" />
               <select
                 value={city}
-                onChange={(event) =>
-                  setCity(event.target.value as typeof city)
-                }
+                onChange={(event) => setCity(event.target.value as CityId)}
                 aria-label="City"
               >
                 {cities.map((item) => (
@@ -103,16 +102,16 @@ export function HomeFeed() {
               <select
                 value={category}
                 onChange={(event) =>
-                  setCategory(event.target.value as typeof category)
+                  setCategory(event.target.value as CategoryId | "all")
                 }
                 aria-label="Category"
               >
-                <option value="all">All</option>
-                <option value="strip-clubs">Strip Clubs</option>
-                <option value="nightlife">Nightlife</option>
-                <option value="massage">Massage</option>
-                <option value="wellness">Wellness</option>
-                <option value="retail">Retail</option>
+                <option value="all">{locale === "zh" ? "全部" : "All"}</option>
+                {categories.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {locale === "zh" ? item.labelZh : item.label}
+                  </option>
+                ))}
               </select>
             </label>
             <Button type="submit" className="search-submit">
