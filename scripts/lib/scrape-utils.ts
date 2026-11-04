@@ -26,6 +26,36 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Inclusive random delay in ms (default 2s–3.5s). */
+export function randomDelayMs(minMs = 2000, maxMs = 3500): number {
+  const lo = Math.min(minMs, maxMs);
+  const hi = Math.max(minMs, maxMs);
+  return lo + Math.floor(Math.random() * (hi - lo + 1));
+}
+
+export async function sleepRandom(minMs = 2000, maxMs = 3500): Promise<number> {
+  const ms = randomDelayMs(minMs, maxMs);
+  await sleep(ms);
+  return ms;
+}
+
+/** Normalize listing/detail URLs for incremental dedupe. */
+export function canonicalSourceUrl(href: string): string {
+  try {
+    const url = new URL(href);
+    url.hash = "";
+    url.hostname = url.hostname.replace(/^www\./i, "").toLowerCase();
+    url.protocol = "https:";
+    // Keep search (?p=123) — those are stable WordPress identity URLs.
+    let path = url.pathname.replace(/\/{2,}/g, "/");
+    if (path.length > 1) path = path.replace(/\/+$/, "");
+    url.pathname = path || "/";
+    return url.toString();
+  } catch {
+    return href.trim();
+  }
+}
+
 export function absoluteUrl(href: string, base = "https://brothels.com.au"): string {
   try {
     const url = new URL(href, base);
