@@ -50,7 +50,7 @@ export function VenueStructuredContent({
       {showExtras && content.pricing.length > 0 ? (
         <section className="venue-section">
           <div className="venue-section-label">Pricing</div>
-          <h2>Session rates</h2>
+          <h2>Session rates (AUD)</h2>
           <div className="venue-price-table">
             <div className="venue-price-head">
               <span>Package</span>
@@ -65,6 +65,15 @@ export function VenueStructuredContent({
               </div>
             ))}
           </div>
+          {content.payments?.length ? (
+            <div className="venue-chip-row" aria-label="Accepted payments" style={{ marginTop: 12 }}>
+              {content.payments.map((payment) => (
+                <span key={payment} className="venue-service-chip">
+                  {payment}
+                </span>
+              ))}
+            </div>
+          ) : null}
         </section>
       ) : null}
 

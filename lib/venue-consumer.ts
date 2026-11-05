@@ -86,23 +86,13 @@ function titleArea(suburb: string, city: string): string {
   return suburb || city;
 }
 
-function detectPayments(text: string, tags: string[]): string[] {
-  const hay = `${text} ${tags.join(" ")}`.toLowerCase();
-  const payments = ["Cash OK", "EFTPOS / Card OK"];
-  // Always surface CN payment rails for AU+CN consumer mix.
-  if (/wechat|微信|alipay|支付宝|unionpay|云闪付/.test(hay) || true) {
-    payments.push("WeChat Pay 微信", "Alipay 支付宝");
-  }
-  if (/afterpay|zip/.test(hay)) payments.push("Afterpay");
-  return [...new Set(payments)].slice(0, 4);
-}
-
-function detectLanguages(text: string, tags: string[]): string[] {
-  const hay = `${text} ${tags.join(" ")}`.toLowerCase();
+function detectLanguages(text: string, tags: string[], suburb: string): string[] {
+  const hay = `${text} ${tags.join(" ")} ${suburb}`.toLowerCase();
   const languages = ["English Speaking"];
   if (
-    /mandarin|cantonese|chinese|中文|普通话|广东话|华人/.test(hay) ||
-    true
+    /mandarin|cantonese|chinese|中文|普通话|广东话|华人|haymarket|chinatown|hurstville|burwood|eastwood|box hill|cabramatta/.test(
+      hay,
+    )
   ) {
     languages.push("Mandarin / Cantonese 💬");
   }
@@ -111,11 +101,13 @@ function detectLanguages(text: string, tags: string[]): string[] {
 
 function facilityBadges(amenities: string[]): string[] {
   const wanted = [
-    { match: /entrance|discreet/i, label: "100% Discreet Entrance" },
+    { match: /entrance|discreet entrance/i, label: "100% Discreet Entrance" },
     { match: /shower|ensuite|essentials/i, label: "Private Ensuite Shower" },
     { match: /park/i, label: "Discreet Parking" },
     { match: /spa|jacuzzi/i, label: "Spa / Jacuzzi" },
     { match: /air/i, label: "Air Conditioned" },
+    { match: /24/i, label: "Open 24 Hours" },
+    { match: /theme/i, label: "Theme Rooms" },
   ];
   const out: string[] = [];
   for (const item of wanted) {
@@ -123,13 +115,8 @@ function facilityBadges(amenities: string[]): string[] {
       out.push(item.label);
     }
   }
-  if (!out.some((label) => /Discreet Entrance/i.test(label))) {
-    out.unshift("100% Discreet Entrance");
-  }
-  if (!out.some((label) => /Shower/i.test(label))) {
-    out.push("Private Ensuite Shower");
-  }
-  return out.slice(0, 3);
+  // Do not invent amenities that the venue profile did not declare.
+  return out.slice(0, 4);
 }
 
 export function buildStaffRoster(options: {
@@ -246,8 +233,15 @@ export function buildVenueConsumerView(options: {
   });
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;
-  const payments = detectPayments(venue.description, venue.tags);
-  const languages = detectLanguages(venue.description, venue.tags);
+  const payments =
+    content.payments?.length > 0
+      ? content.payments
+      : content.profile?.payments || ["Cash OK", "EFTPOS"];
+  const languages = detectLanguages(
+    venue.description,
+    venue.tags,
+    venue.suburb,
+  );
   const facilities = facilityBadges(content.amenities);
   const distance =
     typeof options.distanceKm === "number" && Number.isFinite(options.distanceKm)

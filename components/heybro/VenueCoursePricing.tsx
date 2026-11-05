@@ -1,43 +1,46 @@
 "use client";
 
-import { Flame, Heart, Sparkles, Timer, Waves } from "lucide-react";
+import { Flame, Heart, Sparkles, Timer, Waves, Flower2, Users } from "lucide-react";
 import type { ParsedVenueContent, VenuePriceRow } from "@/lib/venue-content";
 import type { ReactNode } from "react";
 
-/** Day-4 AUD rate ladder — mobile-first 2-column course cards. */
-const FALLBACK_COURSES: VenuePriceRow[] = [
-  { label: "30 mins · 半小时", duration: "30m", price: "$150" },
-  { label: "45 mins · 45分钟", duration: "45m", price: "$200" },
-  { label: "60 mins · 一小时", duration: "60m", price: "$250" },
-];
-
-const SERVICE_META: Array<{ key: string; label: string; icon: ReactNode }> = [
-  { key: "oral", label: "Oral", icon: <Sparkles className="h-3.5 w-3.5" /> },
-  { key: "gfe", label: "GFE", icon: <Heart className="h-3.5 w-3.5" /> },
-  {
-    key: "kiss",
-    label: "Passionate Kissing",
-    icon: <Flame className="h-3.5 w-3.5" />,
-  },
-  {
-    key: "b2b",
-    label: "Body to Body",
-    icon: <Waves className="h-3.5 w-3.5" />,
-  },
-];
+const SERVICE_ICONS: Record<string, ReactNode> = {
+  oral: <Sparkles className="h-3.5 w-3.5" />,
+  gfe: <Heart className="h-3.5 w-3.5" />,
+  "passionate kissing": <Flame className="h-3.5 w-3.5" />,
+  kissing: <Flame className="h-3.5 w-3.5" />,
+  "body to body": <Waves className="h-3.5 w-3.5" />,
+  massage: <Flower2 className="h-3.5 w-3.5" />,
+  nuru: <Waves className="h-3.5 w-3.5" />,
+  greek: <Sparkles className="h-3.5 w-3.5" />,
+  duo: <Users className="h-3.5 w-3.5" />,
+};
 
 function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
   const mins = Number.parseInt(row.duration, 10);
+  const price = row.price?.startsWith("$") ? row.price : row.price ? `$${row.price}` : "";
   if (/hr|hour|60/i.test(row.duration) || mins === 60) {
-    return { label: "60 mins · 一小时", duration: "60m", price: row.price || "$250" };
+    return {
+      label: row.label || "60 mins · 一小时",
+      duration: "60m",
+      price: price || "$250",
+    };
   }
   if (mins === 45 || mins === 40) {
-    return { label: "45 mins · 45分钟", duration: "45m", price: row.price || "$200" };
+    return {
+      label: row.label || "45 mins · 45分钟",
+      duration: "45m",
+      price: price || "$200",
+    };
   }
   if (mins === 30 || mins === 20) {
-    return { label: "30 mins · 半小时", duration: "30m", price: "$150" };
+    return {
+      label: row.label || "30 mins · 半小时",
+      duration: "30m",
+      price: price || "$150",
+    };
   }
-  return row;
+  return { ...row, price: price || row.price };
 }
 
 export function VenueCoursePricing({
@@ -45,9 +48,17 @@ export function VenueCoursePricing({
 }: {
   content: ParsedVenueContent;
 }) {
-  const courses = FALLBACK_COURSES.map(normalizeCourse);
-  // Always surface the Day-4 OP service chips under every rate card.
-  const visibleServices = SERVICE_META;
+  const source =
+    content.pricing?.length >= 2
+      ? content.pricing
+      : content.profile?.pricing || [];
+  const courses = source.map(normalizeCourse).slice(0, 3);
+  const serviceLabels =
+    content.profile?.services?.length
+      ? content.profile.services
+      : content.services.slice(0, 4);
+
+  if (!courses.length) return null;
 
   return (
     <section
@@ -57,11 +68,14 @@ export function VenueCoursePricing({
     >
       <div className="venue-section-label">Course & Pricing · 코스 가격</div>
       <h2>Rates (AUD)</h2>
-      <p>Clean 2-column rate cards — duration, neon AUD price, included services.</p>
+      <p>
+        Tiered session rates for this venue — 30 / 45 / 60 minute courses in AUD.
+        Confirm inclusions when you book.
+      </p>
       <div className="course-pricing-grid day4-pricing-grid">
         {courses.map((course, index) => (
           <article
-            key={`${course.price}-${course.duration}`}
+            key={`${course.price}-${course.duration}-${index}`}
             className={
               index === courses.length - 1
                 ? "course-card is-featured day4-course-card"
@@ -80,16 +94,27 @@ export function VenueCoursePricing({
               <em>/ {course.duration} AUD</em>
             </div>
             <div className="course-card-chips" aria-label="Included services">
-              {visibleServices.map((service) => (
-                <span key={service.label} className="service-chip">
-                  {service.icon}
-                  {service.label}
+              {serviceLabels.map((label) => (
+                <span key={label} className="service-chip">
+                  {SERVICE_ICONS[label.toLowerCase()] || (
+                    <Sparkles className="h-3.5 w-3.5" />
+                  )}
+                  {label}
                 </span>
               ))}
             </div>
           </article>
         ))}
       </div>
+      {content.payments?.length ? (
+        <div className="course-payment-row" aria-label="Accepted payments">
+          {content.payments.map((payment) => (
+            <span key={payment} className="course-payment-chip">
+              {payment}
+            </span>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }

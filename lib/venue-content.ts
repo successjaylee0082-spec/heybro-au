@@ -1,3 +1,9 @@
+import {
+  buildVenueOperationalProfile,
+  type VenueOperationalProfile,
+} from "@/lib/venue-profiles";
+import type { CategoryId, CityId } from "@/types";
+
 export type VenuePriceRow = {
   label: string;
   duration: string;
@@ -9,6 +15,8 @@ export type ParsedVenueContent = {
   pricing: VenuePriceRow[];
   services: string[];
   amenities: string[];
+  payments: string[];
+  profile: VenueOperationalProfile;
 };
 
 const AMENITY_HINTS = [
@@ -64,19 +72,19 @@ const KNOWN_AMENITIES = [
   "Individual Waiting Rooms",
 ];
 
+/** Legacy scrape fallback — prefer buildVenueOperationalProfile ladders. */
 const DEFAULT_PRICING: VenuePriceRow[] = [
-  { label: "Quick visit", duration: "20 min", price: "$75" },
-  { label: "Standard", duration: "30 min", price: "$100" },
-  { label: "Full hour", duration: "1 hr", price: "$150" },
+  { label: "30 mins · Standard", duration: "30 min", price: "$150" },
+  { label: "45 mins · Standard", duration: "45 min", price: "$200" },
+  { label: "60 mins · Standard", duration: "60 min", price: "$250" },
 ];
 
 const DEFAULT_SERVICES = [
-  "Lesbian",
-  "Light BDSM",
-  "Greek",
   "Oral",
+  "GFE",
   "Passionate Kissing",
-  "Costumes",
+  "Body to Body",
+  "Massage",
 ];
 
 function titleCase(value: string): string {
@@ -181,8 +189,8 @@ function extractPricing(text: string): VenuePriceRow[] {
     return DEFAULT_PRICING;
   }
 
-  if (rows.length >= 2 && !rows.some((row) => row.duration.startsWith("30"))) {
-    rows.splice(1, 0, DEFAULT_PRICING[1]);
+  if (rows.length >= 2 && !rows.some((row) => /30/.test(row.duration))) {
+    // Leave gap-filling to the venue operational profile instead of a fixed $100 stub.
   }
 
   return rows.sort((a, b) => {
@@ -232,43 +240,69 @@ function buildOverview(text: string): string {
 export function parseVenueContent(options: {
   description?: string | null;
   tags?: string[] | null;
+  venueId?: string;
+  category?: CategoryId;
+  city?: CityId;
+  suburb?: string;
+  isCbd?: boolean;
 }): ParsedVenueContent {
   const raw = options.description?.trim() || "";
   const stripped = stripScrapedNoise(raw);
   const featureBlock = extractFeaturesBlock(stripped);
   const body = stripped.replace(/\bFeatures\b[\s\S]*$/i, "").trim();
-  const pricing = extractPricing(body);
+  const extractedPricing = extractPricing(body);
   const offered = extractOfferedServices(body);
   const tags = (options.tags ?? []).map((tag) => tag.trim()).filter(Boolean);
+
+  const profile = buildVenueOperationalProfile({
+    id: options.venueId || "venue",
+    category: options.category || "brothels",
+    city: options.city || "sydney",
+    suburb: options.suburb || "Sydney",
+    isCbd: options.isCbd,
+    tags,
+    description: body,
+  });
 
   const amenities = [
     ...extractKnownAmenities(`${body}\n${featureBlock}`),
     ...tags.filter(isAmenity),
+    ...profile.amenities,
   ];
   const services = [
     ...offered.filter((item) => !isAmenity(item) || isService(item)),
     ...tags.filter(isService),
+    ...profile.services,
   ];
 
-  const needsDefaultServices =
-    services.length === 0 &&
-    /lesbian|bdsm|greek|oral|kissing|costume/i.test(body);
+  const needsDefaultServices = services.length === 0;
 
-  const uniqueAmenities = [...new Set(amenities.map((item) => item.trim()))].filter(
-    Boolean,
-  );
+  const uniqueAmenities = [...new Set(amenities.map((item) => item.trim()))]
+    .filter(Boolean)
+    .slice(0, 6);
   const uniqueServices = [
     ...new Set(
       (needsDefaultServices ? [...services, ...DEFAULT_SERVICES] : services).map(
         titleCase,
       ),
     ),
-  ];
+  ].slice(0, 8);
+
+  // Prefer scraped rates when we extracted a real 30/45/60 ladder; otherwise
+  // use the deterministic per-venue AU directory profile (never identical defaults).
+  const pricing =
+    extractedPricing.length >= 2
+      ? extractedPricing
+      : profile.pricing.length
+        ? profile.pricing
+        : DEFAULT_PRICING;
 
   return {
     overview: buildOverview(body) || "Details coming soon for this venue.",
-    pricing: pricing.length ? pricing : [],
+    pricing,
     services: uniqueServices,
     amenities: uniqueAmenities,
+    payments: profile.payments,
+    profile,
   };
 }

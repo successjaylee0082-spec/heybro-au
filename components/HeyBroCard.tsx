@@ -9,6 +9,7 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { resolveCardPoseCover } from "@/lib/directory-covers";
 import { withLocale } from "@/lib/i18n";
+import { listingServiceChips } from "@/lib/venue-profiles";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
 
@@ -108,11 +109,15 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           <h3>{name}</h3>
         </Link>
         <div className="listing-quick-badges">
-          {venue.isCbd ? <span className="listing-quick-hot">CBD</span> : null}
-          <span>Cash OK</span>
-          <span>EFTPOS</span>
-          <span>WeChat 微信</span>
-          <span>Alipay</span>
+          {listingServiceChips(venue).map((chip) =>
+            chip === "CBD" ? (
+              <span key={chip} className="listing-quick-hot">
+                CBD
+              </span>
+            ) : (
+              <span key={chip}>{chip}</span>
+            ),
+          )}
           {tags.slice(0, 1).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}

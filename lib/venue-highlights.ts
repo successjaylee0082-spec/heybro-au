@@ -28,6 +28,15 @@ export type VenueHookBanner = {
 
 export type ManagedBadgeVariant = "pro" | "vip";
 
+export type OperationalHighlightProfile = {
+  tierLabel?: string;
+  rateLine?: string;
+  pricing?: Array<{ label?: string; duration?: string; price?: string }>;
+  payments?: string[];
+  amenities?: string[];
+  services?: string[];
+};
+
 export type CustomHighlights = {
   badges?: VenueHighlightBadge[];
   promo?: VenuePromoBanner | null;
@@ -40,6 +49,8 @@ export type CustomHighlights = {
   /** Optional WhatsApp number override (E.164 or AU local). */
   whatsapp?: string | null;
   telegram?: string | null;
+  /** Optional SQL / admin-seeded AU directory operational profile. */
+  operational?: OperationalHighlightProfile | null;
 };
 
 export type VenueVisibility = {
@@ -137,6 +148,51 @@ export function parseCustomHighlights(raw: unknown): CustomHighlights {
       ? record.managedBadge
       : undefined;
 
+  const operationalRecord = asRecord(record.operational);
+  let operational: OperationalHighlightProfile | null = null;
+  if (operationalRecord) {
+    const pricingRaw = Array.isArray(operationalRecord.pricing)
+      ? operationalRecord.pricing
+      : [];
+    const pricing = pricingRaw
+      .map((item) => {
+        const row = asRecord(item);
+        if (!row) return null;
+        const label = cleanText(row.label, 64);
+        const duration = cleanText(row.duration, 24);
+        const price = cleanText(row.price, 16);
+        if (!duration || !price) return null;
+        return { label: label || duration, duration, price };
+      })
+      .filter(Boolean) as OperationalHighlightProfile["pricing"];
+    operational = {
+      tierLabel: cleanText(operationalRecord.tierLabel, 32),
+      rateLine: cleanText(operationalRecord.rateLine, 80),
+      pricing,
+      payments: Array.isArray(operationalRecord.payments)
+        ? operationalRecord.payments
+            .filter((item): item is string => typeof item === "string")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 6)
+        : undefined,
+      amenities: Array.isArray(operationalRecord.amenities)
+        ? operationalRecord.amenities
+            .filter((item): item is string => typeof item === "string")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 8)
+        : undefined,
+      services: Array.isArray(operationalRecord.services)
+        ? operationalRecord.services
+            .filter((item): item is string => typeof item === "string")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 8)
+        : undefined,
+    };
+  }
+
   return {
     badges,
     promo: promo ?? null,
@@ -146,6 +202,7 @@ export function parseCustomHighlights(raw: unknown): CustomHighlights {
     wechat: cleanText(record.wechat, 64) || null,
     whatsapp: cleanText(record.whatsapp, 32) || null,
     telegram: cleanText(record.telegram, 64) || null,
+    operational,
   };
 }
 

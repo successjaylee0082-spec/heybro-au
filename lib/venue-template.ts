@@ -35,10 +35,10 @@ const DEFAULT_MANAGED_HOOKS: VenueHookBanner[] = [
   },
   {
     title: "❤️부천/시드니 최다인원! 20대 한국인 상큼함 내상제로❤️",
-    subtitle: "VIP roster · $150/30m · $200/45m · $250/60m",
+    subtitle: "VIP roster · confirm tonight's 30/45/60 course rates",
   },
   {
-    title: "💎 Fresh Asian Beauties On Shift · GFE Specials From $150",
+    title: "💎 Fresh Asian Beauties On Shift · Book 30 / 45 / 60",
     subtitle: "WeChat / WhatsApp booking · discreet entry",
   },
   {
@@ -83,17 +83,28 @@ export function defaultHookForVenue(options: {
   venueId: string;
   tier: VenueListingTier;
   custom?: VenueHookBanner | null;
+  rateLine?: string | null;
 }): VenueHookBanner {
   if (options.custom?.title) return options.custom;
-  if (options.tier === "free") return DEFAULT_FREE_HOOK;
+  if (options.tier === "free") {
+    return options.rateLine
+      ? { ...DEFAULT_FREE_HOOK, subtitle: `From ${options.rateLine}` }
+      : DEFAULT_FREE_HOOK;
+  }
   const index = hashSeed(options.venueId) % DEFAULT_MANAGED_HOOKS.length;
-  return DEFAULT_MANAGED_HOOKS[index];
+  const base = DEFAULT_MANAGED_HOOKS[index];
+  if (!options.rateLine) return base;
+  return {
+    ...base,
+    subtitle: `${base.subtitle} · ${options.rateLine}`,
+  };
 }
 
 export function enrichVisibilityForTemplate(options: {
   venueId: string;
   visibility: VenueVisibility;
   customHighlights?: CustomHighlights | null;
+  rateLine?: string | null;
 }): VenueVisibility {
   const tier = resolveListingTier({
     isManaged: options.visibility.isManaged,
@@ -104,6 +115,7 @@ export function enrichVisibilityForTemplate(options: {
     venueId: options.venueId,
     tier,
     custom: options.visibility.hook || options.customHighlights?.hook || null,
+    rateLine: options.rateLine,
   });
 
   let badges = options.visibility.badges;

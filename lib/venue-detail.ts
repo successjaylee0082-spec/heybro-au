@@ -115,15 +115,54 @@ function composeDetail(options: {
     seed: venue.id,
     fallbackCount: 8,
   });
-  const content = parseVenueContent({
-    description: venue.description,
-    tags: venue.tags,
-  });
   const customHighlights =
     options.visibilityExtras?.customHighlights ?? venue.customHighlights;
+  const parsedHighlights = parseCustomHighlights(customHighlights);
+  let content = parseVenueContent({
+    description: venue.description,
+    tags: venue.tags,
+    venueId: venue.id,
+    category: venue.category,
+    city: venue.city,
+    suburb: venue.suburb,
+    isCbd: venue.isCbd,
+  });
+  // SQL / admin-seeded operational profiles win over generated ladders.
+  const seeded = parsedHighlights.operational;
+  if (seeded) {
+    content = {
+      ...content,
+      pricing:
+        seeded.pricing && seeded.pricing.length >= 2
+          ? seeded.pricing.map((row) => ({
+              label: row.label || row.duration || "Session",
+              duration: row.duration || "",
+              price: row.price || "",
+            }))
+          : content.pricing,
+      payments: seeded.payments?.length ? seeded.payments : content.payments,
+      amenities: seeded.amenities?.length
+        ? [...new Set([...seeded.amenities, ...content.amenities])].slice(0, 6)
+        : content.amenities,
+      services: seeded.services?.length
+        ? [...new Set([...seeded.services, ...content.services])].slice(0, 8)
+        : content.services,
+      profile: {
+        ...content.profile,
+        rateLine: seeded.rateLine || content.profile.rateLine,
+        payments: (seeded.payments as typeof content.profile.payments) ||
+          content.profile.payments,
+        amenities: (seeded.amenities as typeof content.profile.amenities) ||
+          content.profile.amenities,
+        services: (seeded.services as typeof content.profile.services) ||
+          content.profile.services,
+      },
+    };
+  }
   const visibility = enrichVisibilityForTemplate({
     venueId: venue.id,
-    customHighlights: parseCustomHighlights(customHighlights),
+    customHighlights: parsedHighlights,
+    rateLine: content.profile?.rateLine || content.pricing[0]?.price,
     visibility: resolveVenueVisibility({
       isManaged: options.visibilityExtras?.isManaged ?? venue.isManaged,
       customHighlights,

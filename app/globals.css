@@ -2944,6 +2944,21 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+.course-payment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.course-payment-chip {
+  border: 1px solid color-mix(in srgb, var(--accent, #fb7185) 45%, #334155);
+  color: #fecdd3;
+  background: color-mix(in srgb, #111827 88%, #fb7185);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
 .op-hook-banner {
   position: relative;
   overflow: hidden;
