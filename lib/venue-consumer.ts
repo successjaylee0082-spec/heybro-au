@@ -295,14 +295,21 @@ export function buildVenueConsumerView(options: {
     wechat?: string;
     whatsapp?: string;
   };
+  const envWeChat =
+    process.env.NEXT_PUBLIC_WECHAT_CONTACT_ID ||
+    process.env.WECHAT_CONTACT_ID ||
+    undefined;
+  const wechatId = extras.wechat || envWeChat;
   const wechat = resolveWeChatContact({
-    wechatId: extras.wechat,
+    wechatId,
     // Optional public asset — dialog falls back cleanly if missing.
-    qrPath: extras.wechat ? "/images/wechat-qr.png" : null,
+    qrPath: wechatId ? "/images/wechat-qr.png" : null,
   });
   const whatsappHref =
-    buildWhatsAppHref(extras.whatsapp || venue.phone, `Hi, I found ${venue.name} on Hey Bro`) ||
-    undefined;
+    buildWhatsAppHref(
+      extras.whatsapp || venue.phone,
+      `Hi, I found ${venue.name} on Hey Bro — are you available tonight?`,
+    ) || undefined;
 
   return {
     quickInfo,

@@ -5,8 +5,8 @@ import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
 import type { WeChatContact } from "@/lib/booking-links";
 
 /**
- * Day-5 mobile sticky action bar:
- * Call Now · WhatsApp Direct · WeChat Chat / QR popup
+ * Day-5 mobile sticky bottom action bar.
+ * Branded CTAs: Call Now · WhatsApp Direct · WeChat Chat / QR popup
  */
 export function VenueStickyCtaBar({
   phoneHref,
@@ -20,21 +20,25 @@ export function VenueStickyCtaBar({
   wechat?: WeChatContact;
   telegramHref?: string;
 }) {
-  const contact = wechat || { configured: false };
-  if (!phoneHref && !whatsappHref) return null;
+  const contact = wechat ?? { configured: false };
+  if (!phoneHref && !whatsappHref && !contact.configured) return null;
 
   return (
     <div
       className="venue-sticky-cta day5-sticky-cta"
       role="region"
-      aria-label="Quick booking actions"
+      aria-label="Mobile booking actions"
     >
       {phoneHref ? (
         <a href={phoneHref} className="sticky-cta sticky-cta-call">
-          <Phone className="h-4 w-4" />
-          Call Now
+          <Phone className="h-4 w-4" aria-hidden />
+          <span>📞 Call Now</span>
         </a>
-      ) : null}
+      ) : (
+        <span className="sticky-cta sticky-cta-disabled" aria-disabled="true">
+          📞 Call Now
+        </span>
+      )}
 
       {whatsappHref ? (
         <a
@@ -43,12 +47,20 @@ export function VenueStickyCtaBar({
           rel="noopener noreferrer"
           className="sticky-cta sticky-cta-whatsapp"
         >
-          <MessageCircle className="h-4 w-4" />
-          WhatsApp Direct
+          <MessageCircle className="h-4 w-4" aria-hidden />
+          <span>💬 WhatsApp Direct</span>
         </a>
-      ) : null}
+      ) : (
+        <span className="sticky-cta sticky-cta-disabled" aria-disabled="true">
+          💬 WhatsApp
+        </span>
+      )}
 
-      <WeChatQrDialog contact={contact} />
+      <WeChatQrDialog
+        contact={contact}
+        triggerClassName="sticky-cta sticky-cta-wechat"
+        label="🟢 WeChat Chat"
+      />
     </div>
   );
 }

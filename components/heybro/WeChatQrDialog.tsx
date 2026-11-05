@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, MessageCircle } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,9 +15,11 @@ import type { WeChatContact } from "@/lib/booking-links";
 export function WeChatQrDialog({
   contact,
   triggerClassName = "sticky-cta sticky-cta-wechat",
+  label = "🟢 WeChat Chat",
 }: {
   contact: WeChatContact;
   triggerClassName?: string;
+  label?: string;
 }) {
   const [copied, setCopied] = useState(false);
   const [qrFailed, setQrFailed] = useState(false);
@@ -37,8 +39,7 @@ export function WeChatQrDialog({
     <Dialog>
       <DialogTrigger asChild>
         <button type="button" className={triggerClassName}>
-          <MessageCircle className="h-4 w-4" />
-          WeChat Chat
+          {label}
         </button>
       </DialogTrigger>
       <DialogContent className="wechat-dialog">
