@@ -1,6 +1,5 @@
 import "./globals.css";
 import "./navigation.css";
-
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
