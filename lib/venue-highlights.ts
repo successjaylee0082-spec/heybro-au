@@ -1,4 +1,7 @@
-import type { ParsedVenueContent } from "@/lib/venue-content";
+import {
+  resolveVenuePricing,
+  type ParsedVenueContent,
+} from "@/lib/venue-content";
 
 export type VenueListingTier = "free" | "managed" | "vip";
 
@@ -211,7 +214,7 @@ export function deriveHighlightsFromContent(
 ): VenueHighlightBadge[] {
   const badges: VenueHighlightBadge[] = [];
 
-  const cheapest = content.pricing[0];
+  const cheapest = resolveVenuePricing(content)[0];
   if (cheapest) {
     badges.push({
       kind: "price",

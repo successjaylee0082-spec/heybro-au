@@ -35,7 +35,11 @@ import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { withLocale } from "@/lib/i18n";
 import type { VenueConsumerView } from "@/lib/venue-consumer";
-import type { ParsedVenueContent } from "@/lib/venue-content";
+import {
+  formatPricingRateLine,
+  resolveVenuePricing,
+  type ParsedVenueContent,
+} from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 import { buildMapsUrl } from "@/utils/googleMaps";
@@ -107,6 +111,8 @@ export function VenueDetail({
     isPremium && gallery.length
       ? gallery
       : gallery.slice(0, Math.min(gallery.length, 4));
+  // Hero + course cards share this ladder — never a separate hardcoded rateLine.
+  const syncedRateLine = formatPricingRateLine(resolveVenuePricing(content));
 
   return (
     <article
@@ -127,7 +133,7 @@ export function VenueDetail({
         category={categoryLabel(venue.category, locale)}
         address={venue.address}
         visibility={visibility}
-        tagline={content.profile?.rateLine}
+        rateLine={syncedRateLine}
         saved={saved}
         saveLabel={t("save")}
         phoneHref={phoneHref}

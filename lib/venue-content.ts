@@ -297,12 +297,81 @@ export function parseVenueContent(options: {
         ? profile.pricing
         : DEFAULT_PRICING;
 
-  return {
+  return syncContentPricing({
     overview: buildOverview(body) || "Details coming soon for this venue.",
     pricing,
     services: uniqueServices,
     amenities: uniqueAmenities,
     payments: profile.payments,
     profile,
+  });
+}
+
+function durationMinutes(duration: string): number {
+  const mins = Number.parseInt(duration, 10);
+  if (!Number.isFinite(mins)) return 0;
+  if (/hr|hour/i.test(duration)) return mins * 60;
+  return mins;
+}
+
+function normalizePriceLabel(price: string): string {
+  const trimmed = price.trim();
+  if (!trimmed) return "";
+  return trimmed.startsWith("$") ? trimmed : `$${trimmed.replace(/^\$/, "")}`;
+}
+
+/** Canonical course ladder for hero + pricing table (single source of truth). */
+export function resolveVenuePricing(
+  content: Pick<ParsedVenueContent, "pricing" | "profile">,
+): VenuePriceRow[] {
+  const source =
+    content.pricing?.length >= 2
+      ? content.pricing
+      : content.profile?.pricing?.length
+        ? content.profile.pricing
+        : DEFAULT_PRICING;
+
+  return [...source]
+    .map((row) => ({
+      ...row,
+      price: normalizePriceLabel(row.price),
+    }))
+    .filter((row) => row.price)
+    .sort((a, b) => durationMinutes(a.duration) - durationMinutes(b.duration))
+    .slice(0, 3);
+}
+
+/**
+ * Build " $170/30m · $220/45m · $270/60m" from the live pricing array —
+ * never from a separate hardcoded rateLine.
+ */
+export function formatPricingRateLine(pricing: VenuePriceRow[]): string {
+  if (!pricing.length) return "";
+  return pricing
+    .map((row) => {
+      const mins =
+        durationMinutes(row.duration) || Number.parseInt(row.duration, 10);
+      const short = mins
+        ? `${mins}m`
+        : row.duration.replace(/\s+/g, "");
+      return `${row.price}/${short}`;
+    })
+    .join(" · ");
+}
+
+/** Keep profile.rateLine synchronized with content.pricing after any merge. */
+export function syncContentPricing(
+  content: ParsedVenueContent,
+): ParsedVenueContent {
+  const pricing = resolveVenuePricing(content);
+  const rateLine = formatPricingRateLine(pricing);
+  return {
+    ...content,
+    pricing,
+    profile: {
+      ...content.profile,
+      pricing: pricing.length ? pricing : content.profile.pricing,
+      rateLine: rateLine || content.profile.rateLine,
+    },
   };
 }

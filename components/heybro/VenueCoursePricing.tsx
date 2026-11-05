@@ -1,7 +1,11 @@
 "use client";
 
 import { Flame, Heart, Sparkles, Timer, Waves, Flower2, Users } from "lucide-react";
-import type { ParsedVenueContent, VenuePriceRow } from "@/lib/venue-content";
+import {
+  resolveVenuePricing,
+  type ParsedVenueContent,
+  type VenuePriceRow,
+} from "@/lib/venue-content";
 import type { ReactNode } from "react";
 
 const SERVICE_ICONS: Record<string, ReactNode> = {
@@ -19,28 +23,29 @@ const SERVICE_ICONS: Record<string, ReactNode> = {
 function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
   const mins = Number.parseInt(row.duration, 10);
   const price = row.price?.startsWith("$") ? row.price : row.price ? `$${row.price}` : "";
+  if (!price) return { ...row, price: "" };
   if (/hr|hour|60/i.test(row.duration) || mins === 60) {
     return {
       label: row.label || "60 mins · 一小时",
       duration: "60m",
-      price: price || "$250",
+      price,
     };
   }
   if (mins === 45 || mins === 40) {
     return {
       label: row.label || "45 mins · 45分钟",
       duration: "45m",
-      price: price || "$200",
+      price,
     };
   }
   if (mins === 30 || mins === 20) {
     return {
       label: row.label || "30 mins · 半小时",
       duration: "30m",
-      price: price || "$150",
+      price,
     };
   }
-  return { ...row, price: price || row.price };
+  return { ...row, price };
 }
 
 export function VenueCoursePricing({
@@ -48,11 +53,11 @@ export function VenueCoursePricing({
 }: {
   content: ParsedVenueContent;
 }) {
-  const source =
-    content.pricing?.length >= 2
-      ? content.pricing
-      : content.profile?.pricing || [];
-  const courses = source.map(normalizeCourse).slice(0, 3);
+  // Same ladder the hero rate line is built from — no separate defaults.
+  const courses = resolveVenuePricing(content)
+    .map(normalizeCourse)
+    .filter((course) => course.price)
+    .slice(0, 3);
   const serviceLabels =
     content.profile?.services?.length
       ? content.profile.services

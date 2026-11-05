@@ -1,6 +1,12 @@
 import "server-only";
 
-import { parseVenueContent, type ParsedVenueContent } from "@/lib/venue-content";
+import {
+  formatPricingRateLine,
+  parseVenueContent,
+  resolveVenuePricing,
+  syncContentPricing,
+  type ParsedVenueContent,
+} from "@/lib/venue-content";
 import {
   buildVenueConsumerView,
   type VenueConsumerView,
@@ -143,7 +149,6 @@ function composeDetail(options: {
         : content.services,
       profile: {
         ...content.profile,
-        rateLine: seeded.rateLine || content.profile.rateLine,
         payments: (seeded.payments as typeof content.profile.payments) ||
           content.profile.payments,
         amenities: (seeded.amenities as typeof content.profile.amenities) ||
@@ -153,10 +158,14 @@ function composeDetail(options: {
       },
     };
   }
+  // Single source of truth: hero rate line always mirrors content.pricing.
+  content = syncContentPricing(content);
+  const syncedRateLine =
+    formatPricingRateLine(resolveVenuePricing(content)) || content.profile.rateLine;
   const visibility = enrichVisibilityForTemplate({
     venueId: venue.id,
     customHighlights: parsedHighlights,
-    rateLine: content.profile?.rateLine || content.pricing[0]?.price,
+    rateLine: syncedRateLine,
     visibility: resolveVenueVisibility({
       isManaged: options.visibilityExtras?.isManaged ?? venue.isManaged,
       customHighlights,

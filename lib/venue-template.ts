@@ -83,21 +83,25 @@ export function defaultHookForVenue(options: {
   venueId: string;
   tier: VenueListingTier;
   custom?: VenueHookBanner | null;
+  /** @deprecated Prices render from content.pricing in the hero — not hook copy. */
   rateLine?: string | null;
 }): VenueHookBanner {
-  if (options.custom?.title) return options.custom;
-  if (options.tier === "free") {
-    return options.rateLine
-      ? { ...DEFAULT_FREE_HOOK, subtitle: `From ${options.rateLine}` }
-      : DEFAULT_FREE_HOOK;
+  void options.rateLine;
+  if (options.custom?.title) {
+    // Drop embedded $-ladders from custom hooks so hero rateLine stays authoritative.
+    const subtitle = options.custom.subtitle
+      ?.replace(
+        /(?:^|\s·\s)?(?:From\s+)?\$\d+(?:\/\d+\s*(?:m|min|mins|hr|hour)s?)?(?:\s*·\s*\$\d+(?:\/\d+\s*(?:m|min|mins|hr|hour)s?))*/gi,
+        "",
+      )
+      .replace(/\s·\s·/g, " · ")
+      .replace(/^\s·\s|\s·\s$/g, "")
+      .trim();
+    return { title: options.custom.title, subtitle: subtitle || undefined };
   }
+  if (options.tier === "free") return DEFAULT_FREE_HOOK;
   const index = hashSeed(options.venueId) % DEFAULT_MANAGED_HOOKS.length;
-  const base = DEFAULT_MANAGED_HOOKS[index];
-  if (!options.rateLine) return base;
-  return {
-    ...base,
-    subtitle: `${base.subtitle} · ${options.rateLine}`,
-  };
+  return DEFAULT_MANAGED_HOOKS[index];
 }
 
 export function enrichVisibilityForTemplate(options: {

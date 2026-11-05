@@ -10,7 +10,10 @@ import {
   Tv,
   Waves,
 } from "lucide-react";
-import type { ParsedVenueContent } from "@/lib/venue-content";
+import {
+  resolveVenuePricing,
+  type ParsedVenueContent,
+} from "@/lib/venue-content";
 import type { ReactNode } from "react";
 
 function amenityIcon(label: string): ReactNode {
@@ -39,6 +42,7 @@ export function VenueStructuredContent({
   variant?: "full" | "overview";
 }) {
   const showExtras = variant === "full";
+  const pricing = resolveVenuePricing(content);
   return (
     <div className="venue-structured">
       <section className="venue-section">
@@ -47,7 +51,7 @@ export function VenueStructuredContent({
         <p>{content.overview}</p>
       </section>
 
-      {showExtras && content.pricing.length > 0 ? (
+      {showExtras && pricing.length > 0 ? (
         <section className="venue-section">
           <div className="venue-section-label">Pricing</div>
           <h2>Session rates (AUD)</h2>
@@ -57,7 +61,7 @@ export function VenueStructuredContent({
               <span>Duration</span>
               <span>From</span>
             </div>
-            {content.pricing.map((row) => (
+            {pricing.map((row) => (
               <div key={`${row.price}-${row.duration}`} className="venue-price-row">
                 <span>{row.label}</span>
                 <span>{row.duration}</span>

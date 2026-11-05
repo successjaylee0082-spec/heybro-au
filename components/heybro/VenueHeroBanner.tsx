@@ -1,15 +1,14 @@
 "use client";
 
-import { Star, ShieldCheck, Sparkles } from "lucide-react";
+import { Star, ShieldCheck, Sparkles, Bookmark, Phone } from "lucide-react";
 import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Phone } from "lucide-react";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 
 /**
  * Clean OP-style detail hero — dark luxury gradient, rose neon edge,
- * venue name, verified stars, and high-impact hook (no stock lingerie banners).
+ * venue name, verified stars, and rate line derived from content.pricing.
  */
 export function VenueHeroBanner({
   name,
@@ -18,7 +17,7 @@ export function VenueHeroBanner({
   category,
   address,
   visibility,
-  tagline,
+  rateLine,
   saved,
   onToggleSave,
   saveLabel,
@@ -30,7 +29,8 @@ export function VenueHeroBanner({
   category: string;
   address: string;
   visibility: VenueVisibility;
-  tagline?: string | null;
+  /** Synced from resolveVenuePricing / formatPricingRateLine — never hardcoded. */
+  rateLine?: string | null;
   saved: boolean;
   onToggleSave: () => void;
   saveLabel: string;
@@ -40,10 +40,20 @@ export function VenueHeroBanner({
     visibility.tier || (visibility.isManaged ? "managed" : "free");
   const isPremium = tier !== "free";
   const hook = visibility.hook;
-  const headline = hook?.title || tagline || `${name} · discreet luxury booking`;
-  const subtitle =
+  const headline =
+    hook?.title || `${name} · discreet luxury booking`;
+  // Strip any stale $-amounts from hook copy so hero prices only come from rateLine.
+  const rawSubtitle =
     hook?.subtitle ||
     `${category} · ${suburb}, ${city} · confirm tonight's lineup before you call`;
+  const subtitle = rawSubtitle
+    .replace(
+      /(?:^|\s·\s)?(?:From\s+)?\$\d+(?:\/\d+\s*(?:m|min|mins|hr|hour)s?)?(?:\s*·\s*\$\d+(?:\/\d+\s*(?:m|min|mins|hr|hour)s?))*/gi,
+      "",
+    )
+    .replace(/\s·\s·/g, " · ")
+    .replace(/^\s·\s|\s·\s$/g, "")
+    .trim();
 
   return (
     <header
@@ -91,7 +101,12 @@ export function VenueHeroBanner({
           <Sparkles className="h-4 w-4" aria-hidden />
           <span>{headline}</span>
         </p>
-        <p className="venue-hero-subtitle">{subtitle}</p>
+        {subtitle ? <p className="venue-hero-subtitle">{subtitle}</p> : null}
+        {rateLine ? (
+          <p className="venue-hero-rates" data-pricing-sync="hero">
+            From {rateLine}
+          </p>
+        ) : null}
         <p className="venue-hero-address">
           {city} · {address}
           {isPremium ? ` · ${visibility.planLabel || VIP_PLAN_LABEL}` : null}
