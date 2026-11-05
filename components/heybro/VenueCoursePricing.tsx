@@ -42,16 +42,9 @@ export function VenueCoursePricing({
 }: {
   content: ParsedVenueContent;
 }) {
-  const parsed = content.pricing.map(normalizeCourse);
-  const courses =
-    parsed.length >= 2
-      ? (() => {
-          const byDuration = new Map(parsed.map((row) => [row.duration, row]));
-          return FALLBACK_COURSES.map(
-            (fallback) => byDuration.get(fallback.duration) || fallback,
-          );
-        })()
-      : FALLBACK_COURSES;
+  // Always present the AU/CN consumer rate ladder for conversion clarity.
+  // Scraped minute prices remain available in overview copy when present.
+  const courses = FALLBACK_COURSES.map(normalizeCourse);
 
   const serviceChips = (
     content.services.length ? content.services : DEFAULT_SERVICE_CHIPS
