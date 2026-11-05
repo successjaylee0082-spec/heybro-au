@@ -1908,10 +1908,14 @@
   color: #34d399;
   border: 1px solid #14532d;
 }
-.quick-info-chip.kind-staff .quick-info-icon {
+.quick-info-chip.kind-staff .quick-info-icon,
+.quick-info-chip.kind-language .quick-info-icon {
   background: #4c0519;
-  border-color: #fb718566;
+  border-color: #f43f5e66;
   color: #fecdd3;
+}
+.quick-info-chip.kind-language {
+  border-color: #f43f5e55;
 }
 .quick-info-chip.kind-payment .quick-info-icon {
   background: #1e293b;
@@ -2082,10 +2086,19 @@
   letter-spacing: 0.06em;
 }
 .course-card-price {
-  color: #34d399;
+  color: #fb7185;
   font-size: 28px;
   font-weight: 800;
   letter-spacing: -1px;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.course-card-price em {
+  font-style: normal;
+  font-size: 11px;
+  color: #fda4af;
+  letter-spacing: 0.08em;
 }
 .course-card-chips {
   display: flex;
@@ -2248,4 +2261,52 @@
 .opiguide-layout .staff-roster {
   order: 0;
   box-shadow: 0 0 0 1px #fb718522, 0 18px 40px #0006;
+}
+
+.staff-name-zh {
+  color: #fda4af;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.staff-age {
+  border-radius: 999px;
+  border: 1px solid #f43f5e66;
+  color: #fecdd3;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.staff-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+  color: #cbd5e1;
+}
+.staff-stats span {
+  border-radius: 999px;
+  background: #1e293b;
+  border: 1px solid #475569;
+  padding: 3px 7px;
+}
+.staff-style-row span {
+  border-color: #f43f5e77 !important;
+  color: #fecdd3 !important;
+  background: #f43f5e18 !important;
+  box-shadow: 0 0 10px #f43f5e33;
+}
+.opiguide-layout .venue-detail-header.is-managed,
+.opiguide-layout .staff-roster,
+.opiguide-layout .course-pricing {
+  border-color: #f43f5e44;
+}
+.sticky-cta-call {
+  background: linear-gradient(135deg, #f43f5e, #e11d48) !important;
+  color: #fff1f2 !important;
+  box-shadow: 0 0 24px #f43f5e55;
+}
+.sticky-cta-sms {
+  border-color: #fbbf2488 !important;
+  color: #fde68a !important;
+  background: #1e293b !important;
 }

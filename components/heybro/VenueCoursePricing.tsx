@@ -2,20 +2,38 @@
 
 import type { ParsedVenueContent, VenuePriceRow } from "@/lib/venue-content";
 
+/** AU + CN consumer rate cards (AUD). */
 const FALLBACK_COURSES: VenuePriceRow[] = [
-  { label: "20분", duration: "20 min", price: "$75" },
-  { label: "30분", duration: "30 min", price: "$100" },
-  { label: "60분", duration: "60 min", price: "$150" },
+  { label: "30 mins · 半小时", duration: "30 min", price: "$150" },
+  { label: "40 mins · 40分钟", duration: "40 min", price: "$200" },
+  { label: "60 mins · 一小时", duration: "60 min", price: "$250" },
+];
+
+const DEFAULT_SERVICE_CHIPS = [
+  "GFE",
+  "Oral",
+  "Passionate Kissing",
+  "Body to Body",
+  "Light BDSM",
 ];
 
 function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
   const mins = Number.parseInt(row.duration, 10);
-  const isHour = /hr|hour|60/i.test(row.duration);
-  if (isHour || mins === 60) {
-    return { ...row, label: row.label || "60분", duration: "60 min" };
+  const isHour = /hr|hour|60/i.test(row.duration) || mins === 60;
+  if (isHour) {
+    return { label: "60 mins · 一小时", duration: "60 min", price: row.price || "$250" };
   }
-  if (mins === 20) return { ...row, label: "20분", duration: "20 min" };
-  if (mins === 30) return { ...row, label: "30분", duration: "30 min" };
+  if (mins === 40) {
+    return { label: "40 mins · 40分钟", duration: "40 min", price: row.price || "$200" };
+  }
+  if (mins === 30 || mins === 20) {
+    // Map legacy 20-min scrapes upward to the AU consumer 30-min card.
+    return {
+      label: "30 mins · 半小时",
+      duration: "30 min",
+      price: mins === 20 ? "$150" : row.price || "$150",
+    };
+  }
   return row;
 }
 
@@ -24,16 +42,39 @@ export function VenueCoursePricing({
 }: {
   content: ParsedVenueContent;
 }) {
-  const courses = (content.pricing.length ? content.pricing : FALLBACK_COURSES).map(
-    normalizeCourse,
-  );
-  const serviceChips = content.services.slice(0, 8);
+  const parsed = content.pricing.map(normalizeCourse);
+  const courses =
+    parsed.length >= 2
+      ? (() => {
+          const byDuration = new Map(parsed.map((row) => [row.duration, row]));
+          return FALLBACK_COURSES.map(
+            (fallback) => byDuration.get(fallback.duration) || fallback,
+          );
+        })()
+      : FALLBACK_COURSES;
+
+  const serviceChips = (
+    content.services.length ? content.services : DEFAULT_SERVICE_CHIPS
+  )
+    .map((service) => service.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+
+  // Ensure core OP-style tags remain visible.
+  for (const chip of DEFAULT_SERVICE_CHIPS) {
+    if (
+      serviceChips.length < 8 &&
+      !serviceChips.some((item) => item.toLowerCase() === chip.toLowerCase())
+    ) {
+      serviceChips.push(chip);
+    }
+  }
 
   return (
     <section className="course-pricing">
-      <div className="venue-section-label">Course & Pricing</div>
-      <h2>코스 · 가격표</h2>
-      <p>모바일 2열 카드로 20 / 30 / 60분 요금을 바로 비교하세요.</p>
+      <div className="venue-section-label">Rates · 价格表</div>
+      <h2>Course & Pricing (AUD)</h2>
+      <p>Clear dual-language rate cards for Australian & Chinese guests.</p>
       <div className="course-pricing-grid">
         {courses.map((course) => (
           <article
@@ -44,14 +85,15 @@ export function VenueCoursePricing({
               <span>{course.label}</span>
               <strong>{course.duration}</strong>
             </div>
-            <div className="course-card-price">{course.price}</div>
-            {serviceChips.length ? (
-              <div className="course-card-chips">
-                {serviceChips.map((service) => (
-                  <span key={service}>{service}</span>
-                ))}
-              </div>
-            ) : null}
+            <div className="course-card-price">
+              {course.price}
+              <em>AUD</em>
+            </div>
+            <div className="course-card-chips">
+              {serviceChips.map((service) => (
+                <span key={service}>{service}</span>
+              ))}
+            </div>
           </article>
         ))}
       </div>

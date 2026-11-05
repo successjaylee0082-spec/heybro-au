@@ -1,15 +1,14 @@
+import { STAFF_PORTRAIT_FALLBACKS } from "@/lib/staff-portraits";
+
 /** Curated Unsplash fallbacks for venue galleries (luxury interiors + portraits). */
 export const VENUE_GALLERY_FALLBACKS = [
   // Luxury lounge / suite interiors
-  "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=80",
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=80",
-  // Soft portrait / lifestyle samples (illustrative only)
-  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=85",
+  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85",
+  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=85",
+  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85",
+  // Realistic glamour portraits (Asian + Western)
+  ...STAFF_PORTRAIT_FALLBACKS.slice(0, 6),
 ] as const;
 
 export function buildVenueGallery(options: {
@@ -30,9 +29,11 @@ export function buildVenueGallery(options: {
   };
 
   push(options.cover);
-  for (const image of options.staffImages ?? []) push(image);
+  for (const image of options.staffImages ?? []) {
+    if (image && !/slider|desktop|banner/i.test(image)) push(image);
+  }
 
-  const need = Math.max(options.fallbackCount ?? 6, 4);
+  const need = Math.max(options.fallbackCount ?? 8, 6);
   for (const fallback of VENUE_GALLERY_FALLBACKS) {
     if (out.length >= need) break;
     push(fallback);

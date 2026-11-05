@@ -1,50 +1,39 @@
 "use client";
 
-import { MessageCircle, Phone, Send } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 
 export function VenueStickyCtaBar({
   phoneHref,
   smsHref,
-  telegramHref,
+  wechatHref,
 }: {
   phoneHref?: string;
   smsHref?: string;
+  wechatHref?: string;
   telegramHref?: string;
 }) {
-  if (!phoneHref && !smsHref && !telegramHref) return null;
+  const bookingHref = wechatHref || smsHref;
+  if (!phoneHref && !bookingHref) return null;
 
   return (
     <div className="venue-sticky-cta" role="region" aria-label="Quick booking actions">
       {phoneHref ? (
         <a href={phoneHref} className="sticky-cta sticky-cta-call">
           <Phone className="h-4 w-4" />
-          전화 문의 · Call Now
+          Call Now 📞
         </a>
       ) : null}
-      {smsHref ? (
-        <a href={smsHref} className="sticky-cta sticky-cta-sms">
+      {bookingHref ? (
+        <a href={bookingHref} className="sticky-cta sticky-cta-sms">
           <MessageCircle className="h-4 w-4" />
-          SMS 예약
+          SMS / WeChat Booking 📱
+        </a>
+      ) : phoneHref ? (
+        <a href={phoneHref} className="sticky-cta sticky-cta-sms">
+          <MessageCircle className="h-4 w-4" />
+          SMS / WeChat Booking 📱
         </a>
       ) : null}
-      {telegramHref ? (
-        <a
-          href={telegramHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="sticky-cta sticky-cta-telegram"
-        >
-          <Send className="h-4 w-4" />
-          Telegram
-        </a>
-      ) : (
-        !smsHref && phoneHref ? (
-          <a href={phoneHref} className="sticky-cta sticky-cta-sms">
-            <MessageCircle className="h-4 w-4" />
-            빠른 예약
-          </a>
-        ) : null
-      )}
     </div>
   );
 }

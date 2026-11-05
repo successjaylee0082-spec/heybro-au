@@ -81,8 +81,10 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
         <div className="listing-quick-badges">
           <span>{suburb}</span>
           <span>Cash OK</span>
-          <span>Card OK</span>
-          {tags.slice(0, 2).map((tag) => (
+          <span>EFTPOS</span>
+          <span>WeChat 微信</span>
+          <span>Alipay</span>
+          {tags.slice(0, 1).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
           {venue.isManaged ? (
@@ -107,7 +109,7 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
               href={`sms:${venue.phone.replace(/[^\d+]/g, "")}`}
               className="listing-cta-sms"
             >
-              SMS
+              SMS / WeChat
             </a>
           ) : null}
           {transit ? (

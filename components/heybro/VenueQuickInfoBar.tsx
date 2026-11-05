@@ -2,6 +2,7 @@
 
 import {
   CreditCard,
+  Languages,
   MapPinned,
   ShowerHead,
   Sparkles,
@@ -15,6 +16,7 @@ function iconFor(kind: QuickInfoBadge["kind"]): ReactNode {
   if (kind === "staff") return <Users className="h-3.5 w-3.5" />;
   if (kind === "payment") return <CreditCard className="h-3.5 w-3.5" />;
   if (kind === "facility") return <ShowerHead className="h-3.5 w-3.5" />;
+  if (kind === "language") return <Languages className="h-3.5 w-3.5" />;
   return <Sparkles className="h-3.5 w-3.5" />;
 }
 

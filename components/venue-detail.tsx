@@ -248,7 +248,7 @@ export function VenueDetail({
       <VenueStickyCtaBar
         phoneHref={phoneHref}
         smsHref={liveConsumer.smsHref}
-        telegramHref={liveConsumer.telegramHref}
+        wechatHref={liveConsumer.wechatHref}
       />
     </article>
   );
