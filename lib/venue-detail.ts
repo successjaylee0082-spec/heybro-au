@@ -109,12 +109,6 @@ function composeDetail(options: {
 }): VenueDetailPayload {
   const venue = withCoords(options.venue);
   const staffRows = options.staffRows ?? [];
-  const gallery = buildVenueGallery({
-    // Prefer nightlife lounge cover; never inject unverified staff portraits.
-    cover: options.cover || venue.image,
-    seed: venue.id,
-    fallbackCount: 8,
-  });
   const customHighlights =
     options.visibilityExtras?.customHighlights ?? venue.customHighlights;
   const parsedHighlights = parseCustomHighlights(customHighlights);
@@ -177,7 +171,13 @@ function composeDetail(options: {
     },
     content,
     staffRows,
-    gallery,
+  });
+  // Gallery after roster so thumbs are masked staff + lounge highlights only.
+  const gallery = buildVenueGallery({
+    cover: options.cover,
+    seed: venue.id,
+    fallbackCount: 8,
+    staffImages: consumer.staff.map((member) => member.image),
   });
   return {
     venue: {

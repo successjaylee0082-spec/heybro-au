@@ -10,10 +10,8 @@ import Link from "next/link";
 import { useMemo } from "react";
 import {
   ArrowLeft,
-  Bookmark,
   Clock3,
   ExternalLink,
-  Globe2,
   MapPin,
   Navigation,
   Phone,
@@ -21,12 +19,11 @@ import {
 } from "lucide-react";
 import { RedditLogo } from "@/components/RedditLogo";
 import { RedditShareButton } from "@/components/RedditShareButton";
-import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { RelatedVenues } from "@/components/heybro/RelatedVenues";
 import { VenueCoursePricing } from "@/components/heybro/VenueCoursePricing";
 import { VenueGallery } from "@/components/heybro/VenueGallery";
+import { VenueHeroBanner } from "@/components/heybro/VenueHeroBanner";
 import { VenueHighlightWidget } from "@/components/heybro/VenueHighlightWidget";
-import { VenueHookBox } from "@/components/heybro/VenueHookBox";
 import { VenueQualityChecklist } from "@/components/heybro/VenueQualityChecklist";
 import { VenueQuickInfoBar } from "@/components/heybro/VenueQuickInfoBar";
 import { VenueStaffRoster } from "@/components/heybro/VenueStaffRoster";
@@ -34,7 +31,6 @@ import { VenueStickyCtaBar } from "@/components/heybro/VenueStickyCtaBar";
 import { VenueStructuredContent } from "@/components/heybro/VenueStructuredContent";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
-import { Button } from "@/components/ui/button";
 import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { withLocale } from "@/lib/i18n";
@@ -123,72 +119,23 @@ export function VenueDetail({
         {t("backHome")}
       </Link>
 
-      {/* Slot: OP promotional hook banner — top of template */}
-      <VenueHookBox visibility={visibility} />
-
-      {/* Slot: Hero */}
-      <header
-        className={
-          isPremium
-            ? "venue-detail-header template-hero is-managed"
-            : "venue-detail-header template-hero"
-        }
-        data-slot="hero"
-      >
-        <div>
-          <div className="eyebrow venue-detail-eyebrow-row">
-            {isPremium ? (
-              <ManagedBadge
-                variant={visibility.managedBadge || (tier === "vip" ? "vip" : "pro")}
-                size="sm"
-                showPlan
-              />
-            ) : (
-              <span className="free-listing-chip">Free template</span>
-            )}
-            <span>
-              {categoryLabel(venue.category, locale)} · {suburb}
-            </span>
-          </div>
-          <h1>{name}</h1>
-          <p>
-            {cityLabel(venue.city, locale)} · {venue.address}
-          </p>
-        </div>
-        <div className="venue-detail-header-actions">
-          <Button
-            type="button"
-            variant={saved ? "default" : "secondary"}
-            onClick={() => {
-              const nowSaved = toggleSaved(venue.id);
-              showToast(nowSaved ? t("savedToast") : t("removedToast"));
-            }}
-          >
-            <Bookmark
-              className="h-4 w-4"
-              fill={saved ? "currentColor" : "none"}
-            />
-            {t("save")}
-          </Button>
-          {phoneHref ? (
-            <a href={phoneHref} className="venue-primary-cta">
-              <Phone className="h-4 w-4" />
-              Call Now
-            </a>
-          ) : null}
-          {venue.website ? (
-            <a
-              href={venue.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="venue-secondary-cta"
-            >
-              <Globe2 className="h-4 w-4" />
-              Website
-            </a>
-          ) : null}
-        </div>
-      </header>
+      {/* Slot: Clean dark-luxury hero — no stock lingerie banners */}
+      <VenueHeroBanner
+        name={name}
+        suburb={suburb}
+        city={cityLabel(venue.city, locale)}
+        category={categoryLabel(venue.category, locale)}
+        address={venue.address}
+        visibility={visibility}
+        tagline={content.profile?.rateLine}
+        saved={saved}
+        saveLabel={t("save")}
+        phoneHref={phoneHref}
+        onToggleSave={() => {
+          const nowSaved = toggleSaved(venue.id);
+          showToast(nowSaved ? t("savedToast") : t("removedToast"));
+        }}
+      />
 
       {/* Slot: Quick Info */}
       <div data-slot="quick-info" className="template-slot">
@@ -220,11 +167,15 @@ export function VenueDetail({
             : "template-slot template-gallery is-standard"
         }
       >
-        <VenueGallery images={galleryImages} alt={name} />
+        <VenueGallery
+          images={galleryImages}
+          alt={name}
+          staffPreview={liveConsumer.staff.map((member) => member.image)}
+        />
         {!isPremium ? (
           <p className="template-upgrade-hint">
-            Free listings use optimized placeholders. Upgrade to {VIP_PLAN_LABEL}{" "}
-            for high-resolution custom galleries and glowing VIP chrome.
+            Free listings use curated roster + lounge highlights. Upgrade to{" "}
+            {VIP_PLAN_LABEL} for custom galleries and glowing VIP chrome.
           </p>
         ) : null}
       </div>

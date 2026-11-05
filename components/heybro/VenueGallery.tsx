@@ -1,38 +1,73 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { ImageIcon } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ImageIcon, Sparkles } from "lucide-react";
 
+/**
+ * Premium detail gallery — curated masked staff + lounge highlights only.
+ * No lingerie stock banners or empty-room thumbnail rows.
+ */
 export function VenueGallery({
   images,
   alt,
+  staffPreview,
 }: {
   images: string[];
   alt: string;
+  /** Optional staff portraits prepended for high-converting thumbs. */
+  staffPreview?: string[];
 }) {
-  const gallery = images.length
-    ? images
-    : ["/images/lounges/mood-01-velvet.jpg"];
+  const gallery = useMemo(() => {
+    const seen = new Set<string>();
+    const merged: string[] = [];
+    for (const src of [...(staffPreview || []), ...images]) {
+      const value = src?.trim();
+      if (!value || seen.has(value)) continue;
+      if (/banner|lingerie|underwear|\/images\/directory\//i.test(value)) continue;
+      seen.add(value);
+      merged.push(value);
+    }
+    return merged.length
+      ? merged
+      : ["/images/lounges/mood-01-velvet.jpg"];
+  }, [images, staffPreview]);
+
   const [active, setActive] = useState(0);
   const current = gallery[Math.min(active, gallery.length - 1)];
+  const isPortrait =
+    /\/images\/staff\//i.test(current) || /portrait|masked/i.test(current);
 
   return (
-    <div className="venue-gallery">
-      <div className="venue-gallery-hero">
+    <div className="venue-gallery venue-gallery-premium" data-gallery="staff-lounge">
+      <div
+        className={
+          isPortrait
+            ? "venue-gallery-hero is-portrait"
+            : "venue-gallery-hero is-lounge"
+        }
+      >
         <Image
           src={current}
           alt={alt}
           fill
           priority
           quality={90}
-          className="object-cover"
+          className={
+            isPortrait
+              ? "object-cover object-[center_18%]"
+              : "object-cover"
+          }
           sizes="(max-width: 900px) 100vw, 1100px"
         />
         <div className="venue-gallery-fade" />
         <div className="venue-gallery-count">
           <ImageIcon className="h-3.5 w-3.5" />
           {active + 1} / {gallery.length}
+        </div>
+        <div className="venue-gallery-caption">
+          <Sparkles className="h-3.5 w-3.5" />
+          {isPortrait ? "Masked roster preview" : "Luxury lounge highlight"}
         </div>
       </div>
       <div className="venue-gallery-thumbs" role="list">
@@ -53,7 +88,7 @@ export function VenueGallery({
               src={src}
               alt=""
               fill
-              className="object-cover"
+              className="object-cover object-[center_20%]"
               sizes="120px"
             />
           </button>
