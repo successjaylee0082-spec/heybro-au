@@ -42,13 +42,13 @@ export function swapLocalePath(pathname: string, locale: Locale): string {
 
 export const copy = {
   en: {
-    brandTagline: "Your Ultimate Aussie Nightlife Guide",
-    heroEyebrow: "AUSTRALIA AFTER DARK",
-    heroTitleBefore: "Find the night out",
-    heroTitleAccent: "worth remembering",
+    brandTagline: "Premier Adult Nightlife Directory",
+    heroEyebrow: "HEY BRO · AFTER DARK",
+    heroTitleBefore: "Sydney & Melbourne's Premier",
+    heroTitleAccent: "Adult Directory",
     heroDescription:
-      "Browse curated nightlife, late bars and local spots across Australia. Confirm you are 18+ to explore listings, directions and saved places.",
-    searchPlaceholder: "Search venues, suburbs or vibes",
+      "Real-time lineups, discreet venues and direct booking across Australia — built for guests who want clarity before they call.",
+    searchPlaceholder: "Search venues, suburbs or ladies",
     explore: "Explore",
     communityTitle: "Community discussions",
     communityBody:
@@ -89,13 +89,13 @@ export const copy = {
       "Reddit feed access is unavailable from this host. Open the community page for source links.",
   },
   zh: {
-    brandTagline: "澳大利亚夜生活指南",
-    heroEyebrow: "澳大利亚夜生活",
-    heroTitleBefore: "发现值得记住的",
-    heroTitleAccent: "夜间去处",
+    brandTagline: "高端成人夜生活目录",
+    heroEyebrow: "HEY BRO · 夜色专属",
+    heroTitleBefore: "悉尼与墨尔本首选",
+    heroTitleAccent: "成人目录",
     heroDescription:
-      "浏览澳大利亚的夜生活、酒吧与本地场所。确认年满18岁后可查看列表、路线与收藏。",
-    searchPlaceholder: "搜索场所、郊区或氛围",
+      "实时出勤、私密场所与直聊预约——在拨打电话前先看清今天的阵容。",
+    searchPlaceholder: "搜索场所、郊区或小姐",
     explore: "探索",
     communityTitle: "社区讨论",
     communityBody: "看看悉尼与墨尔本 Reddit 夜生活讨论在聊什么。",

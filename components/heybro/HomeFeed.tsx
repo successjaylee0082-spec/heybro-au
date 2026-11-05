@@ -17,6 +17,7 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { categories, cities } from "@/lib/cities";
 import { filterVenues } from "@/lib/feed";
+import { HERO_HOOK_BADGES, HERO_NIGHTLIFE_IMAGE } from "@/lib/hero-assets";
 import type { CategoryId, CityId, Venue } from "@/types";
 
 export function HomeFeed({
@@ -38,7 +39,7 @@ export function HomeFeed({
   const live = source === "supabase";
 
   return (
-    <div className="home-feed">
+    <div className="home-feed home-feed-nightlife">
       <div className="city-nav">
         <div className="city-links">
           <MapPin className="h-4 w-4" />
@@ -55,21 +56,21 @@ export function HomeFeed({
         </div>
         <div className="aussie-note">
           <ShieldCheck className="h-3.5 w-3.5" />
-          Aussie nightlife directory
+          Adult nightlife directory
         </div>
       </div>
 
-      <section className="hero">
+      <section className="hero hero-nightlife" aria-label="Hey Bro adult directory hero">
         <div className="hero-photo">
           <Image
-            src="/images/sydney-harbour.jpg"
+            src={HERO_NIGHTLIFE_IMAGE}
             alt=""
             fill
             priority
             sizes="100vw"
           />
         </div>
-        <div className="hero-shade" />
+        <div className="hero-shade" aria-hidden />
         <div className="hero-content">
           <div className="eyebrow">
             <span className="eyebrow-dot" />
@@ -80,6 +81,15 @@ export function HomeFeed({
             <span>{t("heroTitleAccent")}</span>
           </h1>
           <p className="hero-description">{t("heroDescription")}</p>
+
+          <div className="hero-hook-badges" aria-label="Quick trust badges">
+            {HERO_HOOK_BADGES.map((badge) => (
+              <span key={badge.id} className="hero-hook-badge">
+                {locale === "zh" ? badge.labelZh : badge.label}
+              </span>
+            ))}
+          </div>
+
           <form
             className="search-bar"
             onSubmit={(event) => {
@@ -135,7 +145,7 @@ export function HomeFeed({
           <span>
             <MapPin className="h-3.5 w-3.5" />
           </span>
-          SYDNEY HARBOUR
+          AFTER DARK · AU
         </div>
       </section>
 
