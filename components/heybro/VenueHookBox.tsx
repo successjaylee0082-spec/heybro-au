@@ -1,12 +1,12 @@
 "use client";
 
-import { Flame, Sparkles } from "lucide-react";
+import { Flame, Heart, Sparkles } from "lucide-react";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 
 /**
- * Standardized OP-style promotional headline box.
- * Present on every venue template; VIP/managed hooks are higher-impact.
+ * Standardized OP-style promotional headline / Canva banner.
+ * High-engagement marketing hook near the top of every venue template.
  */
 export function VenueHookBox({
   visibility,
@@ -23,17 +23,17 @@ export function VenueHookBox({
     <section
       className={
         isPremium
-          ? "venue-hook-box is-premium"
-          : "venue-hook-box is-standard"
+          ? "venue-hook-box op-hook-banner is-premium"
+          : "venue-hook-box op-hook-banner is-standard"
       }
       data-slot="hook"
-      aria-label="Promotional highlight"
+      aria-label="Promotional hook banner"
     >
       <div className="venue-hook-kicker">
         {isPremium ? (
           <>
             <Flame className="h-3.5 w-3.5" />
-            VIP Hook · {visibility.planLabel || VIP_PLAN_LABEL}
+            OP Hook Banner · {visibility.planLabel || VIP_PLAN_LABEL}
           </>
         ) : (
           <>
@@ -42,7 +42,10 @@ export function VenueHookBox({
           </>
         )}
       </div>
-      <h2 className="venue-hook-title">{hook.title}</h2>
+      <h2 className="venue-hook-title">
+        <Heart className="venue-hook-heart" aria-hidden />
+        {hook.title}
+      </h2>
       {hook.subtitle ? <p className="venue-hook-subtitle">{hook.subtitle}</p> : null}
     </section>
   );

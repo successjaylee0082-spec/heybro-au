@@ -120,6 +120,9 @@ export function VenueDetail({
         {t("backHome")}
       </Link>
 
+      {/* Slot: OP promotional hook banner — top of template */}
+      <VenueHookBox visibility={visibility} />
+
       {/* Slot: Hero */}
       <header
         className={
@@ -183,9 +186,6 @@ export function VenueDetail({
           ) : null}
         </div>
       </header>
-
-      {/* Slot: Hook headline box */}
-      <VenueHookBox visibility={visibility} />
 
       {/* Slot: Quick Info */}
       <div data-slot="quick-info" className="template-slot">

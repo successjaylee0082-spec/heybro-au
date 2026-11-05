@@ -2886,3 +2886,57 @@
     padding: 14px;
   }
 }
+
+
+/* ========== DAY 4: PRICING GRID + OP HOOK BANNER ========== */
+.day4-pricing-grid,
+.course-pricing-grid.day4-pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.day4-course-card {
+  min-height: 100%;
+}
+.day4-course-card .course-card-chips {
+  margin-top: 2px;
+}
+.day4-course-card .neon-price {
+  font-size: clamp(26px, 6vw, 34px);
+}
+@media (min-width: 900px) {
+  .day4-pricing-grid,
+  .course-pricing-grid.day4-pricing-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.op-hook-banner {
+  position: relative;
+  overflow: hidden;
+}
+.op-hook-banner.is-premium::before {
+  content: "";
+  position: absolute;
+  inset: -40% auto auto -10%;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, #f43f5e55, transparent 70%);
+  pointer-events: none;
+}
+.op-hook-banner .venue-hook-heart {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 8px;
+  color: #fb7185;
+  vertical-align: -0.08em;
+  filter: drop-shadow(0 0 8px #f43f5e88);
+}
+.venue-template.tier-managed .op-hook-banner.is-premium,
+.venue-template.tier-vip .op-hook-banner.is-premium {
+  animation: hookGlow 3.2s ease-in-out infinite;
+}
+@keyframes hookGlow {
+  0%, 100% { box-shadow: 0 0 22px #f43f5e33, inset 0 0 18px #ec489914; }
+  50% { box-shadow: 0 0 36px #f43f5e66, inset 0 0 24px #ec489922; }
+}
