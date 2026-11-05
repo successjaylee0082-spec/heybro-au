@@ -5,63 +5,38 @@ import { usePathname } from "next/navigation";
 import { Building2, Search } from "lucide-react";
 import { BrandMark } from "@/components/layout/BrandMark";
 import { RedditLogo } from "@/components/RedditLogo";
+import { PrimaryNav } from "@/components/navigation";
 import { useCopy } from "@/components/i18n/LocaleProvider";
-import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { swapLocalePath, withLocale } from "@/lib/i18n";
 
 export function Header() {
   const { locale, t } = useCopy();
   const pathname = usePathname();
-  const { savedIds } = useNavigation();
   const other = locale === "en" ? "zh" : "en";
   const communityHref = withLocale(locale, "/community");
-  const savedHref = withLocale(locale, "/saved");
-  const blogHref = withLocale(locale, "/blog");
+  const partnersHref = withLocale(locale, "/partners");
   const languageHref = swapLocalePath(pathname || withLocale(locale, "/"), other);
 
   return (
     <header className="site-header">
       <div className="header-inner">
         <BrandMark locale={locale} />
-        <nav className="desktop-nav" aria-label="Primary">
-          <Link
-            href={withLocale(locale, "/")}
-            className={`nav-link${pathname === withLocale(locale, "/") ? " active" : ""}`}
-          >
-            {t("list")}
-          </Link>
-          <Link
-            href={communityHref}
-            className={`nav-link${pathname?.includes("/community") ? " active" : ""}`}
-          >
-            <RedditLogo size={14} />
-            {t("community")}
-          </Link>
-          <Link
-            href={blogHref}
-            className={`nav-link${pathname?.includes("/blog") ? " active" : ""}`}
-          >
-            {t("blog")}
-          </Link>
-          <Link
-            href={savedHref}
-            className={`nav-link${pathname?.includes("/saved") ? " active" : ""}`}
-          >
-            {t("saved")}
-            {savedIds.length > 0 ? (
-              <span className="saved-count">{savedIds.length}</span>
-            ) : null}
-          </Link>
-        </nav>
+        <PrimaryNav variant="desktop" />
         <div className="header-actions">
           <span className="age-label">18+</span>
-          <Link href={languageHref} className="nav-link" hrefLang={other === "zh" ? "zh-Hans" : "en-AU"}>
+          <Link
+            href={languageHref}
+            className="nav-link"
+            hrefLang={other === "zh" ? "zh-Hans" : "en-AU"}
+          >
             {t("language")}
           </Link>
-          <Button type="button" variant="outline" className="business-button" disabled>
-            <Building2 className="h-3.5 w-3.5" />
-            Business
+          <Button asChild variant="outline" className="business-button">
+            <Link href={partnersHref}>
+              <Building2 className="h-3.5 w-3.5" />
+              Business
+            </Link>
           </Button>
         </div>
       </div>
@@ -69,6 +44,10 @@ export function Header() {
         <Link href={communityHref} className="mobile-community-link">
           <RedditLogo size={16} />
           {t("community")}
+        </Link>
+        <Link href={partnersHref} className="mobile-community-link">
+          <Building2 className="h-3.5 w-3.5" />
+          {t("partners")}
         </Link>
         <Link href={languageHref} className="mobile-community-link">
           {t("language")}

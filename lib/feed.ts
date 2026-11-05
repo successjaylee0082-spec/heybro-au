@@ -33,6 +33,14 @@ export const feedVenues: Venue[] = [
     isCbd: true,
     verified: true,
     fictional: true,
+    isManaged: true,
+    managedBadge: "vip",
+    customHighlights: {
+      tier: "vip",
+      managedBadge: "vip",
+      wechat: "HeyBroHarbour",
+      whatsapp: "0297019001",
+    },
     hours: "Thu–Sat 6pm–2am",
   },
   {
@@ -119,6 +127,14 @@ export const feedVenues: Venue[] = [
     lat: -37.868,
     lng: 144.98,
     fictional: true,
+    isManaged: true,
+    managedBadge: "pro",
+    customHighlights: {
+      tier: "managed",
+      managedBadge: "pro",
+      wechat: "StKildaCalm",
+      whatsapp: "0397019005",
+    },
     hours: "Mon–Sun 10am–2am",
   },
   {

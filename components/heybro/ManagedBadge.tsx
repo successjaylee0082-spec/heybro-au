@@ -2,7 +2,11 @@
 
 import { BadgeCheck, Crown } from "lucide-react";
 import type { ManagedBadgeVariant } from "@/lib/venue-highlights";
-import { VIP_PLAN_LABEL } from "@/lib/venue-template";
+import {
+  VIP_BADGE_ELITE,
+  VIP_BADGE_MANAGED,
+  VIP_MONTHLY_PRICE,
+} from "@/lib/listing-tier";
 
 export function ManagedBadge({
   variant = "pro",
@@ -22,12 +26,14 @@ export function ManagedBadge({
           : `managed-badge managed-badge-pro managed-badge-${size}`
       }
     >
-      {isVip ? <Crown className="h-3 w-3" /> : <BadgeCheck className="h-3 w-3" />}
-      VERIFIED PRO
+      {isVip ? (
+        <Crown className="h-3 w-3" aria-hidden />
+      ) : (
+        <BadgeCheck className="h-3 w-3" aria-hidden />
+      )}
+      {isVip ? VIP_BADGE_ELITE : VIP_BADGE_MANAGED}
       {showPlan ? (
-        <em className="managed-badge-plan">
-          {isVip ? `VIP · ${VIP_PLAN_LABEL}` : VIP_PLAN_LABEL}
-        </em>
+        <em className="managed-badge-plan">{VIP_MONTHLY_PRICE}</em>
       ) : null}
     </span>
   );

@@ -34,6 +34,7 @@ export function Footer() {
               </button>
             ))}
             <Link href={withLocale(locale, "/community")}>{t("community")}</Link>
+            <Link href={withLocale(locale, "/partners")}>{t("partners")}</Link>
             <a
               href="https://www.esafety.gov.au/"
               target="_blank"

@@ -19,8 +19,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/", destination: "/en", permanent: true },
       { source: "/saved", destination: "/en/saved", permanent: true },
-      { source: "/blog", destination: "/en/blog", permanent: true },
-      { source: "/blog/:slug", destination: "/en/blog/:slug", permanent: true },
+      { source: "/blog", destination: "/en/partners", permanent: true },
+      { source: "/blog/:slug", destination: "/en/partners", permanent: true },
+      { source: "/partners", destination: "/en/partners", permanent: true },
       { source: "/community", destination: "/en/community", permanent: true },
       {
         source: "/venue/:slug",

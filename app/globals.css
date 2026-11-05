@@ -1841,12 +1841,87 @@
   left: 10px;
   z-index: 3;
 }
-.venue-card.is-managed {
-  border-color: #fb718555;
-  box-shadow: 0 0 0 1px #fb718522, 0 18px 40px #0008;
+.venue-card.is-managed,
+.venue-card.is-vip {
+  border-color: rgba(244, 63, 94, 0.8);
+  box-shadow:
+    0 0 0 1px rgba(244, 63, 94, 0.35),
+    0 0 20px rgba(244, 63, 94, 0.35),
+    0 18px 40px #0008;
 }
-.venue-card.is-managed .venue-image-wrap {
-  outline: 1px solid #fb718533;
+.venue-card.is-managed .venue-image-wrap,
+.venue-card.is-vip .venue-image-wrap {
+  outline: 1px solid rgba(251, 113, 133, 0.45);
+}
+.venue-card.is-free {
+  border-color: #1f2937;
+  box-shadow: none;
+  filter: saturate(0.88);
+}
+.venue-card.is-free .venue-image-wrap {
+  outline: none;
+  opacity: 0.92;
+}
+.free-listing-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid #475569;
+  background: #0f172acc;
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 9px;
+  backdrop-filter: blur(8px);
+}
+.listing-cta-whatsapp,
+.listing-cta-wechat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #34d39966;
+  background: #064e3b;
+  color: #bbf7d0;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.listing-cta-wechat {
+  border-color: #4ade8066;
+  background: #14532d;
+}
+.listing-cta-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: #cbd5e1;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.listing-upgrade-hint {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 11px;
+}
+.sticky-cta-upgrade {
+  background: linear-gradient(135deg, #fb7185, #e11d48) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 800;
+}
+.venue-sticky-cta.is-free .sticky-cta-call {
+  opacity: 0.9;
 }
 .venue-highlight-widget {
   display: grid;
@@ -3291,4 +3366,166 @@
   .search-select.sort-select select {
     width: 100%;
   }
+}
+
+/* ========== B2B Cashflow Hub ========== */
+.partners-page,
+.b2b-hub {
+  display: grid;
+  gap: 22px;
+}
+.b2b-hero {
+  border-radius: 22px;
+  padding: 28px 24px;
+  background: linear-gradient(to bottom right, #020617, #18181b, rgba(76, 5, 25, 0.45));
+  border: 1.5px solid rgba(251, 113, 133, 0.7);
+  box-shadow: 0 0 36px rgba(244, 63, 94, 0.28);
+}
+.b2b-hero h1 {
+  margin: 8px 0 10px;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+}
+.b2b-hero p {
+  color: #cbd5e1;
+  max-width: 62ch;
+}
+.b2b-hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.b2b-hero-pills span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  background: #0f172a99;
+  color: #fecdd3;
+  font-size: 12px;
+  padding: 6px 10px;
+}
+.b2b-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@media (max-width: 960px) {
+  .b2b-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.b2b-card {
+  text-align: left;
+  border-radius: 18px;
+  border: 1px solid #1f2937;
+  background: linear-gradient(180deg, #0b1220, #060709);
+  padding: 18px;
+  color: inherit;
+  display: grid;
+  gap: 8px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.b2b-card.is-active,
+.b2b-card:hover {
+  border-color: rgba(244, 63, 94, 0.75);
+  box-shadow: 0 0 24px rgba(244, 63, 94, 0.28);
+  transform: translateY(-1px);
+}
+.b2b-card-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fb7185;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.b2b-card h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+}
+.b2b-card p,
+.b2b-card li {
+  color: #94a3b8;
+  font-size: 13px;
+}
+.b2b-card ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+.b2b-price {
+  color: #fecdd3;
+  font-size: 15px;
+}
+.b2b-lead {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 18px;
+  border-radius: 20px;
+  border: 1px solid #1f2937;
+  background: #070b12;
+  padding: 20px;
+}
+@media (max-width: 900px) {
+  .b2b-lead {
+    grid-template-columns: 1fr;
+  }
+}
+.b2b-direct-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.b2b-direct {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.b2b-direct.whatsapp {
+  background: #065f46;
+  color: #bbf7d0;
+}
+.b2b-direct.telegram {
+  background: #0c4a6e;
+  color: #bae6fd;
+}
+.b2b-form {
+  display: grid;
+  gap: 10px;
+}
+.b2b-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.b2b-form input,
+.b2b-form textarea {
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #0b1220;
+  color: #e2e8f0;
+  padding: 11px 12px;
+  font: inherit;
+}
+.b2b-submit {
+  margin-top: 4px;
+}
+.b2b-sent {
+  margin: 0;
+  color: #6ee7b7;
+  font-size: 12px;
 }

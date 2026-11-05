@@ -41,6 +41,7 @@ import {
   type ParsedVenueContent,
 } from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
+import { isVipListing } from "@/lib/listing-tier";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
@@ -113,6 +114,7 @@ export function VenueDetail({
       : gallery.slice(0, Math.min(gallery.length, 4));
   // Hero + course cards share this ladder — never a separate hardcoded rateLine.
   const syncedRateLine = formatPricingRateLine(resolveVenuePricing(content));
+  const vipListing = isVipListing(venue) || isPremium;
 
   return (
     <article
@@ -267,11 +269,13 @@ export function VenueDetail({
         <RedditShareButton title={name} />
       </div>
 
-      {/* Day-5 sticky conversion bar: Call / WhatsApp / WeChat */}
+      {/* Day-5 sticky conversion bar — messaging unlocks on Business VIP only */}
       <VenueStickyCtaBar
         phoneHref={phoneHref}
-        whatsappHref={liveConsumer.whatsappHref}
-        wechat={liveConsumer.wechat}
+        whatsappHref={vipListing ? liveConsumer.whatsappHref : undefined}
+        wechat={vipListing ? liveConsumer.wechat : undefined}
+        isVip={vipListing}
+        upgradeHref={withLocale(locale, "/partners#vip-upgrade")}
       />
     </article>
   );

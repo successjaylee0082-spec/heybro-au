@@ -29,6 +29,7 @@ const CATEGORY_IDS = new Set<CategoryId>([
 
 export const VENUE_SELECT =
   "id, slug, name, category, city, suburb, address, state, postcode, phone, website, hours, services, description, cover_image_url, lat, lng, source_url, source_name, source_id, is_fictional, is_managed, custom_highlights, created_at, updated_at";
+// listing_tier is applied via migration 20261106; prefer custom_highlights.tier until the column is live.
 
 export type DirectoryLoadResult = {
   venues: Venue[];
@@ -61,7 +62,16 @@ export function mapVenueRow(row: VenueRow): Venue {
     ? row.services.filter((item): item is string => typeof item === "string")
     : [];
   const highlights = parseCustomHighlights(row.custom_highlights);
-  const isManaged = Boolean(row.is_managed);
+  const listingTier =
+    row.listing_tier === "vip" ||
+    row.listing_tier === "managed" ||
+    row.listing_tier === "free"
+      ? row.listing_tier
+      : highlights.tier || undefined;
+  const isManaged =
+    Boolean(row.is_managed) ||
+    listingTier === "managed" ||
+    listingTier === "vip";
   const base: Venue = {
     id: row.slug || row.id,
     name: row.name,
@@ -85,13 +95,15 @@ export function mapVenueRow(row: VenueRow): Venue {
     hours: row.hours || undefined,
     website: row.website || undefined,
     isManaged,
-    managedBadge: isManaged ? highlights.managedBadge || "pro" : undefined,
+    managedBadge: isManaged
+      ? highlights.managedBadge || (listingTier === "vip" ? "vip" : "pro")
+      : undefined,
     customHighlights: {
       badges: highlights.badges,
       promo: highlights.promo,
       hook: highlights.hook,
       managedBadge: highlights.managedBadge,
-      tier: highlights.tier,
+      tier: listingTier || highlights.tier || (isManaged ? "managed" : "free"),
       wechat: highlights.wechat,
       whatsapp: highlights.whatsapp,
       telegram: highlights.telegram,

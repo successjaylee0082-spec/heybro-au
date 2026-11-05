@@ -12,6 +12,8 @@ export function VenueStickyCtaBar({
   phoneHref,
   whatsappHref,
   wechat,
+  isVip = false,
+  upgradeHref,
 }: {
   phoneHref?: string;
   whatsappHref?: string;
@@ -19,13 +21,44 @@ export function VenueStickyCtaBar({
   wechatHref?: string;
   wechat?: WeChatContact;
   telegramHref?: string;
+  /** Direct messaging CTAs only unlock on Business VIP / managed listings. */
+  isVip?: boolean;
+  upgradeHref?: string;
 }) {
   const contact = wechat ?? { configured: false };
+
+  if (!isVip) {
+    return (
+      <div
+        className="venue-sticky-cta day5-sticky-cta is-free"
+        role="region"
+        aria-label="Upgrade to unlock messaging"
+      >
+        {phoneHref ? (
+          <a href={phoneHref} className="sticky-cta sticky-cta-call">
+            <Phone className="h-4 w-4" aria-hidden />
+            <span>Call venue</span>
+          </a>
+        ) : (
+          <span className="sticky-cta sticky-cta-disabled" aria-disabled="true">
+            Call venue
+          </span>
+        )}
+        <a
+          href={upgradeHref || "/partners#vip-upgrade"}
+          className="sticky-cta sticky-cta-upgrade"
+        >
+          Unlock VIP messaging · $40/mo
+        </a>
+      </div>
+    );
+  }
+
   if (!phoneHref && !whatsappHref && !contact.configured) return null;
 
   return (
     <div
-      className="venue-sticky-cta day5-sticky-cta"
+      className="venue-sticky-cta day5-sticky-cta is-vip"
       role="region"
       aria-label="Mobile booking actions"
     >

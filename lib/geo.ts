@@ -1,3 +1,4 @@
+import { listingTierSortRank } from "@/lib/listing-tier";
 import type { CityId, Venue } from "@/types";
 
 export type LatLng = { lat: number; lng: number };
@@ -186,22 +187,35 @@ export function sortVenuesByMode(
   origin?: LatLng | null,
 ): RankedVenue[] {
   const ranked = venues.map((venue) => enrichVenueDistance(venue, origin));
+  // Commercial rule: Business VIP / managed listings always pin above Free.
+  const byTierThen = (
+    a: RankedVenue,
+    b: RankedVenue,
+    next: (x: RankedVenue, y: RankedVenue) => number,
+  ) => {
+    const tierDelta = listingTierSortRank(a) - listingTierSortRank(b);
+    if (tierDelta !== 0) return tierDelta;
+    return next(a, b);
+  };
+
   if (mode === "name") {
-    return ranked.sort((a, b) => a.name.localeCompare(b.name));
+    return ranked.sort((a, b) =>
+      byTierThen(a, b, (x, y) => x.name.localeCompare(y.name)),
+    );
   }
   if (mode === "managed") {
-    return ranked.sort((a, b) => {
-      const managedDelta = Number(Boolean(b.isManaged)) - Number(Boolean(a.isManaged));
-      if (managedDelta !== 0) return managedDelta;
-      return a.sortScore - b.sortScore;
-    });
+    return ranked.sort((a, b) =>
+      byTierThen(a, b, (x, y) => x.sortScore - y.sortScore),
+    );
   }
-  // Default: CBD first, then proximity to CBD (or user GPS origin).
-  return ranked.sort((a, b) => {
-    if (a.isCbd !== b.isCbd) return a.isCbd ? -1 : 1;
-    const da = a.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;
-    const db = b.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;
-    if (da !== db) return da - db;
-    return a.name.localeCompare(b.name);
-  });
+  // Default: VIP first, then CBD cluster, then proximity.
+  return ranked.sort((a, b) =>
+    byTierThen(a, b, (x, y) => {
+      if (x.isCbd !== y.isCbd) return x.isCbd ? -1 : 1;
+      const da = x.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;
+      const db = y.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;
+      if (da !== db) return da - db;
+      return x.name.localeCompare(y.name);
+    }),
+  );
 }
