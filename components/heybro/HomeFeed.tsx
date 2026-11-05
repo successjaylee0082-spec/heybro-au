@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import { useMemo } from "react";
 import { CategoryChips } from "@/components/CategoryChips";
 import { Hero } from "@/components/hero";
 import { CommunityDiscovery } from "@/components/heybro/CommunityDiscovery";
@@ -19,8 +20,9 @@ import { cities } from "@/lib/cities";
 import {
   getSeedDirectoryVenues,
   MELBOURNE_VERIFIED_VENUES,
+  seedVenues,
 } from "@/lib/data";
-import { feedVenues, filterVenues } from "@/lib/feed";
+import { filterVenues } from "@/lib/feed";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
 import type { Venue } from "@/types";
 
@@ -31,65 +33,64 @@ function normalizeToken(value: string | null | undefined): string {
     .replace(/\s+/g, "-");
 }
 
+/** Primary catalog — Melbourne seed only. Supabase is bypassed for the feed. */
+const SEED_CATALOG: Venue[] =
+  getSeedDirectoryVenues().length > 0
+    ? getSeedDirectoryVenues()
+    : MELBOURNE_VERIFIED_VENUES;
+
 export function HomeFeed({
-  venues: directoryVenues,
-  source,
-  error,
+  venues: _ignoredDirectoryVenues,
+  source: _ignoredSource,
+  error: _ignoredError,
 }: {
-  venues: Venue[];
-  source: "supabase" | "seed" | "unavailable";
+  venues?: Venue[];
+  source?: "supabase" | "seed" | "unavailable";
   error?: string;
-}) {
+} = {}) {
   const { locale, t } = useCopy();
-  const { city, setCity, category, setCategory, query, sort, setSort } =
+  const { city, setCity, category, setCategory, sort, setSort } =
     useNavigation();
   const { origin } = useUserLocation(sort === "cbd-distance");
-  const melbourneSeed =
-    getSeedDirectoryVenues().length > 0
-      ? getSeedDirectoryVenues()
-      : MELBOURNE_VERIFIED_VENUES;
 
-  // Merge Melbourne seed into whatever Supabase returned so a non-empty
-  // Sydney-only catalog cannot blank the Melbourne city tab.
-  const catalog = (() => {
-    const base =
-      directoryVenues && directoryVenues.length > 0
-        ? directoryVenues
-        : feedVenues;
-    const hasMelbourne = base.some(
-      (venue) => normalizeToken(venue.city) === "melbourne",
-    );
-    if (hasMelbourne) return base;
-    const nonMelbourne = base.filter(
-      (venue) => normalizeToken(venue.city) !== "melbourne",
-    );
-    return [...melbourneSeed, ...nonMelbourne];
-  })();
+  // Instant seed-first list — never waits on Supabase / never starts empty.
+  const venues = useMemo(() => {
+    const selectedCity = normalizeToken(city) || "melbourne";
+    const selectedCategory = normalizeToken(String(category)) || "all";
 
-  let venues = filterVenues({
-    venues: catalog,
-    city,
-    category,
-    query,
-    sort,
-    origin: sort === "cbd-distance" ? origin : null,
-  });
-
-  // Hard guarantee: Melbourne selection never renders an empty list.
-  if (venues.length === 0 && normalizeToken(city) === "melbourne") {
-    venues = filterVenues({
-      venues: melbourneSeed,
-      city: "melbourne",
-      category: "all",
+    let next = filterVenues({
+      venues: SEED_CATALOG,
+      city: selectedCity === "melbourne" ? "melbourne" : (city as typeof city),
+      category: selectedCategory === "all" ? "all" : category,
       sort,
       origin: sort === "cbd-distance" ? origin : null,
     });
-  }
 
-  const live = source === "supabase";
-  const usingSeed = source === "seed" || (!live && catalog.length > 0);
-  const catalogReady = catalog.length > 0 || venues.length > 0;
+    if (next.length === 0 && selectedCity === "melbourne") {
+      next = filterVenues({
+        venues: SEED_CATALOG,
+        city: "melbourne",
+        category: "all",
+        sort,
+        origin: sort === "cbd-distance" ? origin : null,
+      });
+    }
+
+    // Absolute last resort: map seedVenues ids so UI always has 5 Melbourne shops.
+    if (next.length === 0) {
+      next = filterVenues({
+        venues: SEED_CATALOG,
+        city: "melbourne",
+        category: "all",
+        sort: "cbd-distance",
+      });
+    }
+
+    return next;
+  }, [city, category, sort, origin]);
+
   const cbdCount = venues.filter((venue) => venue.isCbd).length;
+  const seedCount = seedVenues.length || SEED_CATALOG.length;
 
   return (
     <div className="home-feed home-feed-nightlife">
@@ -123,12 +124,7 @@ export function HomeFeed({
           <MapPin /> CBD-first sort
         </span>
         <span>
-          <Sparkles />{" "}
-          {live
-            ? "Live inventory"
-            : usingSeed
-              ? "Verified seed listings"
-              : "Directory offline"}
+          <Sparkles /> Verified seed listings ({seedCount})
         </span>
       </div>
 
@@ -145,11 +141,9 @@ export function HomeFeed({
           </h2>
           <p>
             {t("resultsHint")}{" "}
-            {catalogReady
-              ? locale === "zh"
-                ? `CBD优先排序 · ${cbdCount} 个CBD场所置顶。`
-                : `Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`
-              : null}
+            {locale === "zh"
+              ? `CBD优先排序 · ${cbdCount} 个CBD场所置顶。`
+              : `Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`}
           </p>
         </div>
         <label className="results-sort">
@@ -168,50 +162,20 @@ export function HomeFeed({
         </label>
       </div>
 
-      {!catalogReady ? (
-        <div className="empty-state">
-          <Sparkles className="h-8 w-8" />
-          <h3>
-            {locale === "zh" ? "目录暂时不可用" : "Directory unavailable"}
-          </h3>
-          <p>
-            {locale === "zh"
-              ? "请配置 Supabase 环境变量后重新加载 venues 表数据。"
-              : "Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to load venues from Supabase."}
-          </p>
-          {error ? (
-            <p className="text-sm opacity-70" style={{ marginTop: 8 }}>
-              {error}
-            </p>
-          ) : null}
-        </div>
-      ) : venues.length === 0 ? (
-        <div className="empty-state">
-          <Sparkles className="h-8 w-8" />
-          <h3>{t("emptyTitle")}</h3>
-          <p>{t("emptyBody")}</p>
-          <Button type="button" onClick={() => setCategory("all")}>
-            Reset category
-          </Button>
-        </div>
-      ) : (
-        <VenueList
-          venues={venues}
-          selectedCity={city}
-          selectedCategory={category}
-        />
-      )}
+      <VenueList
+        venues={venues}
+        selectedCity={city || "melbourne"}
+        selectedCategory={category || "all"}
+      />
 
       <div className="result-notice">
-        {catalogReady
-          ? `Showing ${venues.length} listing${venues.length === 1 ? "" : "s"} · ${
-              sort === "cbd-distance"
-                ? origin
-                  ? "CBD first, then distance from you"
-                  : "VIP first, then Melbourne CBD (King / Little Bourke / Flinders / Southbank), then proximity"
-                : VENUE_SORT_OPTIONS.find((item) => item.id === sort)?.label
-            }`
-          : "Live venue data is not connected"}
+        {`Showing ${venues.length} listing${venues.length === 1 ? "" : "s"} · ${
+          sort === "cbd-distance"
+            ? origin
+              ? "CBD first, then distance from you"
+              : "VIP first, then Melbourne CBD (King / Little Bourke / Flinders / Southbank), then proximity"
+            : VENUE_SORT_OPTIONS.find((item) => item.id === sort)?.label
+        }`}
       </div>
 
       <div className="business-banner">

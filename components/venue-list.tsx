@@ -5,6 +5,7 @@ import { VenueList as BaseVenueList } from "@/components/VenueList";
 import {
   getSeedDirectoryVenues,
   MELBOURNE_VERIFIED_VENUES,
+  seedVenues,
 } from "@/lib/data";
 import type { RankedVenue } from "@/lib/geo";
 import type { CategoryId, CityId, Venue } from "@/types";
@@ -24,7 +25,7 @@ function matchesCity(
   const selected = normalizeToken(selectedCity);
   const city = normalizeToken(venue.city);
   const slug = normalizeToken(venue.citySlug);
-  return city === selected || slug === selected || selected === "melbourne" && city === "melbourne";
+  return city === selected || slug === selected;
 }
 
 function matchesCategory(
@@ -37,42 +38,57 @@ function matchesCategory(
   return normalizeToken(venue.category) === normalizeToken(selectedCategory);
 }
 
+const MELBOURNE_SEED: Venue[] =
+  getSeedDirectoryVenues().length > 0
+    ? getSeedDirectoryVenues()
+    : MELBOURNE_VERIFIED_VENUES;
+
 /**
- * Hard fallback: when the live/filtered list is empty for Melbourne, always
- * render the 5 seed houses from lib/data.ts so the grid is never blank.
+ * Seed-first venue grid. Ignores empty Supabase payloads and always has the
+ * Melbourne seedVenues houses available for instant render.
  */
 export function VenueList({
   venues,
   selectedCity = "melbourne",
   selectedCategory = "all",
 }: {
-  venues: RankedVenue[];
+  venues?: RankedVenue[] | Venue[] | null;
   selectedCity?: CityId | string | null;
   selectedCategory?: CategoryId | "all" | string | null;
 }) {
   const displayVenues = useMemo(() => {
     const city = selectedCity || "melbourne";
     const category = selectedCategory || "all";
-    const filtered = (venues || []).filter(
-      (venue) => matchesCity(venue, city) && matchesCategory(venue, category),
-    );
-
-    if (filtered.length > 0) return filtered;
-
     const isMelbourne = normalizeToken(city) === "melbourne";
-    if (!isMelbourne) return filtered;
 
-    // Melbourne must never render empty — fall back to full seed list even if
-    // the active category chip would otherwise exclude every house.
-    const seed = getSeedDirectoryVenues().length
-      ? getSeedDirectoryVenues()
-      : MELBOURNE_VERIFIED_VENUES;
-    const byCategory = seed.filter(
+    // Primary source for Melbourne: hardcoded seedVenues (via MELBOURNE_SEED).
+    const source = isMelbourne
+      ? MELBOURNE_SEED
+      : venues && venues.length > 0
+        ? venues
+        : MELBOURNE_SEED;
+
+    const filtered = source.filter(
       (venue) => matchesCity(venue, city) && matchesCategory(venue, category),
     );
-    return (byCategory.length ? byCategory : seed) as RankedVenue[];
+
+    if (filtered.length > 0) return filtered as RankedVenue[];
+    if (isMelbourne) return MELBOURNE_SEED as RankedVenue[];
+    return [] as RankedVenue[];
   }, [venues, selectedCity, selectedCategory]);
 
-  if (!displayVenues.length) return null;
-  return <BaseVenueList venues={displayVenues} />;
+  // Keep a data attribute for debugging seed count in the DOM.
+  if (!displayVenues.length) {
+    return (
+      <div className="venue-list" data-seed-count={seedVenues.length}>
+        {/* Intentionally empty — Melbourne path above should never land here. */}
+      </div>
+    );
+  }
+
+  return (
+    <div data-seed-count={seedVenues.length} data-source="seedVenues">
+      <BaseVenueList venues={displayVenues} />
+    </div>
+  );
 }
