@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { useBookmarks } from "@/hooks/useBookmarks";
+import { DEFAULT_VENUE_SORT, type VenueSortMode } from "@/lib/geo";
 import type { CategoryId, CityId } from "@/types";
 
 type NavigationContextValue = {
@@ -18,6 +19,8 @@ type NavigationContextValue = {
   setCategory: (category: CategoryId | "all") => void;
   query: string;
   setQuery: (query: string) => void;
+  sort: VenueSortMode;
+  setSort: (sort: VenueSortMode) => void;
   savedIds: string[];
   bookmarksReady: boolean;
   toggleSaved: (id: string) => boolean;
@@ -32,6 +35,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const [city, setCity] = useState<CityId>("sydney");
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<VenueSortMode>(DEFAULT_VENUE_SORT);
   const [toast, setToast] = useState<string | null>(null);
   const bookmarks = useBookmarks();
 
@@ -48,6 +52,8 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
       setCategory,
       query,
       setQuery,
+      sort,
+      setSort,
       savedIds: bookmarks.ids,
       bookmarksReady: bookmarks.ready,
       toggleSaved: bookmarks.toggle,
@@ -55,7 +61,18 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
       toast,
       showToast,
     }),
-    [bookmarks.has, bookmarks.ids, bookmarks.ready, bookmarks.toggle, category, city, query, showToast, toast],
+    [
+      bookmarks.has,
+      bookmarks.ids,
+      bookmarks.ready,
+      bookmarks.toggle,
+      category,
+      city,
+      query,
+      showToast,
+      sort,
+      toast,
+    ],
   );
 
   return (

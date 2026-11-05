@@ -11,13 +11,15 @@ import {
 } from "lucide-react";
 import { CategoryChips } from "@/components/CategoryChips";
 import { CommunityDiscovery } from "@/components/heybro/CommunityDiscovery";
-import { HeyBroCard } from "@/components/HeyBroCard";
+import { VenueList } from "@/components/VenueList";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
+import { useUserLocation } from "@/hooks/useUserLocation";
 import { categories, cities } from "@/lib/cities";
 import { filterVenues } from "@/lib/feed";
 import { HERO_HOOK_BADGES, HERO_NIGHTLIFE_IMAGE } from "@/lib/hero-assets";
+import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
 import type { CategoryId, CityId, Venue } from "@/types";
 
 export function HomeFeed({
@@ -30,13 +32,30 @@ export function HomeFeed({
   error?: string;
 }) {
   const { locale, t } = useCopy();
-  const { city, setCity, category, setCategory, query, setQuery } =
-    useNavigation();
+  const {
+    city,
+    setCity,
+    category,
+    setCategory,
+    query,
+    setQuery,
+    sort,
+    setSort,
+  } = useNavigation();
+  const { origin } = useUserLocation(sort === "cbd-distance");
   const venues =
     source === "supabase"
-      ? filterVenues({ venues: directoryVenues, city, category, query })
+      ? filterVenues({
+          venues: directoryVenues,
+          city,
+          category,
+          query,
+          sort,
+          origin: sort === "cbd-distance" ? origin : null,
+        })
       : [];
   const live = source === "supabase";
+  const cbdCount = venues.filter((venue) => venue.isCbd).length;
 
   return (
     <div className="home-feed home-feed-nightlife">
@@ -136,6 +155,21 @@ export function HomeFeed({
                 ))}
               </select>
             </label>
+            <label className="search-select sort-select">
+              <select
+                value={sort}
+                onChange={(event) =>
+                  setSort(event.target.value as VenueSortMode)
+                }
+                aria-label="Sort venues"
+              >
+                {VENUE_SORT_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {locale === "zh" ? option.labelZh : option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
             <Button type="submit" className="search-submit">
               {t("explore")}
             </Button>
@@ -145,7 +179,7 @@ export function HomeFeed({
           <span>
             <MapPin className="h-3.5 w-3.5" />
           </span>
-          AFTER DARK · AU
+          CBD FIRST · PROXIMITY
         </div>
       </section>
 
@@ -154,7 +188,7 @@ export function HomeFeed({
           <ShieldCheck /> 18+ gated
         </span>
         <span>
-          <MapPin /> City filters
+          <MapPin /> CBD-first sort
         </span>
         <span>
           <Sparkles /> {live ? "Live inventory" : "Directory offline"}
@@ -172,8 +206,29 @@ export function HomeFeed({
               ? cities.find((item) => item.id === city)?.labelZh
               : cities.find((item) => item.id === city)?.label}
           </h2>
-          <p>{t("resultsHint")}</p>
+          <p>
+            {t("resultsHint")}{" "}
+            {live
+              ? locale === "zh"
+                ? `CBD优先排序 · ${cbdCount} 个CBD场所置顶。`
+                : `Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`
+              : null}
+          </p>
         </div>
+        <label className="results-sort">
+          <span>{locale === "zh" ? "排序" : "Sort"}</span>
+          <select
+            value={sort}
+            onChange={(event) => setSort(event.target.value as VenueSortMode)}
+            aria-label="Sort venues"
+          >
+            {VENUE_SORT_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {locale === "zh" ? option.labelZh : option.label}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {!live ? (
@@ -203,16 +258,18 @@ export function HomeFeed({
           </Button>
         </div>
       ) : (
-        <div className="venue-list">
-          {venues.map((venue) => (
-            <HeyBroCard key={venue.id} venue={venue} />
-          ))}
-        </div>
+        <VenueList venues={venues} />
       )}
 
       <div className="result-notice">
         {live
-          ? `Showing ${venues.length} listing${venues.length === 1 ? "" : "s"}`
+          ? `Showing ${venues.length} listing${venues.length === 1 ? "" : "s"} · ${
+              sort === "cbd-distance"
+                ? origin
+                  ? "CBD first, then distance from you"
+                  : "CBD first, then distance from city centre"
+                : VENUE_SORT_OPTIONS.find((item) => item.id === sort)?.label
+            }`
           : "Live venue data is not connected"}
       </div>
 

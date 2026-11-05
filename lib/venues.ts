@@ -1,5 +1,6 @@
 import "server-only";
 
+import { enrichVenueDistance } from "@/lib/geo";
 import {
   luxuryCoverFor,
   luxuryPortraitFor,
@@ -61,7 +62,7 @@ export function mapVenueRow(row: VenueRow): Venue {
     : [];
   const highlights = parseCustomHighlights(row.custom_highlights);
   const isManaged = Boolean(row.is_managed);
-  return {
+  const base: Venue = {
     id: row.slug || row.id,
     name: row.name,
     city: normalizeCity(row.city),
@@ -106,6 +107,13 @@ export function mapVenueRow(row: VenueRow): Venue {
       telegram: highlights.telegram,
     },
   };
+  const ranked = enrichVenueDistance(base);
+  return {
+    ...ranked,
+    isCbd: ranked.isCbd,
+    distanceFromCbdKm: ranked.distanceFromCbdKm,
+    distanceBadge: ranked.distanceBadge,
+  };
 }
 
 export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
@@ -126,6 +134,8 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
     };
   }
 
+  // Pull coords for CBD-first / proximity ranking on the client.
+  // Prefer managed + name as a stable SQL pre-order; final CBD sort is in filterVenues.
   const { data, error } = await client
     .from("venues")
     .select(VENUE_SELECT)

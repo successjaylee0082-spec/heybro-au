@@ -32,6 +32,12 @@ export interface Venue {
   address: string;
   lat?: number;
   lng?: number;
+  /** True when venue sits inside the city CBD core. */
+  isCbd?: boolean;
+  /** Straight-line km from the city CBD benchmark. */
+  distanceFromCbdKm?: number | null;
+  /** Display badge e.g. "Surry Hills • 1.2km from CBD". */
+  distanceBadge?: string;
   verified?: boolean;
   fictional: boolean;
   hours?: string;

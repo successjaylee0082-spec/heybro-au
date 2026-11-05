@@ -88,10 +88,22 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           <MapPin className="h-3 w-3" />
           {suburb}, {cityLabel(venue.city, locale)}
         </div>
+        {venue.distanceBadge ? (
+          <div
+            className={
+              venue.isCbd
+                ? "distance-badge is-cbd"
+                : "distance-badge"
+            }
+          >
+            {venue.distanceBadge}
+          </div>
+        ) : null}
         <Link href={detailHref} className="venue-title">
           <h3>{name}</h3>
         </Link>
         <div className="listing-quick-badges">
+          {venue.isCbd ? <span className="listing-quick-hot">CBD</span> : null}
           <span>Cash OK</span>
           <span>EFTPOS</span>
           <span>WeChat 微信</span>

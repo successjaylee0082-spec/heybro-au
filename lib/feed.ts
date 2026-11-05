@@ -1,3 +1,10 @@
+import {
+  DEFAULT_VENUE_SORT,
+  sortVenuesByMode,
+  type LatLng,
+  type RankedVenue,
+  type VenueSortMode,
+} from "@/lib/geo";
 import type { CategoryId, CityId, Venue } from "@/types";
 
 export const feedVenues: Venue[] = [
@@ -19,6 +26,7 @@ export const feedVenues: Venue[] = [
     address: "1 Demo Quay, Sydney NSW 2000",
     lat: -33.861,
     lng: 151.211,
+    isCbd: true,
     verified: true,
     fictional: true,
     hours: "Thu–Sat 6pm–2am",
@@ -190,6 +198,7 @@ export const feedVenues: Venue[] = [
     address: "14 Demo Peel St, Adelaide SA 5000",
     lat: -34.928,
     lng: 138.6,
+    isCbd: true,
     fictional: true,
     hours: "Tue–Sun 11am–7pm",
   },
@@ -206,10 +215,13 @@ export function filterVenues(options: {
   query?: string;
   savedIds?: string[];
   savedOnly?: boolean;
-}): Venue[] {
+  sort?: VenueSortMode;
+  /** Optional GPS origin — when set, non-CBD proximity uses user location. */
+  origin?: LatLng | null;
+}): RankedVenue[] {
   const list = options.venues ?? feedVenues;
   const query = options.query?.trim().toLowerCase() ?? "";
-  return list.filter((venue) => {
+  const filtered = list.filter((venue) => {
     if (options.city && options.city !== "all" && venue.city !== options.city) {
       return false;
     }
@@ -239,4 +251,10 @@ export function filterVenues(options: {
       .toLowerCase();
     return haystack.includes(query);
   });
+
+  return sortVenuesByMode(
+    filtered,
+    options.sort || DEFAULT_VENUE_SORT,
+    options.origin,
+  );
 }

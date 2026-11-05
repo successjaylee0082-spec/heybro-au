@@ -1,6 +1,6 @@
 "use client";
 
-import { HeyBroCard } from "@/components/HeyBroCard";
+import { VenueList } from "@/components/VenueList";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { filterVenues } from "@/lib/feed";
@@ -8,11 +8,12 @@ import type { Venue } from "@/types";
 
 export function SavedVenues({ venues }: { venues: Venue[] }) {
   const { t } = useCopy();
-  const { savedIds } = useNavigation();
+  const { savedIds, sort } = useNavigation();
   const saved = filterVenues({
     venues,
     savedIds,
     savedOnly: true,
+    sort,
   });
 
   return (
@@ -30,11 +31,7 @@ export function SavedVenues({ venues }: { venues: Venue[] }) {
           <p>{t("emptyBody")}</p>
         </div>
       ) : (
-        <div className="venue-list">
-          {saved.map((venue) => (
-            <HeyBroCard key={venue.id} venue={venue} />
-          ))}
-        </div>
+        <VenueList venues={saved} />
       )}
     </div>
   );
