@@ -1,15 +1,18 @@
-import { LUXURY_PORTRAITS } from "@/lib/luxury-assets";
+import {
+  STAFF_PORTRAIT_FALLBACKS,
+  type StaffEthnicityLabel,
+} from "@/lib/staff-image-map";
 
 /**
- * Curated high-resolution portrait URLs for staff fallbacks.
- * Mix of East Asian and Western glamour aesthetics (illustrative).
+ * Curated female-only portrait URLs for staff fallbacks.
+ * Ethnicity matching is enforced via `portraitForEthnicity`.
  */
-export const STAFF_PORTRAIT_FALLBACKS = LUXURY_PORTRAITS;
+export { STAFF_PORTRAIT_FALLBACKS };
 
 export type StaffProfileTemplate = {
   name: string;
   nameZh?: string;
-  ethnicity: string;
+  ethnicity: StaffEthnicityLabel;
   ethnicityZh?: string;
   heightCm: number;
   cup: string;

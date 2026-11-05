@@ -1,5 +1,11 @@
 # 이미지 자산
 
+## Staff & lounge curation (visual consistency)
+
+- Staff roster portraits live under `public/images/staff/{asian,western,latina,black}/` and are selected **only** via `lib/staff-image-map.ts` (`portraitForEthnicity`). Scraped remote staff URLs are never trusted for gender/ethnicity.
+- Venue covers/galleries/hero use `public/images/lounges/*` dark-luxury nightlife assets only (`lib/luxury-assets.ts`, `lib/venue-gallery.ts`). Apartment / real-estate stock is blocked.
+- Illustrative only — not photographs of registered Australian businesses.
+
 시드니 히어로는 실제 Sydney Harbour Bridge 야경 사진이며, 다른 도시를 선택해도 브랜드를 대표하는 시드니 이미지로 유지됩니다. 이미지 검색 결과의 원본을 프로젝트 public/images에 복사했습니다.
 
 - `sydney-harbour.jpg`: Unsplash, “Sydney harbour bridge illuminated at night with city lights”. 수집 URL: https://files.manuscdn.com/search-media/310519664031595324/pKfey5m2F2LE9pLL2ZQ8iN/XYzpsSwAsrWhgbZn5v9sUb.jpg . 출처 카탈로그: https://unsplash.com/s/photos/sydney-night

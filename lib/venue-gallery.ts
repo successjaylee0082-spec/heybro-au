@@ -1,10 +1,16 @@
-import { LUXURY_LOUNGES, LUXURY_PORTRAITS } from "@/lib/luxury-assets";
+import { LUXURY_LOUNGES, isBlockedInteriorUrl } from "@/lib/luxury-assets";
 
-/** Curated Unsplash fallbacks for venue galleries (luxury interiors + portraits). */
-export const VENUE_GALLERY_FALLBACKS = [
-  ...LUXURY_LOUNGES.slice(0, 4),
-  ...LUXURY_PORTRAITS.slice(0, 6),
-] as const;
+/** Nightlife / dark-luxury lounge fallbacks only — no apartments, no portraits. */
+export const VENUE_GALLERY_FALLBACKS = [...LUXURY_LOUNGES] as const;
+
+function isUsableVenueImage(url?: string | null): boolean {
+  if (!url?.trim()) return false;
+  if (isBlockedInteriorUrl(url)) return false;
+  if (/slider|desktop|banner|ad-|promo/i.test(url)) return false;
+  // Staff portraits belong on roster cards, not venue gallery placeholders.
+  if (/\/images\/staff\//i.test(url)) return false;
+  return true;
+}
 
 export function buildVenueGallery(options: {
   cover?: string | null;
@@ -16,17 +22,22 @@ export function buildVenueGallery(options: {
 
   const push = (url?: string | null) => {
     const value = url?.trim();
-    if (!value) return;
-    if (value.startsWith("/images/") && out.length > 0) return;
+    if (!value || !isUsableVenueImage(value)) return;
+    if (value.startsWith("/images/") && !value.includes("/lounges/") && out.length > 0) {
+      return;
+    }
     if (seen.has(value)) return;
     seen.add(value);
     out.push(value);
   };
 
-  push(options.cover);
-  for (const image of options.staffImages ?? []) {
-    if (image && !/slider|desktop|banner/i.test(image)) push(image);
+  // Prefer curated cover; blocked apartment stock is skipped.
+  if (options.cover && !isBlockedInteriorUrl(options.cover)) {
+    push(options.cover);
   }
+
+  // Ignore scraped staff photos in gallery — ethnicity/gender unverified.
+  void options.staffImages;
 
   const need = Math.max(options.fallbackCount ?? 8, 6);
   for (const fallback of VENUE_GALLERY_FALLBACKS) {

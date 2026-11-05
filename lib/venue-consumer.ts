@@ -7,7 +7,10 @@ import {
 } from "@/lib/booking-links";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
-import { luxuryPortraitFor } from "@/lib/luxury-assets";
+import {
+  isTrustedStaffPortrait,
+  portraitForEthnicity,
+} from "@/lib/staff-image-map";
 import {
   STAFF_PORTRAIT_FALLBACKS,
   STAFF_PROFILE_TEMPLATES,
@@ -129,13 +132,6 @@ function facilityBadges(amenities: string[]): string[] {
   return out.slice(0, 3);
 }
 
-function isUsableStaffImage(url?: string | null): boolean {
-  if (!url?.trim()) return false;
-  // Prefer portraits over ad banners / desktop marketing slides.
-  if (/slider|desktop|banner|ad-|promo|cover/i.test(url)) return false;
-  return true;
-}
-
 export function buildStaffRoster(options: {
   venueId: string;
   staffRows?: Array<{ id?: string; name?: string | null; image_url?: string | null }>;
@@ -143,14 +139,13 @@ export function buildStaffRoster(options: {
   managed?: boolean;
 }): StaffRosterMember[] {
   const rows = options.staffRows ?? [];
-  const portraitPool = [
-    ...STAFF_PORTRAIT_FALLBACKS,
-    ...(options.gallery || []).filter((url) => /unsplash|photo-/i.test(url)),
-  ];
+  // Gallery interiors must never leak into ethnicity-matched staff portraits.
+  void options.gallery;
 
   const target = Math.max(rows.length, options.managed ? 6 : 5);
   const count = Math.min(Math.max(target, 5), 8);
   const members: StaffRosterMember[] = [];
+  const usedImages = new Set<string>();
 
   for (let index = 0; index < count; index += 1) {
     const row = rows[index];
@@ -167,10 +162,17 @@ export function buildStaffRoster(options: {
           ? "soon"
           : "off";
 
-    const image = isUsableStaffImage(row?.image_url)
+    // Strict rule: only ethnicity-bucketed curated female portraits.
+    // Scraped remote staff URLs are untrusted for gender/ethnicity.
+    let image = isTrustedStaffPortrait(row?.image_url)
       ? (row?.image_url as string)
-      : luxuryPortraitFor(seed, index) ||
-        portraitPool[index % portraitPool.length];
+      : portraitForEthnicity(template.ethnicity, seed, index);
+
+    // Prefer unique faces within a single roster when the pool allows it.
+    if (usedImages.has(image)) {
+      image = portraitForEthnicity(template.ethnicity, seed, index + 3);
+    }
+    usedImages.add(image);
 
     members.push({
       id: row?.id || `${options.venueId}-staff-${index}`,

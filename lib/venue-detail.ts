@@ -110,8 +110,8 @@ function composeDetail(options: {
   const venue = withCoords(options.venue);
   const staffRows = options.staffRows ?? [];
   const gallery = buildVenueGallery({
+    // Prefer nightlife lounge cover; never inject unverified staff portraits.
     cover: options.cover || venue.image,
-    staffImages: staffRows.map((row) => row.image_url),
   });
   const content = parseVenueContent({
     description: venue.description,

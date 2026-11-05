@@ -269,8 +269,9 @@ export function VenueDetail({
         </div>
       ) : (
         <div className="demo-note venue-photo-note">
-          Staff cards may blend venue media with illustrative portraits when
-          source profiles are limited. Always confirm availability by phone.
+          Staff portraits are ethnicity-matched illustrative glamour photos.
+          Venue galleries use dark-luxury lounge imagery. Always confirm
+          availability by phone.
         </div>
       )}
 

@@ -1,26 +1,26 @@
 {
-  "generatedAt": "2026-11-04T01:51:56.925Z",
+  "generatedAt": "2026-11-05T07:55:34.613Z",
   "source": "demo-feed",
   "pages": [
     {
       "city": "sydney",
       "suburb": "surry-hills",
-      "category": "massage",
+      "category": "escorts-massage",
       "status": "empty-preview",
       "noindex": true
     },
     {
       "city": "melbourne",
       "suburb": "st-kilda",
-      "category": "nightclub",
+      "category": "nightlife-events",
       "status": "empty-preview",
       "noindex": true
     },
     {
       "city": "brisbane",
       "suburb": "fortitude-valley",
-      "category": "escorts",
-      "status": "unavailable",
+      "category": "brothels",
+      "status": "empty-preview",
       "noindex": true
     }
   ]

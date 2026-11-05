@@ -2,7 +2,7 @@ import { LUXURY_HERO, LUXURY_HERO_SCENE, LUXURY_LOUNGES } from "@/lib/luxury-ass
 
 /**
  * High-impact nightlife / dark-luxury hero imagery.
- * Moody neon lounges + alluring glamour silhouettes (illustrative).
+ * Moody neon lounges only — no harbour scenery or apartment stock.
  */
 export const HERO_NIGHTLIFE_IMAGE = LUXURY_HERO;
 
@@ -10,7 +10,8 @@ export const HERO_NIGHTLIFE_FALLBACKS = [
   LUXURY_HERO,
   LUXURY_HERO_SCENE,
   LUXURY_LOUNGES[0],
-  LUXURY_LOUNGES[4],
+  LUXURY_LOUNGES[3],
+  LUXURY_LOUNGES[6],
 ] as const;
 
 export const HERO_HOOK_BADGES = [
