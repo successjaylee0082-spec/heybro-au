@@ -7,6 +7,7 @@ import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { categoryLabel, cityLabel } from "@/lib/cities";
+import { resolveCardPoseCover } from "@/lib/directory-covers";
 import { withLocale } from "@/lib/i18n";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
@@ -25,6 +26,8 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
   const tags =
     locale === "zh" && venue.tagsZh?.length ? venue.tagsZh : venue.tags;
   const detailHref = withLocale(locale, `/venue/${venue.id}`);
+  // Hard purge: never render lounge/cafe interiors on roster cards.
+  const cover = resolveCardPoseCover(venue.id, venue.image);
   const transit = buildMapsUrl({
     lat: venue.lat,
     lng: venue.lng,
@@ -38,11 +41,12 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           ? "venue-card luxury-venue is-managed"
           : "venue-card luxury-venue"
       }
+      data-cover="masked-pose"
     >
       <div className="venue-image-wrap">
         <Link href={detailHref} className="venue-image-button" aria-label={name}>
           <Image
-            src={venue.image}
+            src={cover}
             alt=""
             fill
             quality={90}

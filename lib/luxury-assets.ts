@@ -1,14 +1,16 @@
 /**
  * Curated high-res dark-luxury lounge imagery for Hey Bro.
- * Wide variety of moody interiors — no neon party clubs or bright apartments.
+ * Gallery / detail mood boards only — listing cards use directory poses
+ * (`lib/directory-covers.ts`), never these interiors.
  */
 
+import { directoryPoseFor } from "@/lib/directory-covers";
 import {
   STAFF_PORTRAIT_FALLBACKS,
   portraitForEthnicity,
 } from "@/lib/staff-image-map";
 
-/** Venue card + gallery pool — high-res interiors only. */
+/** Detail gallery pool — high-res interiors only (not for roster cards). */
 export const LUXURY_LOUNGES = [
   "/images/lounges/mood-01-velvet.jpg",
   "/images/lounges/mood-02-suite.jpg",
@@ -43,9 +45,9 @@ function hashSeed(input: string): number {
   return hash;
 }
 
+/** @deprecated Listing cards must use directory poses — never lounge interiors. */
 export function luxuryCoverFor(seed: string): string {
-  const index = hashSeed(seed) % LUXURY_LOUNGES.length;
-  return LUXURY_LOUNGES[index];
+  return directoryPoseFor(seed);
 }
 
 /** Gallery filler that avoids repeating the cover when possible. */
