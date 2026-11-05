@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0 --port 3000",
+    "dev:clean": "rm -rf .next/cache && next dev --hostname 0.0.0.0 --port 3000",
     "build": "node scripts/build-local-catalog.mjs && next build",
     "start": "node scripts/prepare-standalone.mjs && HOSTNAME=0.0.0.0 PORT=${PORT:-3000} node .next/standalone/server.js",
     "scrape": "tsx scripts/scrape-brothels.ts",

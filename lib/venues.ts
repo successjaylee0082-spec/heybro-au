@@ -150,8 +150,19 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
     };
   }
 
-  const venues = (data as VenueRow[] | null)?.map(mapVenueRow) ?? [];
-  return { venues, source: "supabase" };
+  try {
+    const venues = (data as VenueRow[] | null)?.map(mapVenueRow) ?? [];
+    return { venues, source: "supabase" };
+  } catch (err) {
+    return {
+      venues: [],
+      source: "unavailable",
+      error:
+        err instanceof Error
+          ? err.message
+          : "Failed to map venue rows for directory",
+    };
+  }
 }
 
 export async function getVenueBySlug(slug: string): Promise<Venue | null> {
