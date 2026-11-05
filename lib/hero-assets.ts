@@ -1,18 +1,16 @@
-import { LUXURY_HERO, LUXURY_HERO_SCENE, LUXURY_LOUNGES } from "@/lib/luxury-assets";
-
 /**
- * High-impact nightlife / dark-luxury hero imagery.
- * Moody neon lounges only — no harbour scenery or apartment stock.
+ * Landing hero: striking female silhouette on a clean dark studio backdrop.
+ * Neon party / crowded club plates are intentionally excluded.
  */
-export const HERO_NIGHTLIFE_IMAGE = LUXURY_HERO;
+
+export const HERO_NIGHTLIFE_IMAGE = "/images/hero/studio-silhouette.jpg";
 
 export const HERO_NIGHTLIFE_FALLBACKS = [
-  LUXURY_HERO,
-  LUXURY_HERO_SCENE,
-  LUXURY_LOUNGES[0],
-  LUXURY_LOUNGES[3],
-  LUXURY_LOUNGES[6],
+  "/images/hero/studio-silhouette.jpg",
 ] as const;
+
+/** Optional soft accent — same studio aesthetic, no neon venue plate. */
+export const HERO_GLAMOUR_SILHOUETTE = "/images/hero/studio-silhouette.jpg";
 
 export const HERO_HOOK_BADGES = [
   { id: "active", label: "🔥 Active Ladies Online", labelZh: "🔥 今日出勤中" },

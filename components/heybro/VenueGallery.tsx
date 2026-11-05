@@ -11,7 +11,9 @@ export function VenueGallery({
   images: string[];
   alt: string;
 }) {
-  const gallery = images.length ? images : ["/images/lounge.jpg"];
+  const gallery = images.length
+    ? images
+    : ["/images/lounges/mood-01-velvet.jpg"];
   const [active, setActive] = useState(0);
   const current = gallery[Math.min(active, gallery.length - 1)];
 

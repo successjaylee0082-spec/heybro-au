@@ -1,6 +1,6 @@
 /**
- * Curated dark-luxury nightlife lounge imagery for Hey Bro.
- * Apartment / real-estate interiors and male portraits are intentionally excluded.
+ * Curated dark-luxury lounge imagery for Hey Bro.
+ * Mood studio / velvet lounge only — no neon party clubs or apartment stock.
  */
 
 import {
@@ -9,31 +9,20 @@ import {
 } from "@/lib/staff-image-map";
 
 export const LUXURY_LOUNGES = [
-  "/images/lounges/01.jpg",
-  "/images/lounges/02.jpg",
-  "/images/lounges/03.jpg",
-  "/images/lounges/04.jpg",
-  "/images/lounges/05.jpg",
-  "/images/lounges/06.jpg",
-  "/images/lounges/07.jpg",
-  "/images/lounges/08.jpg",
-  "/images/lounges/09.jpg",
-  "/images/lounges/10.jpg",
-  "/images/lounges/11-lounge.jpg",
-  "/images/lounges/12-cocktail.jpg",
-  "/images/lounges/13-late-night.jpg",
-  "/images/lounges/14-rooftop.jpg",
+  "/images/lounges/mood-01-velvet.jpg",
+  "/images/lounges/mood-02-suite.jpg",
+  "/images/lounges/mood-03-cocktail.jpg",
+  "/images/hero/studio-silhouette.jpg",
 ] as const;
 
-/** Female glamour portraits only — ethnicity-bucketed via staff-image-map. */
+/** Female masked glamour portraits only. */
 export const LUXURY_PORTRAITS = STAFF_PORTRAIT_FALLBACKS;
 
-export const LUXURY_HERO = "/images/lounges/02.jpg";
-export const LUXURY_HERO_SCENE = "/images/lounges/07.jpg";
+export const LUXURY_HERO = "/images/hero/studio-silhouette.jpg";
+export const LUXURY_HERO_SCENE = "/images/lounges/mood-01-velvet.jpg";
 
-/** Patterns that indicate generic apartment / bright real-estate stock. */
 const BLOCKED_COVER_PATTERNS =
-  /apartment|living-room|real.?estate|suburb|daylight.?interior|sydney-harbour|rooftop\.jpg|cocktail-bar|late-night|photo-1560448204|photo-1618221195710|photo-1616486338812|photo-1616594039964|photo-1631049307264|photo-1618773928121|photo-1631049552057|photo-1500648767791|photo-1552058544/i;
+  /apartment|living-room|real.?estate|suburb|daylight.?interior|sydney-harbour|neon.?club|night.?club|disco|party|crowd|concert|rose-haze|neon-silhouette|dancefloor|pink-neon|prague|charles.?bridge|photo-1560448204|photo-1618221195710|photo-1616486338812|photo-1566737236500|photo-1545128485|photo-1514525253161|photo-1470229722913/i;
 
 function hashSeed(input: string): number {
   let hash = 0;
@@ -48,20 +37,22 @@ export function luxuryCoverFor(seed: string): string {
   return LUXURY_LOUNGES[index];
 }
 
-/** @deprecated Prefer portraitForEthnicity — kept for non-staff card seeds. */
+/** @deprecated Prefer portraitForEthnicity */
 export function luxuryPortraitFor(seed: string, offset = 0): string {
   return portraitForEthnicity("Western", seed, offset);
 }
 
 export function shouldReplaceCover(url?: string | null): boolean {
   if (!url?.trim()) return true;
-  if (url.startsWith("/images/lounges/")) return false;
+  if (
+    url.startsWith("/images/lounges/mood-") ||
+    url === "/images/hero/studio-silhouette.jpg"
+  ) {
+    return false;
+  }
   if (url.startsWith("/images/") && !url.includes("/staff/")) return true;
   if (BLOCKED_COVER_PATTERNS.test(url)) return true;
-  if (/unsplash\.com\/photo-/i.test(url) && !/lounges\//.test(url)) {
-    // Prefer curated local nightlife assets over unverified remote interiors.
-    return true;
-  }
+  if (/unsplash\.com\/photo-/i.test(url)) return true;
   return false;
 }
 

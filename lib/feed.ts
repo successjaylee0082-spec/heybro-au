@@ -19,7 +19,7 @@ export const feedVenues: Venue[] = [
     description:
       "Fictional waterfront lounge with harbour views, late cocktails and a calm late-week crowd.",
     descriptionZh: "虚构的海港酒廊，适合晚间鸡尾酒与轻松周末氛围。",
-    image: "/images/lounge.jpg",
+    image: "/images/lounges/mood-01-velvet.jpg",
     tags: ["Cocktails", "Harbour", "Late"],
     tagsZh: ["鸡尾酒", "海港", "深夜"],
     phone: "0297019001",
@@ -42,7 +42,7 @@ export const feedVenues: Venue[] = [
     description:
       "Demo basement bar with neon corners, vinyl nights and small-plate service.",
     descriptionZh: "演示地下室酒吧，霓虹角落与黑胶夜晚。",
-    image: "/images/late-night.jpg",
+    image: "/images/lounges/mood-02-suite.jpg",
     tags: ["Vinyl", "Small plates"],
     tagsZh: ["黑胶", "小食"],
     phone: "0297019002",
@@ -64,7 +64,7 @@ export const feedVenues: Venue[] = [
     description:
       "Illustrative late venue card for directory layout only. Not a real business listing.",
     descriptionZh: "仅用于目录布局的示意场所卡片，并非真实商家。",
-    image: "/images/cocktail-bar.jpg",
+    image: "/images/lounges/mood-03-cocktail.jpg",
     tags: ["Late", "Stage"],
     tagsZh: ["深夜", "舞台"],
     phone: "0297019003",
@@ -85,7 +85,7 @@ export const feedVenues: Venue[] = [
     description:
       "Fictional riverside bar for Melbourne nightlife browsing demos.",
     descriptionZh: "虚构河畔酒吧，用于墨尔本夜生活浏览演示。",
-    image: "/images/rooftop.jpg",
+    image: "/images/lounges/mood-01-velvet.jpg",
     tags: ["River", "Rooftop"],
     tagsZh: ["河畔", "屋顶"],
     phone: "0397019004",
@@ -107,7 +107,7 @@ export const feedVenues: Venue[] = [
     description:
       "Fictional licensed venue card for directory layout only. Not a real business listing.",
     descriptionZh: "仅用于目录布局的虚构持牌场所卡片，并非真实商家。",
-    image: "/images/lounge.jpg",
+    image: "/images/lounges/mood-01-velvet.jpg",
     tags: ["Licensed", "Demo"],
     tagsZh: ["持牌", "演示"],
     phone: "0397019005",
@@ -128,7 +128,7 @@ export const feedVenues: Venue[] = [
     description:
       "Sample Valley nightcard for Brisbane city filtering and Maps actions.",
     descriptionZh: "布里斯班城市筛选与地图操作的示例卡片。",
-    image: "/images/cocktail-bar.jpg",
+    image: "/images/lounges/mood-03-cocktail.jpg",
     tags: ["Valley", "Dance"],
     tagsZh: ["山谷", "舞池"],
     phone: "0797019006",
@@ -149,7 +149,7 @@ export const feedVenues: Venue[] = [
     category: "nightlife-events",
     description: "Fictional Northbridge lounge for western-state city coverage.",
     descriptionZh: "虚构北桥酒廊，覆盖西部城市筛选。",
-    image: "/images/late-night.jpg",
+    image: "/images/lounges/mood-02-suite.jpg",
     tags: ["Lounge", "Whisky"],
     tagsZh: ["酒廊", "威士忌"],
     phone: "0897019007",
@@ -170,7 +170,7 @@ export const feedVenues: Venue[] = [
     description:
       "Illustrative boutique card for adult retail browsing. Not a live storefront.",
     descriptionZh: "成人零售分类浏览的示意精品店卡片，并非真实门店。",
-    image: "/images/rooftop.jpg",
+    image: "/images/lounges/mood-01-velvet.jpg",
     tags: ["Boutique", "Adult retail"],
     tagsZh: ["精品", "成人零售"],
     phone: "0797019008",
@@ -191,7 +191,7 @@ export const feedVenues: Venue[] = [
     description:
       "Fictional escorts & massage directory card for category layout preview only.",
     descriptionZh: "伴游与按摩分类布局预览用的虚构目录卡片。",
-    image: "/images/lounge.jpg",
+    image: "/images/lounges/mood-01-velvet.jpg",
     tags: ["Massage", "Demo"],
     tagsZh: ["按摩", "演示"],
     phone: "0897019009",

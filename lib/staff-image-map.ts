@@ -1,7 +1,7 @@
 /**
  * Strict type-safe staff portrait mapping.
- * Every roster photo is a curated female glamour asset matched to ethnicity.
- * Scraped / remote staff URLs are never trusted for ethnicity or gender.
+ * All assets are masquerade-masked / body-pose focused female editorials.
+ * Unmasked face headshots are intentionally excluded.
  */
 
 export type StaffEthnicityBucket =
@@ -21,6 +21,7 @@ export type StaffEthnicityLabel =
   | "Latina"
   | "Black";
 
+/** Masked East Asian pose editorials — face covered, body/posture focus. */
 const ASIAN_PORTRAITS = [
   "/images/staff/asian/01.jpg",
   "/images/staff/asian/02.jpg",
@@ -28,28 +29,19 @@ const ASIAN_PORTRAITS = [
   "/images/staff/asian/04.jpg",
 ] as const;
 
+/** Masked Western pose editorials. */
 const WESTERN_PORTRAITS = [
   "/images/staff/western/01.jpg",
   "/images/staff/western/02.jpg",
   "/images/staff/western/03.jpg",
   "/images/staff/western/04.jpg",
   "/images/staff/western/05.jpg",
-  "/images/staff/western/06.jpg",
-  "/images/staff/western/07.jpg",
-  "/images/staff/western/08.jpg",
-  "/images/staff/western/09.jpg",
-  "/images/staff/western/10.jpg",
-  "/images/staff/western/11.jpg",
-  "/images/staff/western/13.jpg",
-  "/images/staff/western/14.jpg",
-  "/images/staff/western/15.jpg",
-  "/images/staff/western/16.jpg",
 ] as const;
 
 const LATINA_PORTRAITS = [
   "/images/staff/latina/01.jpg",
+  "/images/staff/latina/02.jpg",
   "/images/staff/latina/03.jpg",
-  "/images/staff/western/13.jpg",
 ] as const;
 
 const BLACK_PORTRAITS = [
@@ -67,7 +59,7 @@ export const STAFF_PORTRAIT_POOLS: Record<
   black: BLACK_PORTRAITS,
 };
 
-/** Flat female-only fallback list (never includes male or interior stock). */
+/** Flat female-only masked fallback list. */
 export const STAFF_PORTRAIT_FALLBACKS = [
   ...ASIAN_PORTRAITS,
   ...WESTERN_PORTRAITS,
@@ -124,8 +116,8 @@ function hashSeed(input: string): number {
 }
 
 /**
- * Deterministic portrait pick from the ethnicity-matched female pool.
- * Never returns male, apartment, or uncategorized remote URLs.
+ * Deterministic masked portrait from the ethnicity-matched pool.
+ * Never returns unmasked face headshots or remote scraped URLs.
  */
 export function portraitForEthnicity(
   ethnicity: string | null | undefined,
@@ -138,7 +130,7 @@ export function portraitForEthnicity(
   return pool[index];
 }
 
-/** Reject scraped/remote URLs that cannot be ethnicity-verified. */
+/** Reject anything outside curated masked staff paths. */
 export function isTrustedStaffPortrait(url?: string | null): boolean {
   if (!url?.trim()) return false;
   return (

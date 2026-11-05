@@ -10,8 +10,8 @@ function statusLabel(status: StaffRosterMember["status"]) {
 }
 
 /**
- * Staff roster card — portrait must already be ethnicity-matched
- * via `portraitForEthnicity` / `buildStaffRoster`.
+ * Staff roster card — masked / body-pose focused portraits only.
+ * Elegant masquerade veil reinforces face discretion on every card.
  */
 export function StaffCard({ member }: { member: StaffRosterMember }) {
   return (
@@ -25,11 +25,13 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
       <div className="staff-card-media">
         <Image
           src={member.image}
-          alt={`${member.name} · ${member.ethnicity} female profile`}
+          alt={`${member.name} · masked ${member.ethnicity} profile`}
           fill
-          className="object-cover staff-portrait"
+          className="object-cover object-[center_28%] staff-portrait"
           sizes="(max-width: 820px) 50vw, 220px"
         />
+        {/* Soft face veil + body-forward vignette */}
+        <div className="staff-face-veil" aria-hidden />
         <div className="staff-media-shade" aria-hidden />
         <span className={`staff-status status-${member.status}`}>
           {member.status === "active" ? (

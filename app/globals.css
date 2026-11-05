@@ -2433,13 +2433,14 @@
   min-height: 560px;
   border-radius: 22px;
   border: 1px solid #f43f5e44;
-  background: #060709;
+  background: #020617; /* slate-950 */
   box-shadow: 0 0 50px #f43f5e1a, inset 0 0 80px #000a;
 }
 .hero-shade {
+  /* Prefer Tailwind gradient on Hero; keep soft ambient rose only as fallback */
   background:
-    linear-gradient(to bottom, rgb(6 7 9 / 0.55), rgb(6 7 9 / 0.82), #060709),
-    radial-gradient(ellipse at 75% 15%, #f43f5e40, transparent 50%) !important;
+    linear-gradient(to bottom, rgb(2 6 23 / 0.8), rgb(15 23 42 / 0.9), #020617),
+    radial-gradient(ellipse at 75% 20%, #f43f5e22, transparent 50%) !important;
 }
 .hero h1 {
   font-size: clamp(40px, 5vw, 68px) !important;
@@ -2578,6 +2579,30 @@
 }
 .staff-card.portfolio-card .staff-portrait {
   filter: saturate(1.08) contrast(1.04);
+}
+/* Masquerade veil — keeps focus on body lines / posture */
+.staff-face-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 42% at 50% 18%, #060709cc 0%, #06070966 38%, transparent 62%),
+    linear-gradient(to bottom, #06070999 0%, transparent 34%, transparent 55%, #060709ee 100%);
+  mix-blend-mode: multiply;
+}
+.staff-face-veil::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 14%;
+  width: 46%;
+  height: 18%;
+  transform: translateX(-50%);
+  border-radius: 999px 999px 40% 40%;
+  background: linear-gradient(180deg, #1a0a12aa, #0a061088);
+  box-shadow: 0 0 24px #f43f5e22, inset 0 0 12px #0008;
+  opacity: 0.55;
 }
 .staff-media-shade {
   position: absolute;

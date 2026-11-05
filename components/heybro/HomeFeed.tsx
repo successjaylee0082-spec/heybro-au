@@ -1,26 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import {
   ArrowRight,
   Building2,
   MapPin,
-  Search,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { CategoryChips } from "@/components/CategoryChips";
+import { Hero } from "@/components/hero";
 import { CommunityDiscovery } from "@/components/heybro/CommunityDiscovery";
 import { VenueList } from "@/components/VenueList";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { useUserLocation } from "@/hooks/useUserLocation";
-import { categories, cities } from "@/lib/cities";
+import { cities } from "@/lib/cities";
 import { filterVenues } from "@/lib/feed";
-import { HERO_HOOK_BADGES, HERO_NIGHTLIFE_IMAGE } from "@/lib/hero-assets";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
-import type { CategoryId, CityId, Venue } from "@/types";
+import type { Venue } from "@/types";
 
 export function HomeFeed({
   venues: directoryVenues,
@@ -32,16 +30,8 @@ export function HomeFeed({
   error?: string;
 }) {
   const { locale, t } = useCopy();
-  const {
-    city,
-    setCity,
-    category,
-    setCategory,
-    query,
-    setQuery,
-    sort,
-    setSort,
-  } = useNavigation();
+  const { city, setCity, category, setCategory, query, sort, setSort } =
+    useNavigation();
   const { origin } = useUserLocation(sort === "cbd-distance");
   const venues =
     source === "supabase"
@@ -79,109 +69,7 @@ export function HomeFeed({
         </div>
       </div>
 
-      <section className="hero hero-nightlife" aria-label="Hey Bro adult directory hero">
-        <div className="hero-photo">
-          <Image
-            src={HERO_NIGHTLIFE_IMAGE}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-          />
-        </div>
-        <div className="hero-shade" aria-hidden />
-        <div className="hero-content">
-          <div className="eyebrow">
-            <span className="eyebrow-dot" />
-            {t("heroEyebrow")}
-          </div>
-          <h1>
-            {t("heroTitleBefore")}{" "}
-            <span>{t("heroTitleAccent")}</span>
-          </h1>
-          <p className="hero-description">{t("heroDescription")}</p>
-
-          <div className="hero-hook-badges" aria-label="Quick trust badges">
-            {HERO_HOOK_BADGES.map((badge) => (
-              <span key={badge.id} className="hero-hook-badge">
-                {locale === "zh" ? badge.labelZh : badge.label}
-              </span>
-            ))}
-          </div>
-
-          <form
-            className="search-bar"
-            onSubmit={(event) => {
-              event.preventDefault();
-            }}
-          >
-            <label className="search-input">
-              <Search className="h-4 w-4" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={t("searchPlaceholder")}
-                aria-label={t("searchPlaceholder")}
-              />
-            </label>
-            <label className="search-select">
-              <MapPin className="h-3.5 w-3.5" />
-              <select
-                value={city}
-                onChange={(event) => setCity(event.target.value as CityId)}
-                aria-label="City"
-              >
-                {cities.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {locale === "zh" ? item.labelZh : item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="search-select category-select">
-              <Sparkles className="h-3.5 w-3.5" />
-              <select
-                value={category}
-                onChange={(event) =>
-                  setCategory(event.target.value as CategoryId | "all")
-                }
-                aria-label="Category"
-              >
-                <option value="all">{locale === "zh" ? "全部" : "All"}</option>
-                {categories.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {locale === "zh" ? item.labelZh : item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="search-select sort-select">
-              <select
-                value={sort}
-                onChange={(event) =>
-                  setSort(event.target.value as VenueSortMode)
-                }
-                aria-label="Sort venues"
-              >
-                {VENUE_SORT_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {locale === "zh" ? option.labelZh : option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <Button type="submit" className="search-submit">
-              {t("explore")}
-            </Button>
-          </form>
-        </div>
-        <div className="hero-location">
-          <span>
-            <MapPin className="h-3.5 w-3.5" />
-          </span>
-          CBD FIRST · PROXIMITY
-        </div>
-      </section>
+      <Hero />
 
       <div className="trust-strip">
         <span>

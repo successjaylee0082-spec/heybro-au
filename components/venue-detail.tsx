@@ -269,9 +269,9 @@ export function VenueDetail({
         </div>
       ) : (
         <div className="demo-note venue-photo-note">
-          Staff portraits are ethnicity-matched illustrative glamour photos.
-          Venue galleries use dark-luxury lounge imagery. Always confirm
-          availability by phone.
+          Staff profiles use masquerade-masked, body-pose editorials.
+          Galleries use moody luxury lounge imagery — not club party plates.
+          Always confirm availability by phone.
         </div>
       )}
 

@@ -2,8 +2,9 @@
 
 ## Staff & lounge curation (visual consistency)
 
-- Staff roster portraits live under `public/images/staff/{asian,western,latina,black}/` and are selected **only** via `lib/staff-image-map.ts` (`portraitForEthnicity`). Scraped remote staff URLs are never trusted for gender/ethnicity.
-- Venue covers/galleries/hero use `public/images/lounges/*` dark-luxury nightlife assets only (`lib/luxury-assets.ts`, `lib/venue-gallery.ts`). Apartment / real-estate stock is blocked.
+- Staff roster portraits live under `public/images/staff/{asian,western,latina,black}/` — **masquerade-masked / body-pose editorials only** (no unmasked face headshots). Selected via `lib/staff-image-map.ts` (`portraitForEthnicity`). Cards also apply a CSS face veil.
+- Landing hero uses `public/images/hero/studio-silhouette.jpg` — female silhouette on a clean dark studio backdrop. Neon party / crowded club plates are excluded.
+- Venue covers/galleries use `public/images/lounges/mood-*.jpg` moody luxury lounge interiors only (`lib/luxury-assets.ts`). Apartment / neon-party stock is blocked.
 - Illustrative only — not photographs of registered Australian businesses.
 
 시드니 히어로는 실제 Sydney Harbour Bridge 야경 사진이며, 다른 도시를 선택해도 브랜드를 대표하는 시드니 이미지로 유지됩니다. 이미지 검색 결과의 원본을 프로젝트 public/images에 복사했습니다.
