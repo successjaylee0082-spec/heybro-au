@@ -2,9 +2,18 @@ import "server-only";
 
 import { parseVenueContent, type ParsedVenueContent } from "@/lib/venue-content";
 import { buildVenueGallery } from "@/lib/venue-gallery";
+import {
+  resolveVenueVisibility,
+  type VenueVisibility,
+} from "@/lib/venue-highlights";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getVenueById } from "@/lib/feed";
-import { getDirectoryVenues, getVenueBySlug, mapVenueRow } from "@/lib/venues";
+import {
+  getDirectoryVenues,
+  getVenueBySlug,
+  mapVenueRow,
+  VENUE_SELECT,
+} from "@/lib/venues";
 import type { Venue } from "@/types";
 import type { VenueRow } from "@/types/database";
 
@@ -13,6 +22,7 @@ export type VenueDetailPayload = {
   gallery: string[];
   related: Venue[];
   content: ParsedVenueContent;
+  visibility: VenueVisibility;
 };
 
 const RELATED_PRIORITY = [
@@ -66,9 +76,7 @@ export async function getVenueDetail(
     if (client) {
       const { data, error } = await client
         .from("venues")
-        .select(
-          "id, slug, name, category, city, suburb, address, state, postcode, phone, website, hours, services, description, cover_image_url, lat, lng, source_url, source_name, source_id, is_fictional, created_at, updated_at",
-        )
+        .select(VENUE_SELECT)
         .eq("slug", slug)
         .maybeSingle();
 
@@ -86,7 +94,12 @@ export async function getVenueDetail(
           description: venue.description,
           tags: venue.tags,
         });
-        return { venue, gallery, related, content };
+        const visibility = resolveVenueVisibility({
+          isManaged: row.is_managed,
+          customHighlights: row.custom_highlights,
+          content,
+        });
+        return { venue, gallery, related, content, visibility };
       }
     }
   }
@@ -95,13 +108,19 @@ export async function getVenueDetail(
   if (!demo) return null;
   const { venues } = await getDirectoryVenues();
   const relatedPool = venues.length ? venues : [];
+  const content = parseVenueContent({
+    description: demo.description,
+    tags: demo.tags,
+  });
   return {
     venue: demo,
     gallery: buildVenueGallery({ cover: demo.image }),
     related: pickRelated(demo, relatedPool.length ? relatedPool : [demo].filter(Boolean)),
-    content: parseVenueContent({
-      description: demo.description,
-      tags: demo.tags,
+    content,
+    visibility: resolveVenueVisibility({
+      isManaged: demo.isManaged,
+      customHighlights: demo.customHighlights,
+      content,
     }),
   };
 }

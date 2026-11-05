@@ -1620,3 +1620,257 @@
   padding: 8px 12px;
 }
 
+
+
+/* Visibility emphasis widgets — neon badges + PRO managed */
+.managed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  box-shadow: 0 0 18px currentColor;
+}
+.managed-badge-sm {
+  font-size: 9px;
+  padding: 5px 8px;
+}
+.managed-badge-md {
+  font-size: 10px;
+  padding: 7px 11px;
+}
+.managed-badge-pro {
+  color: #6ee7b7;
+  background: linear-gradient(135deg, #064e3b, #022c22);
+  border-color: #34d39988;
+}
+.managed-badge-vip {
+  color: #fecdd3;
+  background: linear-gradient(135deg, #881337, #4c0519);
+  border-color: #fb718588;
+  box-shadow: 0 0 22px #fb718566;
+}
+.managed-badge-slot {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+}
+.venue-card.is-managed {
+  border-color: #fb718555;
+  box-shadow: 0 0 0 1px #fb718522, 0 18px 40px #0008;
+}
+.venue-card.is-managed .venue-image-wrap {
+  outline: 1px solid #fb718533;
+}
+.venue-highlight-widget {
+  display: grid;
+  gap: 12px;
+}
+.venue-highlight-managed-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.venue-highlight-managed-note {
+  color: #94a3b8;
+  font-size: 12px;
+}
+.venue-neon-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.venue-neon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  background: #0f172a;
+}
+.venue-neon-badge strong {
+  font-weight: 800;
+}
+.venue-neon-badge.tone-emerald {
+  color: #6ee7b7;
+  border-color: #34d39977;
+  box-shadow: 0 0 16px #10b98155;
+}
+.venue-neon-badge.tone-rose {
+  color: #fecdd3;
+  border-color: #fb718577;
+  box-shadow: 0 0 16px #fb718555;
+}
+.venue-neon-badge.tone-amber {
+  color: #fde68a;
+  border-color: #f59e0b77;
+  box-shadow: 0 0 16px #f59e0b55;
+}
+.venue-neon-badge.tone-violet {
+  color: #ddd6fe;
+  border-color: #a78bfa77;
+  box-shadow: 0 0 16px #8b5cf655;
+}
+.venue-promo-banner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, #fb718533, transparent 45%),
+    linear-gradient(135deg, #0f172a, #1e293b 55%, #4c0519);
+  border: 1px solid #fb718555;
+}
+.venue-promo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: #881337;
+  color: #fecdd3;
+  border: 1px solid #fb718588;
+}
+.venue-promo-copy h2 {
+  margin: 4px 0 6px;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+.venue-promo-copy p {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.venue-promo-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  color: #fff1f2;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.venue-detail-header.is-managed {
+  border-color: #fb718555;
+  box-shadow: 0 0 0 1px #fb718522 inset, 0 20px 50px #0007;
+}
+.venue-detail-eyebrow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 720px) {
+  .venue-promo-banner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Admin highlights editor */
+.admin-panel {
+  display: grid;
+  gap: 16px;
+  padding: 8px 0 36px;
+}
+.admin-panel h1 {
+  margin: 4px 0 8px;
+  font-size: 30px;
+  letter-spacing: -0.8px;
+}
+.admin-panel > p,
+.admin-panel-head p {
+  color: #94a3b8;
+  font-size: 13px;
+}
+.admin-form-row,
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.admin-field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+.admin-field input,
+.admin-field textarea,
+.admin-field select,
+.admin-form-row input,
+.admin-badge-row input,
+.admin-badge-row select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  font: inherit;
+}
+.admin-grid {
+  display: grid;
+  gap: 12px;
+}
+@media (min-width: 720px) {
+  .admin-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.admin-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  font-size: 13px;
+}
+.admin-section {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #334155;
+  background: linear-gradient(180deg, #0f172a, #1e293b);
+}
+.admin-section h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.admin-badge-row {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr 1fr 0.9fr;
+  gap: 8px;
+}
+@media (max-width: 820px) {
+  .admin-badge-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.admin-status {
+  color: #6ee7b7;
+  font-size: 13px;
+}
+.admin-preview-link {
+  color: #fda4af;
+  font-size: 13px;
+  font-weight: 700;
+}

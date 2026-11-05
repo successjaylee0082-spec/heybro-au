@@ -42,6 +42,7 @@ export default async function VenuePage({
       gallery={detail.gallery}
       related={detail.related}
       content={detail.content}
+      visibility={detail.visibility}
     />
   );
 }

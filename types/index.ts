@@ -36,6 +36,23 @@ export interface Venue {
   fictional: boolean;
   hours?: string;
   website?: string;
+  isManaged?: boolean;
+  managedBadge?: "pro" | "vip";
+  customHighlights?: {
+    badges?: Array<{
+      kind: "price" | "event" | "service" | "promo" | "custom";
+      label: string;
+      value?: string;
+      tone?: "emerald" | "rose" | "amber" | "violet";
+    }>;
+    promo?: {
+      title: string;
+      body?: string;
+      ctaLabel?: string;
+      ctaHref?: string;
+    } | null;
+    managedBadge?: "pro" | "vip";
+  };
 }
 
 export interface CityMeta {

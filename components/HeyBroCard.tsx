@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Bookmark, MapPin, Navigation, Phone, ShieldCheck } from "lucide-react";
+import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { categoryLabel, cityLabel } from "@/lib/cities";
@@ -38,7 +39,7 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
   });
 
   return (
-    <article className="venue-card">
+    <article className={venue.isManaged ? "venue-card is-managed" : "venue-card"}>
       <div className="venue-image-wrap">
         <Link href={detailHref} className="venue-image-button" aria-label={name}>
           <Image
@@ -49,7 +50,11 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
             sizes="(max-width: 820px) 50vw, 33vw"
           />
         </Link>
-        {venue.fictional ? (
+        {venue.isManaged ? (
+          <span className="managed-badge-slot">
+            <ManagedBadge variant={venue.managedBadge || "pro"} size="sm" />
+          </span>
+        ) : venue.fictional ? (
           <span className="pick-badge">{t("demoBadge")}</span>
         ) : venue.verified ? (
           <span className="pick-badge">

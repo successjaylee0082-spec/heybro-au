@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { parseCustomHighlights } from "@/lib/venue-highlights";
 import type { CategoryId, CityId, Venue } from "@/types";
 import type { VenueRow } from "@/types/database";
 
@@ -21,6 +22,9 @@ const CATEGORY_IDS = new Set<CategoryId>([
   "nightlife-events",
 ]);
 
+export const VENUE_SELECT =
+  "id, slug, name, category, city, suburb, address, state, postcode, phone, website, hours, services, description, cover_image_url, lat, lng, source_url, source_name, source_id, is_fictional, is_managed, custom_highlights, created_at, updated_at";
+
 export type DirectoryLoadResult = {
   venues: Venue[];
   source: "supabase" | "unavailable";
@@ -36,7 +40,6 @@ function normalizeCity(value: string | null | undefined): CityId {
 function normalizeCategory(value: string | null | undefined): CategoryId {
   const category = (value || "brothels").trim().toLowerCase();
   if (CATEGORY_IDS.has(category as CategoryId)) return category as CategoryId;
-  // Common scraped aliases
   if (category.includes("escort") || category.includes("massage")) {
     return "escorts-massage";
   }
@@ -52,13 +55,16 @@ export function mapVenueRow(row: VenueRow): Venue {
   const services = Array.isArray(row.services)
     ? row.services.filter((item): item is string => typeof item === "string")
     : [];
+  const highlights = parseCustomHighlights(row.custom_highlights);
+  const isManaged = Boolean(row.is_managed);
   return {
     id: row.slug || row.id,
     name: row.name,
     city: normalizeCity(row.city),
     suburb: row.suburb?.trim() || "Sydney",
     category: normalizeCategory(row.category),
-    description: row.description?.trim() || `${row.name} in ${row.suburb || row.city}.`,
+    description:
+      row.description?.trim() || `${row.name} in ${row.suburb || row.city}.`,
     image: row.cover_image_url?.trim() || "/images/lounge.jpg",
     tags: services.slice(0, 6),
     phone: row.phone || undefined,
@@ -72,6 +78,13 @@ export function mapVenueRow(row: VenueRow): Venue {
     fictional: Boolean(row.is_fictional),
     hours: row.hours || undefined,
     website: row.website || undefined,
+    isManaged,
+    managedBadge: isManaged ? highlights.managedBadge || "pro" : undefined,
+    customHighlights: {
+      badges: highlights.badges,
+      promo: highlights.promo,
+      managedBadge: highlights.managedBadge,
+    },
   };
 }
 
@@ -95,9 +108,8 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
 
   const { data, error } = await client
     .from("venues")
-    .select(
-      "id, slug, name, category, city, suburb, address, state, postcode, phone, website, hours, services, description, cover_image_url, lat, lng, source_url, source_name, source_id, is_fictional, created_at, updated_at",
-    )
+    .select(VENUE_SELECT)
+    .order("is_managed", { ascending: false })
     .order("name", { ascending: true });
 
   if (error) {
@@ -120,9 +132,7 @@ export async function getVenueBySlug(slug: string): Promise<Venue | null> {
 
   const { data, error } = await client
     .from("venues")
-    .select(
-      "id, slug, name, category, city, suburb, address, state, postcode, phone, website, hours, services, description, cover_image_url, lat, lng, source_url, source_name, source_id, is_fictional, created_at, updated_at",
-    )
+    .select(VENUE_SELECT)
     .eq("slug", slug)
     .maybeSingle();
 

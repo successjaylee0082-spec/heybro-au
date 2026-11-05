@@ -20,6 +20,8 @@ export type VenueRow = {
   source_name: string | null;
   source_id: string | null;
   is_fictional: boolean | null;
+  is_managed?: boolean | null;
+  custom_highlights?: Record<string, unknown> | null;
   created_at?: string;
   updated_at?: string;
 };

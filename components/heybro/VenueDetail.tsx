@@ -14,14 +14,17 @@ import {
 } from "lucide-react";
 import { RedditLogo } from "@/components/RedditLogo";
 import { RedditShareButton } from "@/components/RedditShareButton";
+import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { RelatedVenues } from "@/components/heybro/RelatedVenues";
 import { VenueGallery } from "@/components/heybro/VenueGallery";
+import { VenueHighlightWidget } from "@/components/heybro/VenueHighlightWidget";
 import { VenueStructuredContent } from "@/components/heybro/VenueStructuredContent";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import type { ParsedVenueContent } from "@/lib/venue-content";
+import type { VenueVisibility } from "@/lib/venue-highlights";
 import { withLocale } from "@/lib/i18n";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
@@ -31,11 +34,13 @@ export function VenueDetail({
   gallery,
   related,
   content,
+  visibility,
 }: {
   venue: Venue;
   gallery: string[];
   related: Venue[];
   content: ParsedVenueContent;
+  visibility: VenueVisibility;
 }) {
   const { locale, t } = useCopy();
   const { isSaved, toggleSaved, showToast } = useNavigation();
@@ -64,12 +69,25 @@ export function VenueDetail({
         {t("backHome")}
       </Link>
 
+      <VenueHighlightWidget visibility={visibility} />
+
       <VenueGallery images={gallery} alt={name} />
 
-      <header className="venue-detail-header">
+      <header
+        className={
+          visibility.isManaged
+            ? "venue-detail-header is-managed"
+            : "venue-detail-header"
+        }
+      >
         <div>
-          <div className="eyebrow">
-            {categoryLabel(venue.category, locale)} · {suburb}
+          <div className="eyebrow venue-detail-eyebrow-row">
+            {visibility.isManaged ? (
+              <ManagedBadge variant={visibility.managedBadge || "pro"} size="sm" />
+            ) : null}
+            <span>
+              {categoryLabel(venue.category, locale)} · {suburb}
+            </span>
           </div>
           <h1>{name}</h1>
           <p>
