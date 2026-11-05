@@ -14,3 +14,4 @@ tsconfig.tsbuildinfo
 uploads
 data/scraped/*.json
 !data/scraped/.gitkeep
+assets/
