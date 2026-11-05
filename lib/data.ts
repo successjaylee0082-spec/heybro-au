@@ -21,7 +21,7 @@ import {
   type VenueOperationalProfile,
   type VenuePaymentChip,
 } from "@/lib/venue-profiles";
-import type { Venue } from "@/types";
+import type { CategoryId, CityId, Venue } from "@/types";
 
 export type { VenuePriceRow };
 export {
@@ -39,52 +39,256 @@ const MELBOURNE_PAYMENTS: VenuePaymentChip[] = [
   "Alipay 支付宝",
 ];
 
-function courseLadder(
-  m30: number,
-  m45: number,
-  m60: number,
-): VenuePriceRow[] {
-  return [
-    { label: "Standard", duration: "30 mins", price: `$${m30}` },
-    { label: "Standard", duration: "45 mins", price: `$${m45}` },
-    { label: "Standard", duration: "60 mins", price: `$${m60}` },
-  ];
+const SEED_COORDS: Record<string, { lat: number; lng: number }> = {
+  "melb-1": { lat: -37.8006, lng: 144.964 },
+  "melb-2": { lat: -37.8195, lng: 144.9568 },
+  "melb-3": { lat: -37.8325, lng: 144.9605 },
+  "melb-4": { lat: -37.8045, lng: 144.992 },
+  "melb-5": { lat: -37.8865, lng: 145.0245 },
+};
+
+const SEED_IMAGES = [
+  "/images/directory/04.jpg",
+  "/images/directory/10.jpg",
+  "/images/directory/11.jpg",
+  "/images/directory/12.jpg",
+  "/images/directory/05.jpg",
+];
+
+export type SeedVenueRecord = {
+  id: string;
+  name: string;
+  city: string;
+  citySlug: string;
+  category: "brothels" | "escorts-massage" | string;
+  address: string;
+  suburb: string;
+  isCbd: boolean;
+  phone: string;
+  website: string;
+  description: string;
+  pricing: Array<{ duration: string; price: number }>;
+  tier: "managed_vip" | "standard" | string;
+  isVerified: boolean;
+  tags: string[];
+};
+
+/**
+ * Hardcoded Melbourne seed — used when Supabase is offline or returns no
+ * Melbourne rows so the city filter never shows "No venues match".
+ */
+export const seedVenues: SeedVenueRecord[] = [
+  {
+    id: "melb-1",
+    name: "Manhattan Terrace",
+    city: "Melbourne",
+    citySlug: "melbourne",
+    category: "brothels",
+    address: "554-556 Swanston St, Carlton VIC 3053",
+    suburb: "Carlton",
+    isCbd: true,
+    phone: "0478 575 305",
+    website: "https://www.manhattanterrace.com.au",
+    description:
+      "World class brothel and 24/7 escort agency located conveniently near the CBD.",
+    pricing: [
+      { duration: "30m", price: 160 },
+      { duration: "45m", price: 200 },
+      { duration: "60m", price: 250 },
+    ],
+    tier: "managed_vip",
+    isVerified: true,
+    tags: ["CBD First", "Cash OK", "EFTPOS", "24/7"],
+  },
+  {
+    id: "melb-2",
+    name: "Top Of The Town",
+    city: "Melbourne",
+    citySlug: "melbourne",
+    category: "brothels",
+    address: "516-518 Flinders St, Melbourne VIC 3000",
+    suburb: "Melbourne CBD",
+    isCbd: true,
+    phone: "(03) 9614 1414",
+    website: "https://www.518flinders.com.au",
+    description:
+      "Premier adult venue situated next to Waterside Hotel and Crown Casino featuring over 80 companions.",
+    pricing: [
+      { duration: "30m", price: 170 },
+      { duration: "45m", price: 210 },
+      { duration: "60m", price: 260 },
+    ],
+    tier: "managed_vip",
+    isVerified: true,
+    tags: ["CBD First", "WeChat Pay", "Discrete Entrance"],
+  },
+  {
+    id: "melb-3",
+    name: "Gotham City House of Sin",
+    city: "Melbourne",
+    citySlug: "melbourne",
+    category: "brothels",
+    address: "70-74 Clarke St, South Melbourne VIC 3205",
+    suburb: "South Melbourne",
+    isCbd: true,
+    phone: "(03) 9699 9269",
+    website: "https://gotham-city.com.au",
+    description: "Multi-million dollar luxury bordello complex in South Melbourne.",
+    pricing: [
+      { duration: "30m", price: 180 },
+      { duration: "45m", price: 220 },
+      { duration: "60m", price: 280 },
+    ],
+    tier: "standard",
+    isVerified: true,
+    tags: ["EFTPOS", "Private Shower"],
+  },
+  {
+    id: "melb-4",
+    name: "Club Collingwood (Le Boudoir)",
+    city: "Melbourne",
+    citySlug: "melbourne",
+    category: "brothels",
+    address: "81 Rokeby St, Collingwood VIC 3066",
+    suburb: "Collingwood",
+    isCbd: false,
+    phone: "(03) 9415 8055",
+    website: "https://www.clubcollingwood.au",
+    description:
+      "First class adult entertainment venue 5 minutes from the CBD, operated by women since 1997.",
+    pricing: [
+      { duration: "30m", price: 150 },
+      { duration: "45m", price: 200 },
+      { duration: "60m", price: 240 },
+    ],
+    tier: "standard",
+    isVerified: true,
+    tags: ["Cash OK", "Discreet"],
+  },
+  {
+    id: "melb-5",
+    name: "Bambra Studio",
+    city: "Melbourne",
+    citySlug: "melbourne",
+    category: "brothels",
+    address: "977 Glen Huntly Rd, Caulfield VIC 3162",
+    suburb: "Caulfield",
+    isCbd: false,
+    phone: "(03) 9563 6221",
+    website: "https://www.bambrabrothelmelbourne.com.au",
+    description: "Six-star gentlemen club with elegant marble interiors.",
+    pricing: [
+      { duration: "30m", price: 160 },
+      { duration: "45m", price: 200 },
+      { duration: "60m", price: 250 },
+    ],
+    tier: "standard",
+    isVerified: true,
+    tags: ["EFTPOS", "VIP Lounge"],
+  },
+];
+
+function normalizeSeedCity(seed: SeedVenueRecord): CityId {
+  const slug = (seed.citySlug || seed.city || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  if (slug === "melbourne" || seed.city.toLowerCase() === "melbourne") {
+    return "melbourne";
+  }
+  return "melbourne";
 }
 
-function melbourneVenue(
-  partial: Omit<Venue, "fictional" | "verified" | "pricing" | "profile" | "rateLine"> & {
-    pricing: VenuePriceRow[];
-    amenities: VenueAmenityChip[];
-    tierLabel?: VenueOperationalProfile["tierLabel"];
-  },
+function normalizeSeedCategory(value: string): CategoryId {
+  const category = value.trim().toLowerCase();
+  if (category === "escorts-massage" || category.includes("escort")) {
+    return "escorts-massage";
+  }
+  return "brothels";
+}
+
+function seedPricingRows(
+  pricing: SeedVenueRecord["pricing"],
+): VenuePriceRow[] {
+  return pricing.map((row) => {
+    const mins = Number.parseInt(row.duration, 10) || 0;
+    return {
+      label: "Standard",
+      duration: mins ? `${mins} mins` : row.duration,
+      price: `$${row.price}`,
+    };
+  });
+}
+
+function amenitiesFromTags(tags: string[]): VenueAmenityChip[] {
+  const pool: VenueAmenityChip[] = [
+    "Discreet Entrance",
+    "Private Shower",
+    "Air Conditioned",
+    "Essentials Provided",
+  ];
+  const matched = pool.filter((chip) =>
+    tags.some((tag) => tag.toLowerCase().includes(chip.toLowerCase().split(" ")[0])),
+  );
+  return matched.length ? matched : ["Discreet Entrance", "Private Shower"];
+}
+
+/** Map a seed record into the directory Venue shape (city id = melbourne). */
+export function seedVenueToDirectoryVenue(
+  seed: SeedVenueRecord,
+  index = 0,
 ): Venue {
-  const { amenities, tierLabel, pricing: rawPricing, tags, ...rest } = partial;
   const pricing = resolveVenuePricing({
-    pricing: rawPricing,
-    profile: { pricing: rawPricing } as VenueOperationalProfile,
+    pricing: seedPricingRows(seed.pricing),
+    profile: {
+      pricing: seedPricingRows(seed.pricing),
+    } as VenueOperationalProfile,
   });
   const rateLine = formatPricingRateLine(pricing);
-  const payments = MELBOURNE_PAYMENTS;
+  const isVip = seed.tier === "managed_vip";
+  const coords = SEED_COORDS[seed.id];
+  const amenities = amenitiesFromTags(seed.tags);
   return {
-    ...rest,
-    fictional: false,
-    verified: true,
-    pricing,
-    rateLine,
+    id: seed.id,
+    name: seed.name,
+    city: normalizeSeedCity(seed),
+    suburb: seed.suburb,
+    category: normalizeSeedCategory(seed.category),
+    description: seed.description,
+    image: SEED_IMAGES[index % SEED_IMAGES.length],
     tags: Array.from(
       new Set([
-        ...tags,
-        "EFTPOS",
+        ...seed.tags,
         "Cash OK",
+        "EFTPOS",
         "WeChat Pay",
         "Alipay",
         ...amenities,
       ]),
     ),
+    phone: seed.phone,
+    address: seed.address,
+    lat: coords?.lat,
+    lng: coords?.lng,
+    isCbd: seed.isCbd,
+    website: seed.website,
+    verified: seed.isVerified,
+    fictional: false,
+    hours: seed.tags.some((tag) => /24\/?7/i.test(tag))
+      ? "Open 24 Hours"
+      : "Daily 10am–late",
+    pricing,
+    rateLine,
+    isManaged: true,
+    managedBadge: isVip ? "vip" : "pro",
+    customHighlights: {
+      tier: isVip ? "vip" : "managed",
+      managedBadge: isVip ? "vip" : "pro",
+    },
     profile: {
-      tierLabel: tierLabel || "Premium",
+      tierLabel: isVip ? "VIP Suite" : "Premium",
       pricing,
-      payments,
+      payments: MELBOURNE_PAYMENTS,
       amenities,
       services: ["GFE", "Massage", "Oral"],
       rateLine,
@@ -92,240 +296,15 @@ function melbourneVenue(
   };
 }
 
-/**
- * Authentic Melbourne verified directory records — AUD course ladders in the
- * $150–$180 / $200–$220 / $240–$280 band with standard payment + amenity chips.
- * Consumed by the demo feed as the Melbourne SSOT.
- */
-export const MELBOURNE_VERIFIED_VENUES: Venue[] = [
-  melbourneVenue({
-    id: "manhattan-terrace",
-    name: "Manhattan Terrace",
-    nameZh: "曼哈顿露台",
-    city: "melbourne",
-    suburb: "Carlton",
-    suburbZh: "卡尔顿",
-    category: "brothels",
-    description:
-      "Carlton licensed house on Swanston Street. Courses $160/30 mins · $210/45 mins · $260/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Discreet Entrance Private Shower Air Conditioned.",
-    descriptionZh:
-      "卡尔顿 Swanston Street 持牌场所。30/45/60 分钟套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/04.jpg",
-    tags: ["Carlton", "Swanston St", "Licensed"],
-    tagsZh: ["卡尔顿", "斯旺斯顿街", "持牌"],
-    phone: "0478575305",
-    address: "554-556 Swanston St, Carlton VIC 3053",
-    lat: -37.8006,
-    lng: 144.964,
-    isCbd: false,
-    isManaged: true,
-    managedBadge: "pro",
-    customHighlights: {
-      tier: "managed",
-      managedBadge: "pro",
-      wechat: "ManhattanTerrace",
-      whatsapp: "0478575305",
-    },
-    hours: "Daily 10am–late",
-    pricing: courseLadder(160, 210, 260),
-    amenities: ["Discreet Entrance", "Private Shower", "Air Conditioned"],
-    tierLabel: "Premium",
-  }),
-  melbourneVenue({
-    id: "top-of-the-town",
-    name: "Top Of The Town",
-    nameZh: "城市之巅",
-    city: "melbourne",
-    suburb: "Melbourne CBD",
-    suburbZh: "墨尔本市中心",
-    category: "brothels",
-    description:
-      "Melbourne CBD landmark on Flinders Street. Premium courses $180/30 mins · $220/45 mins · $280/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Discreet Entrance Private Shower Theme Rooms Meet and Greet Room.",
-    descriptionZh:
-      "弗林德斯街墨尔本 CBD 地标。Premium 30/45/60 套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/10.jpg",
-    tags: ["Melbourne CBD", "Flinders St", "Licensed", "VIP"],
-    tagsZh: ["墨尔本CBD", "弗林德斯街", "持牌"],
-    phone: "0396141414",
-    address: "516-518 Flinders St, Melbourne VIC 3000",
-    lat: -37.8195,
-    lng: 144.9568,
-    isCbd: true,
-    isManaged: true,
-    managedBadge: "vip",
-    customHighlights: {
-      tier: "vip",
-      managedBadge: "vip",
-      wechat: "TopOfTheTownMelb",
-      whatsapp: "0396141414",
-    },
-    hours: "Open 24 Hours",
-    pricing: courseLadder(180, 220, 280),
-    amenities: [
-      "Discreet Entrance",
-      "Private Shower",
-      "Theme Rooms",
-      "Meet and Greet Room",
-      "Open 24 Hours",
-    ],
-    tierLabel: "VIP Suite",
-  }),
-  melbourneVenue({
-    id: "gotham-city-house-of-sin",
-    name: "Gotham City House of Sin",
-    nameZh: "哥谭罪恶之家",
-    city: "melbourne",
-    suburb: "South Melbourne",
-    suburbZh: "南墨尔本",
-    category: "brothels",
-    description:
-      "South Melbourne house on Clarke Street. Courses $170/30 mins · $215/45 mins · $270/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Discreet Entrance Private Shower Spa / Jacuzzi Air Conditioned.",
-    descriptionZh:
-      "南墨尔本 Clarke Street 场所。30/45/60 分钟套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/11.jpg",
-    tags: ["South Melbourne", "Clarke St", "Licensed"],
-    tagsZh: ["南墨尔本", "克拉克街", "持牌"],
-    phone: "0396999269",
-    address: "70-74 Clarke St, South Melbourne VIC 3205",
-    lat: -37.8325,
-    lng: 144.9605,
-    isCbd: false,
-    isManaged: true,
-    managedBadge: "vip",
-    customHighlights: {
-      tier: "vip",
-      managedBadge: "vip",
-      wechat: "GothamCityMelb",
-      whatsapp: "0396999269",
-    },
-    hours: "Daily 24 Hours",
-    pricing: courseLadder(170, 215, 270),
-    amenities: [
-      "Discreet Entrance",
-      "Private Shower",
-      "Spa / Jacuzzi",
-      "Air Conditioned",
-      "Open 24 Hours",
-    ],
-    tierLabel: "Diamond",
-  }),
-  melbourneVenue({
-    id: "club-collingwood",
-    name: "Club Collingwood",
-    nameZh: "科灵伍德俱乐部",
-    city: "melbourne",
-    suburb: "Collingwood",
-    suburbZh: "科灵伍德",
-    category: "brothels",
-    description:
-      "Collingwood licensed club on Rokeby Street. Courses $150/30 mins · $200/45 mins · $240/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Discreet Entrance Private Shower Flat Screen TV Essentials Provided.",
-    descriptionZh:
-      "科灵伍德 Rokeby Street 持牌俱乐部。入门 30/45/60 套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/12.jpg",
-    tags: ["Collingwood", "Rokeby St", "Licensed"],
-    tagsZh: ["科灵伍德", "罗克比街", "持牌"],
-    phone: "0394158055",
-    address: "81 Rokeby St, Collingwood VIC 3066",
-    lat: -37.8045,
-    lng: 144.992,
-    isCbd: false,
-    isManaged: true,
-    managedBadge: "pro",
-    customHighlights: {
-      tier: "managed",
-      managedBadge: "pro",
-      wechat: "ClubCollingwood",
-      whatsapp: "0394158055",
-    },
-    hours: "Daily 10am–4am",
-    pricing: courseLadder(150, 200, 240),
-    amenities: [
-      "Discreet Entrance",
-      "Private Shower",
-      "Flat Screen TV",
-      "Essentials Provided",
-    ],
-    tierLabel: "Premium",
-  }),
-  melbourneVenue({
-    id: "bambra-studio",
-    name: "Bambra Studio",
-    nameZh: "班布拉工作室",
-    city: "melbourne",
-    suburb: "Caulfield",
-    suburbZh: "考菲尔德",
-    category: "escorts-massage",
-    description:
-      "Caulfield studio on Glen Huntly Road. Courses $155/30 mins · $205/45 mins · $250/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Private Shower Discreet Parking Meet and Greet Room Essentials Provided.",
-    descriptionZh:
-      "考菲尔德 Glen Huntly Road 工作室。30/45/60 分钟套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/05.jpg",
-    tags: ["Caulfield", "Glen Huntly", "Massage"],
-    tagsZh: ["考菲尔德", "格伦亨特利", "按摩"],
-    phone: "0395636221",
-    address: "977 Glen Huntly Rd, Caulfield VIC 3162",
-    lat: -37.8865,
-    lng: 145.0245,
-    isCbd: false,
-    isManaged: true,
-    managedBadge: "pro",
-    customHighlights: {
-      tier: "managed",
-      managedBadge: "pro",
-      wechat: "BambraStudio",
-      whatsapp: "0395636221",
-    },
-    hours: "Mon–Sun 10am–2am",
-    pricing: courseLadder(155, 205, 250),
-    amenities: [
-      "Private Shower",
-      "Discreet Parking",
-      "Meet and Greet Room",
-      "Essentials Provided",
-    ],
-    tierLabel: "Premium",
-  }),
-  melbourneVenue({
-    id: "the-number-1",
-    name: "The Number 1",
-    nameZh: "第一号",
-    city: "melbourne",
-    suburb: "Moorabbin",
-    suburbZh: "穆拉宾",
-    category: "brothels",
-    description:
-      "Moorabbin licensed venue on Joel Court. Courses $165/30 mins · $210/45 mins · $265/60 mins AUD. Cash OK, EFTPOS, WeChat Pay and Alipay. Features Discreet Entrance Private Shower Discreet Parking Air Conditioned Individual Waiting Rooms.",
-    descriptionZh:
-      "穆拉宾 Joel Court 持牌场所。30/45/60 分钟套餐，支持现金、EFTPOS、微信与支付宝。",
-    image: "/images/directory/09.jpg",
-    tags: ["Moorabbin", "Joel Ct", "Licensed"],
-    tagsZh: ["穆拉宾", "乔尔庭", "持牌"],
-    phone: "0395322666",
-    address: "1 Joel Ct, Moorabbin VIC 3189",
-    lat: -37.941,
-    lng: 145.057,
-    isCbd: false,
-    isManaged: true,
-    managedBadge: "pro",
-    customHighlights: {
-      tier: "managed",
-      managedBadge: "pro",
-      wechat: "TheNumber1Melb",
-      whatsapp: "0395322666",
-    },
-    hours: "Daily 24 Hours",
-    pricing: courseLadder(165, 210, 265),
-    amenities: [
-      "Discreet Entrance",
-      "Private Shower",
-      "Discreet Parking",
-      "Air Conditioned",
-      "Individual Waiting Rooms",
-      "Open 24 Hours",
-    ],
-    tierLabel: "Premium",
-  }),
-];
+/** Melbourne directory venues derived from `seedVenues` (SSOT for feed + fallback). */
+export const MELBOURNE_VERIFIED_VENUES: Venue[] = seedVenues.map(
+  (seed, index) => seedVenueToDirectoryVenue(seed, index),
+);
+
+/** Full seed catalog ready for HomeFeed when Supabase has no Melbourne rows. */
+export function getSeedDirectoryVenues(): Venue[] {
+  return attachPricingToVenues(MELBOURNE_VERIFIED_VENUES);
+}
 
 /** Minimum AUD course price from the shared pricing ladder. */
 export function minimumCoursePrice(pricing: VenuePriceRow[]): string | null {

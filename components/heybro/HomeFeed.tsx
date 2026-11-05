@@ -16,7 +16,7 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { cities } from "@/lib/cities";
-import { filterVenues } from "@/lib/feed";
+import { feedVenues, filterVenues } from "@/lib/feed";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
 import type { Venue } from "@/types";
 
@@ -26,25 +26,30 @@ export function HomeFeed({
   error,
 }: {
   venues: Venue[];
-  source: "supabase" | "unavailable";
+  source: "supabase" | "seed" | "unavailable";
   error?: string;
 }) {
   const { locale, t } = useCopy();
   const { city, setCity, category, setCategory, query, sort, setSort } =
     useNavigation();
   const { origin } = useUserLocation(sort === "cbd-distance");
-  const venues =
-    source === "supabase"
-      ? filterVenues({
-          venues: directoryVenues,
-          city,
-          category,
-          query,
-          sort,
-          origin: sort === "cbd-distance" ? origin : null,
-        })
-      : [];
+  // Prefer live/seed catalog from the server; fall back to local feed so
+  // Melbourne (and other cities) never render as "No venues match".
+  const catalog =
+    directoryVenues.length > 0
+      ? directoryVenues
+      : feedVenues;
+  const venues = filterVenues({
+    venues: catalog,
+    city,
+    category,
+    query,
+    sort,
+    origin: sort === "cbd-distance" ? origin : null,
+  });
   const live = source === "supabase";
+  const usingSeed = source === "seed" || (!live && catalog.length > 0);
+  const catalogReady = catalog.length > 0;
   const cbdCount = venues.filter((venue) => venue.isCbd).length;
 
   return (
@@ -79,7 +84,12 @@ export function HomeFeed({
           <MapPin /> CBD-first sort
         </span>
         <span>
-          <Sparkles /> {live ? "Live inventory" : "Directory offline"}
+          <Sparkles />{" "}
+          {live
+            ? "Live inventory"
+            : usingSeed
+              ? "Verified seed listings"
+              : "Directory offline"}
         </span>
       </div>
 
@@ -96,7 +106,7 @@ export function HomeFeed({
           </h2>
           <p>
             {t("resultsHint")}{" "}
-            {live
+            {catalogReady
               ? locale === "zh"
                 ? `CBD优先排序 · ${cbdCount} 个CBD场所置顶。`
                 : `Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`
@@ -119,7 +129,7 @@ export function HomeFeed({
         </label>
       </div>
 
-      {!live ? (
+      {!catalogReady ? (
         <div className="empty-state">
           <Sparkles className="h-8 w-8" />
           <h3>
@@ -150,7 +160,7 @@ export function HomeFeed({
       )}
 
       <div className="result-notice">
-        {live
+        {catalogReady
           ? `Showing ${venues.length} listing${venues.length === 1 ? "" : "s"} · ${
               sort === "cbd-distance"
                 ? origin

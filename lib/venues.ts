@@ -1,11 +1,12 @@
 import "server-only";
 
 import { enrichVenueDistance } from "@/lib/geo";
-import { attachPricingToVenues } from "@/lib/data";
+import { attachPricingToVenues, getSeedDirectoryVenues } from "@/lib/data";
 import {
   assignDirectoryPoseCovers,
   directoryPoseFor,
 } from "@/lib/directory-covers";
+import { feedVenues } from "@/lib/feed";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { parseCustomHighlights } from "@/lib/venue-highlights";
 import type { CategoryId, CityId, Venue } from "@/types";
@@ -34,9 +35,23 @@ export const VENUE_SELECT =
 
 export type DirectoryLoadResult = {
   venues: Venue[];
-  source: "supabase" | "unavailable";
+  source: "supabase" | "seed" | "unavailable";
   error?: string;
 };
+
+function seedDirectoryFallback(error?: string): DirectoryLoadResult {
+  const seeded = assignDirectoryPoseCovers(
+    attachPricingToVenues([
+      ...getSeedDirectoryVenues(),
+      ...feedVenues.filter((venue) => venue.city !== "melbourne"),
+    ]),
+  );
+  return {
+    venues: seeded,
+    source: "seed",
+    error,
+  };
+}
 
 function normalizeCity(value: string | null | undefined): CityId {
   const city = (value || "sydney").trim().toLowerCase().replace(/\s+/g, "-");
@@ -121,20 +136,14 @@ export function mapVenueRow(row: VenueRow): Venue {
 
 export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
   if (!isSupabaseConfigured()) {
-    return {
-      venues: [],
-      source: "unavailable",
-      error: "Supabase is not configured",
-    };
+    return seedDirectoryFallback("Supabase is not configured — using Melbourne seed listings");
   }
 
   const client = createSupabaseClient();
   if (!client) {
-    return {
-      venues: [],
-      source: "unavailable",
-      error: "Supabase client could not be created",
-    };
+    return seedDirectoryFallback(
+      "Supabase client could not be created — using Melbourne seed listings",
+    );
   }
 
   // Pull coords for CBD-first / proximity ranking on the client.
@@ -146,11 +155,7 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
     .order("name", { ascending: true });
 
   if (error) {
-    return {
-      venues: [],
-      source: "unavailable",
-      error: error.message,
-    };
+    return seedDirectoryFallback(error.message);
   }
 
   try {
@@ -159,16 +164,30 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
         (data as VenueRow[] | null)?.map(mapVenueRow) ?? [],
       ),
     );
+    // If live DB has no Melbourne rows, merge seed so city filter is never empty.
+    const hasMelbourne = venues.some((venue) => venue.city === "melbourne");
+    if (!hasMelbourne || venues.length === 0) {
+      const seed = getSeedDirectoryVenues();
+      const merged = assignDirectoryPoseCovers(
+        attachPricingToVenues([
+          ...seed,
+          ...venues.filter((venue) => venue.city !== "melbourne"),
+          ...feedVenues.filter(
+            (venue) =>
+              venue.city !== "melbourne" &&
+              !venues.some((live) => live.id === venue.id),
+          ),
+        ]),
+      );
+      return { venues: merged, source: venues.length ? "supabase" : "seed" };
+    }
     return { venues, source: "supabase" };
   } catch (err) {
-    return {
-      venues: [],
-      source: "unavailable",
-      error:
-        err instanceof Error
-          ? err.message
-          : "Failed to map venue rows for directory",
-    };
+    return seedDirectoryFallback(
+      err instanceof Error
+        ? err.message
+        : "Failed to map venue rows for directory",
+    );
   }
 }
 

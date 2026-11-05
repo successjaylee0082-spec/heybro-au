@@ -194,8 +194,17 @@ export function filterVenues(options: {
   const list = options.venues ?? feedVenues;
   const query = options.query?.trim().toLowerCase() ?? "";
   const filtered = list.filter((venue) => {
-    if (options.city && options.city !== "all" && venue.city !== options.city) {
-      return false;
+    if (options.city && options.city !== "all") {
+      const venueCity = String(venue.city || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+      const filterCity = String(options.city)
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+      // Accept both city ids ("melbourne") and display labels ("Melbourne").
+      if (venueCity !== filterCity) return false;
     }
     if (
       options.category &&
