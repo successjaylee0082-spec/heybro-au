@@ -27,8 +27,9 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
           src={member.image}
           alt={`${member.name} · masked ${member.ethnicity} profile`}
           fill
-          className="object-cover object-[center_28%] staff-portrait"
-          sizes="(max-width: 820px) 50vw, 220px"
+          quality={90}
+          className="object-cover object-[center_22%] staff-portrait"
+          sizes="(max-width: 640px) 50vw, (max-width: 1100px) 33vw, 280px"
         />
         {/* Soft face veil + body-forward vignette */}
         <div className="staff-face-veil" aria-hidden />

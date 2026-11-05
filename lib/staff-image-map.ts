@@ -1,6 +1,6 @@
 /**
  * Strict type-safe staff portrait mapping.
- * All assets are masquerade-masked / body-pose focused female editorials.
+ * High-res masquerade-masked / body-pose editorials with styling variety.
  * Unmasked face headshots are intentionally excluded.
  */
 
@@ -21,32 +21,39 @@ export type StaffEthnicityLabel =
   | "Latina"
   | "Black";
 
-/** Masked East Asian pose editorials — face covered, body/posture focus. */
+/** Masked East Asian pose editorials — unique looks & attire. */
 const ASIAN_PORTRAITS = [
   "/images/staff/asian/01.jpg",
   "/images/staff/asian/02.jpg",
   "/images/staff/asian/03.jpg",
   "/images/staff/asian/04.jpg",
+  "/images/staff/asian/05.jpg",
+  "/images/staff/asian/06.jpg",
+  "/images/staff/asian/07.jpg",
+  "/images/staff/asian/08.jpg",
 ] as const;
 
-/** Masked Western pose editorials. */
+/** Masked Western pose editorials — cocktail / evening / lounge wear. */
 const WESTERN_PORTRAITS = [
   "/images/staff/western/01.jpg",
   "/images/staff/western/02.jpg",
   "/images/staff/western/03.jpg",
   "/images/staff/western/04.jpg",
   "/images/staff/western/05.jpg",
+  "/images/staff/western/06.jpg",
 ] as const;
 
 const LATINA_PORTRAITS = [
   "/images/staff/latina/01.jpg",
   "/images/staff/latina/02.jpg",
   "/images/staff/latina/03.jpg",
+  "/images/staff/latina/04.jpg",
 ] as const;
 
 const BLACK_PORTRAITS = [
   "/images/staff/black/01.jpg",
   "/images/staff/black/02.jpg",
+  "/images/staff/black/03.jpg",
 ] as const;
 
 export const STAFF_PORTRAIT_POOLS: Record<
@@ -117,17 +124,32 @@ function hashSeed(input: string): number {
 
 /**
  * Deterministic masked portrait from the ethnicity-matched pool.
- * Never returns unmasked face headshots or remote scraped URLs.
+ * Prefer unused images within a session via `used` set when provided.
  */
 export function portraitForEthnicity(
   ethnicity: string | null | undefined,
   seed: string,
   offset = 0,
+  used?: Set<string>,
 ): string {
   const bucket = resolveStaffEthnicityBucket(ethnicity);
   const pool = STAFF_PORTRAIT_POOLS[bucket];
-  const index = (hashSeed(seed) + offset) % pool.length;
-  return pool[index];
+  const start = (hashSeed(seed) + offset) % pool.length;
+
+  // Deduplicate within this ethnicity pool (ignore other buckets in `used`).
+  if (used) {
+    for (let step = 0; step < pool.length; step += 1) {
+      const candidate = pool[(start + step) % pool.length];
+      if (!used.has(candidate)) {
+        used.add(candidate);
+        return candidate;
+      }
+    }
+  }
+
+  const picked = pool[start];
+  used?.add(picked);
+  return picked;
 }
 
 /** Reject anything outside curated masked staff paths. */

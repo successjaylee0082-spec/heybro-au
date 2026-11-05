@@ -164,15 +164,11 @@ export function buildStaffRoster(options: {
 
     // Strict rule: only ethnicity-bucketed curated female portraits.
     // Scraped remote staff URLs are untrusted for gender/ethnicity.
-    let image = isTrustedStaffPortrait(row?.image_url)
+    // `usedImages` spreads unique looks across the roster.
+    const image = isTrustedStaffPortrait(row?.image_url)
       ? (row?.image_url as string)
-      : portraitForEthnicity(template.ethnicity, seed, index);
-
-    // Prefer unique faces within a single roster when the pool allows it.
-    if (usedImages.has(image)) {
-      image = portraitForEthnicity(template.ethnicity, seed, index + 3);
-    }
-    usedImages.add(image);
+      : portraitForEthnicity(template.ethnicity, seed, index, usedImages);
+    if (isTrustedStaffPortrait(row?.image_url)) usedImages.add(image);
 
     members.push({
       id: row?.id || `${options.venueId}-staff-${index}`,

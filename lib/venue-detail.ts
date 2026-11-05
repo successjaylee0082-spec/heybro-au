@@ -112,6 +112,8 @@ function composeDetail(options: {
   const gallery = buildVenueGallery({
     // Prefer nightlife lounge cover; never inject unverified staff portraits.
     cover: options.cover || venue.image,
+    seed: venue.id,
+    fallbackCount: 8,
   });
   const content = parseVenueContent({
     description: venue.description,

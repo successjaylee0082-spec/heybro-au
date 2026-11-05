@@ -25,8 +25,9 @@ export function VenueGallery({
           alt={alt}
           fill
           priority
+          quality={90}
           className="object-cover"
-          sizes="(max-width: 900px) 100vw, 900px"
+          sizes="(max-width: 900px) 100vw, 1100px"
         />
         <div className="venue-gallery-fade" />
         <div className="venue-gallery-count">

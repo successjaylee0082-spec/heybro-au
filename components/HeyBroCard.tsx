@@ -45,8 +45,9 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
             src={venue.image}
             alt=""
             fill
-            className="venue-image"
-            sizes="(max-width: 820px) 50vw, 33vw"
+            quality={90}
+            className="venue-image object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 420px"
           />
         </Link>
         <div className="venue-media-shade" aria-hidden />

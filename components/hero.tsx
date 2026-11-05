@@ -38,6 +38,7 @@ export function Hero() {
           alt=""
           fill
           priority
+          quality={92}
           sizes="100vw"
           className="object-cover object-[85%_center] opacity-90 contrast-[1.04] saturate-[1.02] md:object-[88%_center]"
         />

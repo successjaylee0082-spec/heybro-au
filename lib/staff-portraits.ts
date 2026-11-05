@@ -19,7 +19,7 @@ export type StaffProfileTemplate = {
   styles: string[];
 };
 
-/** Deterministic premium roster templates for AU + CN clientele. */
+/** Deterministic premium roster templates — varied looks for AU + CN clientele. */
 export const STAFF_PROFILE_TEMPLATES: StaffProfileTemplate[] = [
   {
     name: "Mei Lin",
@@ -92,5 +92,41 @@ export const STAFF_PROFILE_TEMPLATES: StaffProfileTemplate[] = [
     heightCm: 162,
     cup: "B",
     styles: ["Cute", "GFE", "Sweet"],
+  },
+  {
+    name: "Zara",
+    nameZh: "扎拉",
+    ethnicity: "Black",
+    ethnicityZh: "非裔",
+    heightCm: 171,
+    cup: "D",
+    styles: ["Glam", "Tall", "Elegant"],
+  },
+  {
+    name: "Camila",
+    nameZh: "卡米拉",
+    ethnicity: "Latina",
+    ethnicityZh: "拉美",
+    heightCm: 167,
+    cup: "C",
+    styles: ["Sensual", "GFE", "Curvy"],
+  },
+  {
+    name: "Ivy",
+    nameZh: "艾薇",
+    ethnicity: "Western",
+    ethnicityZh: "欧美",
+    heightCm: 169,
+    cup: "B",
+    styles: ["Slim", "Playful", "GFE"],
+  },
+  {
+    name: "Sora",
+    nameZh: "ソラ",
+    ethnicity: "Japanese",
+    ethnicityZh: "日系",
+    heightCm: 158,
+    cup: "B",
+    styles: ["Petite", "Cute", "Sweet"],
   },
 ];
