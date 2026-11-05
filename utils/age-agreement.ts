@@ -8,6 +8,12 @@ export type AgeRecord = {
   expiresAt: number;
 };
 
+const listeners = new Set<() => void>();
+
+function notifyAgeListeners() {
+  for (const listener of listeners) listener();
+}
+
 export function createAgeRecord(now = Date.now()): AgeRecord {
   return {
     version: AGE_VERSION,
@@ -43,6 +49,26 @@ export function readAgeAccepted(): boolean {
   }
 }
 
+export function subscribeAgeAccepted(onStoreChange: () => void): () => void {
+  listeners.add(onStoreChange);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === AGE_STORAGE_KEY || event.key === null) onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(onStoreChange);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+export function getAgeAcceptedSnapshot(): boolean {
+  return readAgeAccepted();
+}
+
+export function getAgeAcceptedServerSnapshot(): boolean {
+  return false;
+}
+
 export function writeAgeAccepted(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -50,6 +76,7 @@ export function writeAgeAccepted(): boolean {
       AGE_STORAGE_KEY,
       JSON.stringify(createAgeRecord()),
     );
+    notifyAgeListeners();
     return true;
   } catch {
     return false;
@@ -60,6 +87,7 @@ export function clearAgeAccepted(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(AGE_STORAGE_KEY);
+    notifyAgeListeners();
   } catch {
     // ignore
   }

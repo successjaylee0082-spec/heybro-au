@@ -1,40 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   clearAgeAccepted,
-  readAgeAccepted,
   writeAgeAccepted,
 } from "@/utils/age-agreement";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 
-export function AgeGateModal({
-  onResolved,
-}: {
-  onResolved: (accepted: boolean) => void;
-}) {
+export function AgeGateModal() {
   const { t } = useCopy();
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    const accepted = readAgeAccepted();
-    if (accepted) onResolved(true);
-    setChecking(false);
-  }, [onResolved]);
-
-  if (checking) {
-    return (
-      <div className="age-gate" role="status" aria-live="polite">
-        <div className="age-gate-panel">
-          <p>Checking access…</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="age-gate" role="dialog" aria-modal="true" aria-labelledby="age-gate-title">
+    <div
+      className="age-gate"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="age-gate-title"
+    >
       <div className="age-gate-panel">
         <p className="age-gate-brand">Hey Bro</p>
         <h2 id="age-gate-title">{t("confirmAge")}</h2>
@@ -44,7 +26,6 @@ export function AgeGateModal({
             type="button"
             onClick={() => {
               writeAgeAccepted();
-              onResolved(true);
             }}
           >
             {t("yes18")}
