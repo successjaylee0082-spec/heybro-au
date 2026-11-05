@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AgeGateModal } from "@/components/layout/AgeGateModal";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -8,31 +8,41 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { NavigationProvider } from "@/components/layout/NavigationProvider";
 import { cn } from "@/lib/utils";
 import {
-  getAgeAcceptedServerSnapshot,
   getAgeAcceptedSnapshot,
   subscribeAgeAccepted,
 } from "@/utils/age-agreement";
 
+/**
+ * Age gate is deferred until after mount so SSR + first paint always show the
+ * full styled shell (header / search / cards / footer). No "Checking access…"
+ * placeholder — that caused blank unstyled HTML when CSS/SW lagged.
+ */
 export function ApplicationShell({
   children,
 }: {
   children: ReactNode;
-  /** @deprecated Kept for call-site compatibility; content stays in the live shell. */
   publicIntro?: ReactNode;
 }) {
-  const accepted = useSyncExternalStore(
-    subscribeAgeAccepted,
-    getAgeAcceptedSnapshot,
-    getAgeAcceptedServerSnapshot,
-  );
+  const [gateReady, setGateReady] = useState(false);
+  const [accepted, setAccepted] = useState(true);
+
+  useEffect(() => {
+    setAccepted(getAgeAcceptedSnapshot());
+    setGateReady(true);
+    return subscribeAgeAccepted(() => {
+      setAccepted(getAgeAcceptedSnapshot());
+    });
+  }, []);
+
+  const showGate = gateReady && !accepted;
 
   return (
     <NavigationProvider>
-      {!accepted ? <AgeGateModal /> : null}
+      {showGate ? <AgeGateModal /> : null}
       <div
-        className={cn("app-shell", !accepted && "is-gated")}
-        aria-hidden={!accepted}
-        {...(!accepted ? { inert: true } : {})}
+        className={cn("app-shell", showGate && "is-gated")}
+        aria-hidden={showGate || undefined}
+        {...(showGate ? { inert: true } : {})}
       >
         <Header />
         <main className="page-shell app-main">{children}</main>

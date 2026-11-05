@@ -1,12 +1,12 @@
+import "./globals.css";
+import "./navigation.css";
+
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getRequestLocale } from "@/lib/i18n-server";
-/* Tailwind base/components/utilities live in globals.css; navigation.css adds shell/gate layout. */
-import "./globals.css";
-import "./navigation.css";
 
 const display = Cormorant_Garamond({
   subsets: ["latin"],

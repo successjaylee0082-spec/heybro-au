@@ -14,9 +14,30 @@ corepack pnpm dev
 
 Open [http://127.0.0.1:3000/en](http://127.0.0.1:3000/en). The Cloud Agent environment forwards port **3000** (`0.0.0.0`) for the built-in browser — use that port, not a random alternate.
 
+### Reset a broken / unstyled local cache
+
+If the page renders as plain HTML (or stuck on “Checking access…”), wipe the Next.js build cache and restart:
+
+```bash
+# macOS / Linux
+rm -rf .next && pnpm dev:reset
+
+# or explicitly:
+rm -rf .next && pnpm exec next dev --hostname 0.0.0.0 --port 3000
+```
+
+```powershell
+# Windows PowerShell
+Remove-Item -Recurse -Force .next
+pnpm exec next dev --hostname 0.0.0.0 --port 3000
+```
+
+Then hard-refresh the browser (Cmd/Ctrl+Shift+R). If a service worker was installed from an older build, open DevTools → Application → Service Workers → Unregister, and Clear site data.
+
 Production-style server:
 
 ```bash
+rm -rf .next
 corepack pnpm build
 corepack pnpm start
 ```
