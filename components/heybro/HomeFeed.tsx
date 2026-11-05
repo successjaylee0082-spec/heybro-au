@@ -10,15 +10,26 @@ import {
 import { CategoryChips } from "@/components/CategoryChips";
 import { Hero } from "@/components/hero";
 import { CommunityDiscovery } from "@/components/heybro/CommunityDiscovery";
-import { VenueList } from "@/components/VenueList";
+import { VenueList } from "@/components/venue-list";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
 import { useUserLocation } from "@/hooks/useUserLocation";
 import { cities } from "@/lib/cities";
+import {
+  getSeedDirectoryVenues,
+  MELBOURNE_VERIFIED_VENUES,
+} from "@/lib/data";
 import { feedVenues, filterVenues } from "@/lib/feed";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
 import type { Venue } from "@/types";
+
+function normalizeToken(value: string | null | undefined): string {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+}
 
 export function HomeFeed({
   venues: directoryVenues,
@@ -33,13 +44,29 @@ export function HomeFeed({
   const { city, setCity, category, setCategory, query, sort, setSort } =
     useNavigation();
   const { origin } = useUserLocation(sort === "cbd-distance");
-  // Prefer live/seed catalog from the server; fall back to local feed so
-  // Melbourne (and other cities) never render as "No venues match".
-  const catalog =
-    directoryVenues.length > 0
-      ? directoryVenues
-      : feedVenues;
-  const venues = filterVenues({
+  const melbourneSeed =
+    getSeedDirectoryVenues().length > 0
+      ? getSeedDirectoryVenues()
+      : MELBOURNE_VERIFIED_VENUES;
+
+  // Merge Melbourne seed into whatever Supabase returned so a non-empty
+  // Sydney-only catalog cannot blank the Melbourne city tab.
+  const catalog = (() => {
+    const base =
+      directoryVenues && directoryVenues.length > 0
+        ? directoryVenues
+        : feedVenues;
+    const hasMelbourne = base.some(
+      (venue) => normalizeToken(venue.city) === "melbourne",
+    );
+    if (hasMelbourne) return base;
+    const nonMelbourne = base.filter(
+      (venue) => normalizeToken(venue.city) !== "melbourne",
+    );
+    return [...melbourneSeed, ...nonMelbourne];
+  })();
+
+  let venues = filterVenues({
     venues: catalog,
     city,
     category,
@@ -47,9 +74,21 @@ export function HomeFeed({
     sort,
     origin: sort === "cbd-distance" ? origin : null,
   });
+
+  // Hard guarantee: Melbourne selection never renders an empty list.
+  if (venues.length === 0 && normalizeToken(city) === "melbourne") {
+    venues = filterVenues({
+      venues: melbourneSeed,
+      city: "melbourne",
+      category: "all",
+      sort,
+      origin: sort === "cbd-distance" ? origin : null,
+    });
+  }
+
   const live = source === "supabase";
   const usingSeed = source === "seed" || (!live && catalog.length > 0);
-  const catalogReady = catalog.length > 0;
+  const catalogReady = catalog.length > 0 || venues.length > 0;
   const cbdCount = venues.filter((venue) => venue.isCbd).length;
 
   return (
@@ -156,7 +195,11 @@ export function HomeFeed({
           </Button>
         </div>
       ) : (
-        <VenueList venues={venues} />
+        <VenueList
+          venues={venues}
+          selectedCity={city}
+          selectedCategory={category}
+        />
       )}
 
       <div className="result-notice">

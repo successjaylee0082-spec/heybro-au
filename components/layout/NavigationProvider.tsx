@@ -32,7 +32,7 @@ type NavigationContextValue = {
 const NavigationContext = createContext<NavigationContextValue | null>(null);
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
-  const [city, setCity] = useState<CityId>("sydney");
+  const [city, setCity] = useState<CityId>("melbourne");
   const [category, setCategory] = useState<CategoryId | "all">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<VenueSortMode>(DEFAULT_VENUE_SORT);

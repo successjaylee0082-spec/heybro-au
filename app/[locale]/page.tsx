@@ -14,16 +14,21 @@ export default async function HomePage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const { venues, source, error } = await getDirectoryVenues();
-  // Guarantee Melbourne seed rows reach the client filter even if the
-  // directory loader returned an empty catalog.
-  const catalog =
-    venues.length > 0
+  const melbourneSeed = getSeedDirectoryVenues();
+
+  // Always ensure Melbourne seed rows are present — even when Supabase returns
+  // a non-empty catalog that has zero Melbourne venues.
+  const hasMelbourne = venues.some((venue) => venue.city === "melbourne");
+  const catalog = !venues.length
+    ? melbourneSeed
+    : hasMelbourne
       ? venues
-      : getSeedDirectoryVenues();
+      : [...melbourneSeed, ...venues];
+
   return (
     <HomeFeed
       venues={catalog}
-      source={venues.length > 0 ? source : "seed"}
+      source={venues.length > 0 && hasMelbourne ? source : "seed"}
       error={error}
     />
   );

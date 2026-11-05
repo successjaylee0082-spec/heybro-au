@@ -194,25 +194,39 @@ export function filterVenues(options: {
   const list = options.venues ?? feedVenues;
   const query = options.query?.trim().toLowerCase() ?? "";
   const filtered = list.filter((venue) => {
-    if (options.city && options.city !== "all") {
-      const venueCity = String(venue.city || "")
+    const selectedCity = options.city;
+    const selectedCategory = options.category;
+    const venueCity = String(venue.city || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+    const venueSlug = String(
+      (venue as Venue & { citySlug?: string }).citySlug || "",
+    )
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+    const filterCity = String(selectedCity || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-");
+    const matchesCity =
+      !selectedCity ||
+      filterCity === "all" ||
+      venueCity === filterCity ||
+      venueSlug === filterCity;
+    if (!matchesCity) return false;
+
+    const filterCategory = String(selectedCategory || "")
+      .trim()
+      .toLowerCase();
+    const matchesCategory =
+      !selectedCategory ||
+      filterCategory === "all" ||
+      String(venue.category || "")
         .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-      const filterCity = String(options.city)
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-      // Accept both city ids ("melbourne") and display labels ("Melbourne").
-      if (venueCity !== filterCity) return false;
-    }
-    if (
-      options.category &&
-      options.category !== "all" &&
-      venue.category !== options.category
-    ) {
-      return false;
-    }
+        .toLowerCase() === filterCategory;
+    if (!matchesCategory) return false;
     if (options.savedOnly && options.savedIds) {
       if (!options.savedIds.includes(venue.id)) return false;
     }
