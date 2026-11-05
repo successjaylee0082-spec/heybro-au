@@ -8,11 +8,14 @@ import {
   portraitForEthnicity,
 } from "@/lib/staff-image-map";
 
+/** Venue card + gallery pool — interiors only (never staff/hero portraits). */
 export const LUXURY_LOUNGES = [
   "/images/lounges/mood-01-velvet.jpg",
   "/images/lounges/mood-02-suite.jpg",
   "/images/lounges/mood-03-cocktail.jpg",
-  "/images/hero/studio-silhouette.jpg",
+  "/images/lounges/mood-04-spa.jpg",
+  "/images/lounges/mood-05-members.jpg",
+  "/images/lounges/mood-06-boutique.jpg",
 ] as const;
 
 /** Female masked glamour portraits only. */
@@ -44,12 +47,8 @@ export function luxuryPortraitFor(seed: string, offset = 0): string {
 
 export function shouldReplaceCover(url?: string | null): boolean {
   if (!url?.trim()) return true;
-  if (
-    url.startsWith("/images/lounges/mood-") ||
-    url === "/images/hero/studio-silhouette.jpg"
-  ) {
-    return false;
-  }
+  if (url.startsWith("/images/lounges/mood-")) return false;
+  if (url === "/images/hero/studio-silhouette.jpg") return true; // hero-only asset
   if (url.startsWith("/images/") && !url.includes("/staff/")) return true;
   if (BLOCKED_COVER_PATTERNS.test(url)) return true;
   if (/unsplash\.com\/photo-/i.test(url)) return true;

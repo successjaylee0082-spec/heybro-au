@@ -39,17 +39,17 @@ export function Hero() {
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[68%_center] opacity-75 contrast-[1.05] saturate-[1.05] md:object-[72%_center]"
+          className="object-cover object-[85%_center] opacity-90 contrast-[1.04] saturate-[1.02] md:object-[88%_center]"
         />
       </div>
 
-      {/* Deep dark luxury overlay */}
+      {/* Deep dark luxury overlay — keep left readable, silhouette visible on right */}
       <div
-        className="hero-shade pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/90 to-slate-950"
+        className="hero-shade pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-900/55 to-slate-950"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-transparent md:w-[68%]"
+        className="pointer-events-none absolute inset-y-0 left-0 w-full bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent md:w-[62%]"
         aria-hidden
       />
 
