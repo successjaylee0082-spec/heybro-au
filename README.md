@@ -34,6 +34,30 @@ pnpm exec next dev --hostname 0.0.0.0 --port 3000
 
 Then hard-refresh the browser (Cmd/Ctrl+Shift+R). If a service worker was installed from an older build, open DevTools → Application → Service Workers → Unregister, and Clear site data.
 
+### Fix `Cannot find module './vendor-chunks/@supabase+…'`
+
+That error means a stale `.next` build no longer matches `node_modules` (common after interrupted installs). Clean reinstall with pnpm:
+
+```bash
+# macOS / Linux
+rm -rf node_modules .next
+corepack enable
+corepack pnpm install --frozen-lockfile
+pnpm build
+pnpm start
+```
+
+```powershell
+# Windows PowerShell
+Remove-Item -Recurse -Force node_modules, .next
+corepack enable
+corepack pnpm install --frozen-lockfile
+pnpm build
+pnpm start
+```
+
+`@supabase/supabase-js` and its `auth-js` / `postgrest-js` / `realtime-js` / `storage-js` / `functions-js` packages are pinned together at `2.118.0` so Next can resolve vendor chunks under pnpm.
+
 Production-style server:
 
 ```bash
