@@ -1401,18 +1401,20 @@
   border-radius: 22px;
   padding: 26px 24px 24px;
   background: linear-gradient(to bottom right, #020617, #18181b, rgba(76, 5, 25, 0.4));
-  border: 1px solid rgba(244, 63, 94, 0.55);
+  border: 1.5px solid rgba(251, 113, 133, 0.72);
   box-shadow:
-    0 0 0 1px rgba(251, 113, 133, 0.18),
-    0 0 28px rgba(244, 63, 94, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 0 0 1px rgba(244, 63, 94, 0.35),
+    0 0 36px rgba(244, 63, 94, 0.35),
+    0 0 64px rgba(190, 18, 60, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .venue-hero-banner.is-premium {
-  border-color: rgba(244, 63, 94, 0.8);
+  border-color: rgba(251, 113, 133, 0.92);
   box-shadow:
-    0 0 0 1px rgba(251, 113, 133, 0.28),
-    0 0 42px rgba(244, 63, 94, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 0 0 1px rgba(244, 63, 94, 0.45),
+    0 0 48px rgba(244, 63, 94, 0.42),
+    0 0 80px rgba(190, 18, 60, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .venue-hero-banner-glow {
   position: absolute;
