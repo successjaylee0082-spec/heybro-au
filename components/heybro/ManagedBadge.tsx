@@ -23,8 +23,12 @@ export function ManagedBadge({
       }
     >
       {isVip ? <Crown className="h-3 w-3" /> : <BadgeCheck className="h-3 w-3" />}
-      {isVip ? "VERIFIED VIP" : "VERIFIED PRO"}
-      {showPlan ? <em className="managed-badge-plan">{VIP_PLAN_LABEL}</em> : null}
+      VERIFIED PRO
+      {showPlan ? (
+        <em className="managed-badge-plan">
+          {isVip ? `VIP · ${VIP_PLAN_LABEL}` : VIP_PLAN_LABEL}
+        </em>
+      ) : null}
     </span>
   );
 }

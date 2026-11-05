@@ -31,7 +31,7 @@ export type VenueTemplateSlot = (typeof VENUE_TEMPLATE_SLOTS)[number];
 const DEFAULT_MANAGED_HOOKS: VenueHookBanner[] = [
   {
     title: "🔥 20s Korean Staff • Top Tier Service • 100% Discreet",
-    subtitle: "VIP lineup · Special Course Available · Call / WhatsApp / WeChat",
+    subtitle: "VERIFIED PRO · Call / WhatsApp / WeChat booking",
   },
   {
     title: "❤️부천/시드니 최다인원! 20대 한국인 상큼함 내상제로❤️",

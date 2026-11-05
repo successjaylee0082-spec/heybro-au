@@ -46,19 +46,8 @@ export function VenueCoursePricing({
   content: ParsedVenueContent;
 }) {
   const courses = FALLBACK_COURSES.map(normalizeCourse);
-  const serviceLabels = new Set(
-    (content.services.length
-      ? content.services
-      : SERVICE_META.map((item) => item.label)
-    ).map((item) => item.toLowerCase()),
-  );
-
-  const services = SERVICE_META.filter(
-    (item) =>
-      serviceLabels.has(item.label.toLowerCase()) ||
-      [...serviceLabels].some((label) => label.includes(item.key)),
-  );
-  const visibleServices = services.length ? services : SERVICE_META;
+  // Always surface the Day-4 OP service chips under every rate card.
+  const visibleServices = SERVICE_META;
 
   return (
     <section
