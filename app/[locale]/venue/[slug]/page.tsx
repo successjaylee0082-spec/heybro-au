@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { VenueDetail } from "@/components/heybro/VenueDetail";
+import { VenueDetail } from "@/components/venue-detail";
 import { isLocale } from "@/lib/i18n";
 import { getVenueDetail } from "@/lib/venue-detail";
 

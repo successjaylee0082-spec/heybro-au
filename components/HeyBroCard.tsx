@@ -31,13 +31,6 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
     address: venue.address,
     mode: "transit",
   });
-  const walking = buildMapsUrl({
-    lat: venue.lat,
-    lng: venue.lng,
-    address: venue.address,
-    mode: "walking",
-  });
-
   return (
     <article className={venue.isManaged ? "venue-card is-managed" : "venue-card"}>
       <div className="venue-image-wrap">
@@ -88,28 +81,39 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
         <div className="listing-quick-badges">
           <span>{suburb}</span>
           <span>Cash OK</span>
+          <span>Card OK</span>
           {tags.slice(0, 2).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
-          {venue.isManaged ? <span className="listing-quick-hot">Active lineup</span> : null}
+          {venue.isManaged ? (
+            <span className="listing-quick-hot">Today Active</span>
+          ) : null}
         </div>
-        <p>{description.length > 120 ? `${description.slice(0, 117)}…` : description}</p>
+        <p className="listing-snip">
+          {description.length > 96 ? `${description.slice(0, 93)}…` : description}
+        </p>
         <div className="venue-actions listing-cta-row">
           {venue.phone ? (
-            <a href={`tel:${venue.phone.replace(/[^\d+]/g, "")}`} className="listing-cta-call">
+            <a
+              href={`tel:${venue.phone.replace(/[^\d+]/g, "")}`}
+              className="listing-cta-call"
+            >
               <Phone className="h-3.5 w-3.5" />
               Call Now
+            </a>
+          ) : null}
+          {venue.phone ? (
+            <a
+              href={`sms:${venue.phone.replace(/[^\d+]/g, "")}`}
+              className="listing-cta-sms"
+            >
+              SMS
             </a>
           ) : null}
           {transit ? (
             <a href={transit} target="_blank" rel="noopener noreferrer">
               <Navigation className="h-3.5 w-3.5" />
               {t("transit")}
-            </a>
-          ) : null}
-          {walking ? (
-            <a href={walking} target="_blank" rel="noopener noreferrer">
-              {t("walking")}
             </a>
           ) : null}
         </div>

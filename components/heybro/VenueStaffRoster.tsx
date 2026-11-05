@@ -23,8 +23,8 @@ export function VenueStaffRoster({
       <div className="staff-roster-head">
         <div>
           <div className="venue-section-label">Active Staff Roster</div>
-          <h2>Today&apos;s lineup</h2>
-          <p>Profile cards first — skip the wall of text and scan who&apos;s on.</p>
+          <h2>오늘의 출근부</h2>
+          <p>텍스트 소개 대신 스태프 카드를 먼저 확인하세요.</p>
         </div>
         <div className="staff-roster-count">
           Today Active

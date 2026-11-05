@@ -2232,3 +2232,20 @@
   border-color: #10b98177 !important;
   color: #6ee7b7 !important;
 }
+
+.listing-snip {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.6em;
+}
+.listing-cta-sms {
+  border-color: #fb718566 !important;
+  color: #fecdd3 !important;
+  background: #4c051933;
+}
+.opiguide-layout .staff-roster {
+  order: 0;
+  box-shadow: 0 0 0 1px #fb718522, 0 18px 40px #0006;
+}
