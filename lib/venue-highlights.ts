@@ -35,6 +35,11 @@ export type CustomHighlights = {
   managedBadge?: ManagedBadgeVariant;
   /** Explicit listing tier. When omitted, derived from is_managed + managedBadge. */
   tier?: VenueListingTier | null;
+  /** Public WeChat ID for sticky CTA / QR dialog. */
+  wechat?: string | null;
+  /** Optional WhatsApp number override (E.164 or AU local). */
+  whatsapp?: string | null;
+  telegram?: string | null;
 };
 
 export type VenueVisibility = {
@@ -138,6 +143,9 @@ export function parseCustomHighlights(raw: unknown): CustomHighlights {
     hook: hook ?? null,
     managedBadge,
     tier: parseTier(record.tier) ?? null,
+    wechat: cleanText(record.wechat, 64) || null,
+    whatsapp: cleanText(record.whatsapp, 32) || null,
+    telegram: cleanText(record.telegram, 64) || null,
   };
 }
 

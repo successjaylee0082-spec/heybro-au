@@ -30,16 +30,16 @@ export type VenueTemplateSlot = (typeof VENUE_TEMPLATE_SLOTS)[number];
 
 const DEFAULT_MANAGED_HOOKS: VenueHookBanner[] = [
   {
-    title: "❤️부천/시드니 최다인원! 20대 한국인 상큼함 내상제로❤️",
-    subtitle: "VIP lineup · Special Course Available · WeChat / SMS booking",
+    title: "🔥 20s Korean Staff • Top Tier Service • 100% Discreet",
+    subtitle: "VIP lineup · Special Course Available · Call / WhatsApp / WeChat",
   },
   {
-    title: "🔥 20s Korean Staff, Zero Inner-Disappointment, Special Course Available",
-    subtitle: "Tonight's VIP roster · book before peak hours",
+    title: "❤️부천/시드니 최다인원! 20대 한국인 상큼함 내상제로❤️",
+    subtitle: "VIP roster · $150/30m · $200/45m · $250/60m",
   },
   {
     title: "💎 Fresh Asian Beauties On Shift · GFE Specials From $150",
-    subtitle: "WeChat / SMS booking · discreet entry",
+    subtitle: "WeChat / WhatsApp booking · discreet entry",
   },
   {
     title: "✨ 시드니 최강 라인업 · 30/45/60분 코스 바로 예약",

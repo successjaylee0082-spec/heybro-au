@@ -1,3 +1,10 @@
+import {
+  buildSmsHref,
+  buildTelHref,
+  buildWhatsAppHref,
+  resolveWeChatContact,
+  type WeChatContact,
+} from "@/lib/booking-links";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
 import { luxuryPortraitFor } from "@/lib/luxury-assets";
@@ -45,7 +52,10 @@ export type VenueConsumerView = {
   areaLabel: string;
   telegramHref?: string;
   wechatHref?: string;
+  whatsappHref?: string;
   smsHref?: string;
+  phoneHref?: string;
+  wechat: WeChatContact;
 };
 
 function hashSeed(input: string): number {
@@ -280,11 +290,19 @@ export function buildVenueConsumerView(options: {
     })),
   ];
 
-  const phone = venue.phone?.replace(/[^\d+]/g, "");
   const extras = (venue.customHighlights || {}) as {
     telegram?: string;
     wechat?: string;
+    whatsapp?: string;
   };
+  const wechat = resolveWeChatContact({
+    wechatId: extras.wechat,
+    // Optional public asset — dialog falls back cleanly if missing.
+    qrPath: extras.wechat ? "/images/wechat-qr.png" : null,
+  });
+  const whatsappHref =
+    buildWhatsAppHref(extras.whatsapp || venue.phone, `Hi, I found ${venue.name} on Hey Bro`) ||
+    undefined;
 
   return {
     quickInfo,
@@ -297,12 +315,13 @@ export function buildVenueConsumerView(options: {
     telegramHref: extras.telegram
       ? `https://t.me/${extras.telegram.replace(/^@/, "")}`
       : undefined,
-    wechatHref: extras.wechat
-      ? `weixin://dl/chat?${encodeURIComponent(extras.wechat)}`
-      : phone
-        ? `sms:${phone}`
-        : undefined,
-    smsHref: phone ? `sms:${phone}` : undefined,
+    wechatHref: wechat.id
+      ? `weixin://dl/chat?${encodeURIComponent(wechat.id)}`
+      : undefined,
+    whatsappHref,
+    smsHref: buildSmsHref(venue.phone),
+    phoneHref: buildTelHref(venue.phone),
+    wechat,
   };
 }
 

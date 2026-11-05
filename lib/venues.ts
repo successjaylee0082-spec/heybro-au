@@ -101,6 +101,9 @@ export function mapVenueRow(row: VenueRow): Venue {
       hook: highlights.hook,
       managedBadge: highlights.managedBadge,
       tier: highlights.tier,
+      wechat: highlights.wechat,
+      whatsapp: highlights.whatsapp,
+      telegram: highlights.telegram,
     },
   };
 }

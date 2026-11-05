@@ -99,11 +99,14 @@ export function VenueDetail({
     address: venue.address,
     mode: "walking",
   });
-  const tel = venue.phone?.replace(/[^\d+]/g, "");
-  const phoneHref = tel ? `tel:${tel}` : undefined;
+  const phoneHref = liveConsumer.phoneHref;
   const tier =
     visibility.tier || (visibility.isManaged ? "managed" : "free");
   const isPremium = tier !== "free";
+  const vipChrome =
+    isPremium
+      ? "border border-rose-500/80 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
+      : "";
   const galleryImages =
     isPremium && gallery.length
       ? gallery
@@ -111,7 +114,7 @@ export function VenueDetail({
 
   return (
     <article
-      className={`venue-detail-page has-sticky-cta venue-template tier-${tier}`}
+      className={`venue-detail-page has-sticky-cta venue-template tier-${tier} ${vipChrome}`}
       data-template="canva-op"
       data-tier={tier}
     >
@@ -306,11 +309,11 @@ export function VenueDetail({
         <RedditShareButton title={name} />
       </div>
 
-      {/* Sticky conversion bar — always present */}
+      {/* Day-5 sticky conversion bar: Call / WhatsApp / WeChat */}
       <VenueStickyCtaBar
         phoneHref={phoneHref}
-        smsHref={liveConsumer.smsHref}
-        wechatHref={liveConsumer.wechatHref}
+        whatsappHref={liveConsumer.whatsappHref}
+        wechat={liveConsumer.wechat}
       />
     </article>
   );

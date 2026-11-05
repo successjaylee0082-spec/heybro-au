@@ -57,6 +57,9 @@ export interface Venue {
     } | null;
     managedBadge?: "pro" | "vip";
     tier?: "free" | "managed" | "vip" | null;
+    wechat?: string | null;
+    whatsapp?: string | null;
+    telegram?: string | null;
   };
 }
 
