@@ -155,7 +155,7 @@ export function HomeFeed({
               sort === "cbd-distance"
                 ? origin
                   ? "CBD first, then distance from you"
-                  : "CBD first, then distance from city centre"
+                  : "VIP first, then Melbourne CBD (King / Little Bourke / Flinders / Southbank), then proximity"
                 : VENUE_SORT_OPTIONS.find((item) => item.id === sort)?.label
             }`
           : "Live venue data is not connected"}

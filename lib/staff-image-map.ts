@@ -123,8 +123,9 @@ function hashSeed(input: string): number {
 }
 
 /**
- * Deterministic masked portrait from the ethnicity-matched pool.
- * Prefer unused images within a session via `used` set when provided.
+ * Deterministic high-res masked portrait from the ethnicity-matched pool.
+ * Prefer unused images via `used`; if the ethnicity pool is exhausted, fall
+ * through to other curated masked buckets so rosters stay non-repetitive.
  */
 export function portraitForEthnicity(
   ethnicity: string | null | undefined,
@@ -136,10 +137,20 @@ export function portraitForEthnicity(
   const pool = STAFF_PORTRAIT_POOLS[bucket];
   const start = (hashSeed(seed) + offset) % pool.length;
 
-  // Deduplicate within this ethnicity pool (ignore other buckets in `used`).
   if (used) {
     for (let step = 0; step < pool.length; step += 1) {
       const candidate = pool[(start + step) % pool.length];
+      if (!used.has(candidate)) {
+        used.add(candidate);
+        return candidate;
+      }
+    }
+    // Ethnicity pool exhausted — borrow an unused masked portrait elsewhere.
+    for (let step = 0; step < STAFF_PORTRAIT_FALLBACKS.length; step += 1) {
+      const candidate =
+        STAFF_PORTRAIT_FALLBACKS[
+          (start + offset + step * 3) % STAFF_PORTRAIT_FALLBACKS.length
+        ];
       if (!used.has(candidate)) {
         used.add(candidate);
         return candidate;

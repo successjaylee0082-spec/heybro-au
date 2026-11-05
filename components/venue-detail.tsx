@@ -37,9 +37,11 @@ import { withLocale } from "@/lib/i18n";
 import type { VenueConsumerView } from "@/lib/venue-consumer";
 import {
   formatPricingRateLine,
+  minimumCoursePrice,
   resolveVenuePricing,
-  type ParsedVenueContent,
-} from "@/lib/venue-content";
+  withVenuePricing,
+} from "@/lib/data";
+import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { isVipListing } from "@/lib/listing-tier";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
@@ -112,8 +114,17 @@ export function VenueDetail({
     isPremium && gallery.length
       ? gallery
       : gallery.slice(0, Math.min(gallery.length, 4));
-  // Hero + course cards share this ladder — never a separate hardcoded rateLine.
-  const syncedRateLine = formatPricingRateLine(resolveVenuePricing(content));
+  // Day 1: hero + Rates cards share venue.pricing (synced via lib/data).
+  const pricedVenue = withVenuePricing({
+    ...venue,
+    pricing: venue.pricing?.length ? venue.pricing : content.pricing,
+  });
+  const sharedPricing = resolveVenuePricing({
+    pricing: pricedVenue.pricing || content.pricing,
+    profile: content.profile,
+  });
+  const syncedRateLine = formatPricingRateLine(sharedPricing);
+  const startingFrom = minimumCoursePrice(sharedPricing);
   const vipListing = isVipListing(venue) || isPremium;
 
   return (
@@ -144,6 +155,11 @@ export function VenueDetail({
           showToast(nowSaved ? t("savedToast") : t("removedToast"));
         }}
       />
+      {startingFrom ? (
+        <p className="sr-only" data-pricing-min={startingFrom}>
+          Minimum course rate {startingFrom}
+        </p>
+      ) : null}
 
       {/* Slot: Quick Info */}
       <div data-slot="quick-info" className="template-slot">
@@ -163,7 +179,7 @@ export function VenueDetail({
 
       {/* Slot: Course & pricing */}
       <div data-slot="pricing" className="template-slot">
-        <VenueCoursePricing content={content} />
+        <VenueCoursePricing content={content} pricing={sharedPricing} />
       </div>
 
       {/* Slot: Gallery — VIP gets fuller set */}

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { enrichVenueDistance } from "@/lib/geo";
+import { attachPricingToVenues } from "@/lib/data";
 import {
   assignDirectoryPoseCovers,
   directoryPoseFor,
@@ -154,7 +155,9 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
 
   try {
     const venues = assignDirectoryPoseCovers(
-      (data as VenueRow[] | null)?.map(mapVenueRow) ?? [],
+      attachPricingToVenues(
+        (data as VenueRow[] | null)?.map(mapVenueRow) ?? [],
+      ),
     );
     return { venues, source: "supabase" };
   } catch (err) {

@@ -1,11 +1,8 @@
 "use client";
 
 import { Flame, Heart, Sparkles, Timer, Waves, Flower2, Users } from "lucide-react";
-import {
-  resolveVenuePricing,
-  type ParsedVenueContent,
-  type VenuePriceRow,
-} from "@/lib/venue-content";
+import { resolveVenuePricing, type VenuePriceRow } from "@/lib/data";
+import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { ReactNode } from "react";
 
 const SERVICE_ICONS: Record<string, ReactNode> = {
@@ -50,11 +47,17 @@ function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
 
 export function VenueCoursePricing({
   content,
+  pricing,
 }: {
   content: ParsedVenueContent;
+  /** Prefer venue.pricing — must match the hero rate line source. */
+  pricing?: VenuePriceRow[] | null;
 }) {
-  // Same ladder the hero rate line is built from — no separate defaults.
-  const courses = resolveVenuePricing(content)
+  // Single source of truth shared with the detail hero banner.
+  const courses = resolveVenuePricing({
+    pricing: pricing?.length ? pricing : content.pricing,
+    profile: content.profile,
+  })
     .map(normalizeCourse)
     .filter((course) => course.price)
     .slice(0, 3);

@@ -1,3 +1,4 @@
+import { melbourneCbdPriority } from "@/lib/data";
 import { listingTierSortRank } from "@/lib/listing-tier";
 import type { CityId, Venue } from "@/types";
 
@@ -18,8 +19,12 @@ const CBD_SUBURB_PATTERNS: Partial<Record<CityId, RegExp>> = {
   sydney:
     /^(sydney(\s+cbd)?|cbd|circular quay|haymarket|chinatown|the rocks|barangaroo|wynyard|town hall|world square|darling harbour)$/i,
   melbourne:
-    /^(melbourne(\s+cbd)?|cbd|docklands|carlton|east melbourne)$/i,
+    /^(melbourne(\s+cbd)?|cbd|docklands|carlton|east melbourne|southbank|south bank|flinders|king street|little bourke)$/i,
 };
+
+/** Melbourne CBD street / precinct cues (King, Little Bourke, Flinders, Southbank). */
+export const MELBOURNE_CBD_STREET_PATTERN =
+  /king\s*st|little\s*bourke|flinders(\s*st|\s*street| lane)?|southbank|south\s*bank|melbourne\s*cbd/i;
 
 /** Fallback suburb pins when venue lat/lng is missing. */
 export const SUBURB_COORDS: Record<string, LatLng> = {
@@ -41,7 +46,13 @@ export const SUBURB_COORDS: Record<string, LatLng> = {
   // Melbourne
   "melbourne cbd": CITY_CBD_CENTERS.melbourne,
   melbourne: CITY_CBD_CENTERS.melbourne,
+  "king street": { lat: -37.8145, lng: 144.9588 },
+  "king st": { lat: -37.8145, lng: 144.9588 },
+  "little bourke": { lat: -37.8128, lng: 144.9665 },
+  flinders: { lat: -37.8162, lng: 144.9701 },
+  "flinders lane": { lat: -37.8162, lng: 144.9701 },
   southbank: { lat: -37.823, lng: 144.964 },
+  "south bank": { lat: -37.823, lng: 144.964 },
   "st kilda": { lat: -37.868, lng: 144.98 },
   richmond: { lat: -37.823, lng: 144.998 },
   // Other cities
@@ -102,16 +113,29 @@ export function resolveVenueCoords(venue: Pick<Venue, "lat" | "lng" | "suburb" |
   return CITY_CBD_CENTERS[venue.city] || null;
 }
 
-export function isCbdVenue(venue: Pick<Venue, "city" | "suburb" | "lat" | "lng" | "isCbd">): boolean {
+export function isCbdVenue(
+  venue: Pick<Venue, "city" | "suburb" | "lat" | "lng" | "isCbd" | "address" | "tags">,
+): boolean {
   if (venue.isCbd === true) return true;
   const suburb = venue.suburb.trim();
   const pattern = CBD_SUBURB_PATTERNS[venue.city];
   if (pattern?.test(suburb)) return true;
   if (/cbd/i.test(suburb)) return true;
+  if (
+    venue.city === "melbourne" &&
+    MELBOURNE_CBD_STREET_PATTERN.test(
+      `${suburb} ${venue.address || ""} ${(venue.tags || []).join(" ")}`,
+    )
+  ) {
+    return true;
+  }
   const coords = resolveVenueCoords(venue);
   const center = CITY_CBD_CENTERS[venue.city];
   if (!coords || !center) return false;
-  return haversineKm(coords, center) <= CBD_RADIUS_KM;
+  // Melbourne CBD core stretches slightly farther (Southbank / King St strip).
+  const radius =
+    venue.city === "melbourne" ? CBD_RADIUS_KM + 0.55 : CBD_RADIUS_KM;
+  return haversineKm(coords, center) <= radius;
 }
 
 export function formatDistanceBadge(options: {
@@ -165,9 +189,11 @@ export function enrichVenueDistance(
     distanceKm: origin ? distanceFromOriginKm : distanceFromCbdKm,
     fromLabel: origin ? "you" : "CBD",
   });
-  // Lower score sorts first: CBD cluster, then proximity.
+  // Lower score sorts first: Melbourne CBD streets, CBD cluster, then proximity.
   const proximity = distanceFromOriginKm ?? 9999;
-  const sortScore = (isCbd ? 0 : 1000) + proximity;
+  const melPriority = melbourneCbdPriority({ ...venue, isCbd });
+  const sortScore =
+    melPriority * 100 + (isCbd ? 0 : 1000) + proximity;
 
   return {
     ...venue,
@@ -208,9 +234,12 @@ export function sortVenuesByMode(
       byTierThen(a, b, (x, y) => x.sortScore - y.sortScore),
     );
   }
-  // Default: VIP first, then CBD cluster, then proximity.
+  // Default: VIP first, Melbourne CBD streets, then CBD cluster / proximity.
   return ranked.sort((a, b) =>
     byTierThen(a, b, (x, y) => {
+      const mel =
+        melbourneCbdPriority(x) - melbourneCbdPriority(y);
+      if (mel !== 0) return mel;
       if (x.isCbd !== y.isCbd) return x.isCbd ? -1 : 1;
       const da = x.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;
       const db = y.distanceFromOriginKm ?? Number.POSITIVE_INFINITY;

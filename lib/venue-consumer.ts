@@ -7,10 +7,8 @@ import {
 } from "@/lib/booking-links";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
-import {
-  isTrustedStaffPortrait,
-  portraitForEthnicity,
-} from "@/lib/staff-image-map";
+import { nextMaskedStaffPortrait } from "@/lib/data";
+import { isTrustedStaffPortrait } from "@/lib/staff-image-map";
 import {
   STAFF_PORTRAIT_FALLBACKS,
   STAFF_PROFILE_TEMPLATES,
@@ -149,12 +147,16 @@ export function buildStaffRoster(options: {
           ? "soon"
           : "off";
 
-    // Strict rule: only ethnicity-bucketed curated female portraits.
-    // Scraped remote staff URLs are untrusted for gender/ethnicity.
-    // `usedImages` spreads unique looks across the roster.
+    // Strict rule: curated high-res masked female portraits only.
+    // Scraped remote staff URLs are untrusted; unused-set prevents repeats.
     const image = isTrustedStaffPortrait(row?.image_url)
       ? (row?.image_url as string)
-      : portraitForEthnicity(template.ethnicity, seed, index, usedImages);
+      : nextMaskedStaffPortrait({
+          ethnicity: template.ethnicity,
+          seed,
+          offset: index,
+          used: usedImages,
+        });
     if (isTrustedStaffPortrait(row?.image_url)) usedImages.add(image);
 
     members.push({

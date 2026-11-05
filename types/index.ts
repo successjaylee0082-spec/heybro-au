@@ -15,6 +15,12 @@ export type CategoryId =
   | "adult-retail"
   | "nightlife-events";
 
+export type VenuePriceRow = {
+  label: string;
+  duration: string;
+  price: string;
+};
+
 export interface Venue {
   id: string;
   name: string;
@@ -38,6 +44,21 @@ export interface Venue {
   distanceFromCbdKm?: number | null;
   /** Display badge e.g. "Surry Hills • 1.2km from CBD". */
   distanceBadge?: string;
+  /**
+   * Shared AUD course ladder — hero banner + Rates cards must both use this.
+   */
+  pricing?: VenuePriceRow[];
+  /** Derived from `pricing` via formatPricingRateLine — never hand-authored. */
+  rateLine?: string;
+  /** Operational profile mirror (payments / amenities / synced pricing). */
+  profile?: {
+    tierLabel?: string;
+    pricing?: VenuePriceRow[];
+    payments?: string[];
+    amenities?: string[];
+    services?: string[];
+    rateLine?: string;
+  };
   verified?: boolean;
   fictional: boolean;
   hours?: string;
