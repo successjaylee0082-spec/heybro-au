@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * Consumer venue detail layout (opistar / opiguide style).
- * Priority: Quick Info → Staff roster → Course pricing → Sticky CTA.
+ * Standardized Canva-style venue template.
+ * Slots: Hero → Hook → Quick Info → Highlights → Staff → Pricing → Gallery → Contact CTA.
+ * Tier styling: free (clean) vs managed/vip ($40/mo neon elite).
  */
 
 import Link from "next/link";
@@ -25,6 +26,7 @@ import { RelatedVenues } from "@/components/heybro/RelatedVenues";
 import { VenueCoursePricing } from "@/components/heybro/VenueCoursePricing";
 import { VenueGallery } from "@/components/heybro/VenueGallery";
 import { VenueHighlightWidget } from "@/components/heybro/VenueHighlightWidget";
+import { VenueHookBox } from "@/components/heybro/VenueHookBox";
 import { VenueQualityChecklist } from "@/components/heybro/VenueQualityChecklist";
 import { VenueQuickInfoBar } from "@/components/heybro/VenueQuickInfoBar";
 import { VenueStaffRoster } from "@/components/heybro/VenueStaffRoster";
@@ -39,6 +41,7 @@ import { withLocale } from "@/lib/i18n";
 import type { VenueConsumerView } from "@/lib/venue-consumer";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
+import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
 
@@ -72,7 +75,13 @@ export function VenueDetail({
       ...consumer,
       quickInfo: consumer.quickInfo.map((badge) =>
         badge.kind === "location"
-          ? { ...badge, value: `${distanceKm.toFixed(1)}km away` }
+          ? {
+              ...badge,
+              value:
+                distanceKm < 1
+                  ? `${Math.round(distanceKm * 1000)}m away`
+                  : `${distanceKm.toFixed(1)}km away`,
+            }
           : badge,
       ),
     };
@@ -92,30 +101,45 @@ export function VenueDetail({
   });
   const tel = venue.phone?.replace(/[^\d+]/g, "");
   const phoneHref = tel ? `tel:${tel}` : undefined;
+  const tier =
+    visibility.tier || (visibility.isManaged ? "managed" : "free");
+  const isPremium = tier !== "free";
+  const galleryImages =
+    isPremium && gallery.length
+      ? gallery
+      : gallery.slice(0, Math.min(gallery.length, 4));
 
   return (
-    <article className="venue-detail-page has-sticky-cta opiguide-layout">
+    <article
+      className={`venue-detail-page has-sticky-cta venue-template tier-${tier}`}
+      data-template="canva-op"
+      data-tier={tier}
+    >
       <Link href={withLocale(locale, "/")} className="text-link venue-back">
         <ArrowLeft className="h-4 w-4" />
         {t("backHome")}
       </Link>
 
-      {/* 1) Hero Quick Info badge bar — always first */}
-      <VenueQuickInfoBar badges={liveConsumer.quickInfo} />
-      <VenueHighlightWidget visibility={visibility} />
-
+      {/* Slot: Hero */}
       <header
         className={
-          visibility.isManaged
-            ? "venue-detail-header is-managed"
-            : "venue-detail-header"
+          isPremium
+            ? "venue-detail-header template-hero is-managed"
+            : "venue-detail-header template-hero"
         }
+        data-slot="hero"
       >
         <div>
           <div className="eyebrow venue-detail-eyebrow-row">
-            {visibility.isManaged ? (
-              <ManagedBadge variant={visibility.managedBadge || "pro"} size="sm" />
-            ) : null}
+            {isPremium ? (
+              <ManagedBadge
+                variant={visibility.managedBadge || (tier === "vip" ? "vip" : "pro")}
+                size="sm"
+                showPlan
+              />
+            ) : (
+              <span className="free-listing-chip">Free template</span>
+            )}
             <span>
               {categoryLabel(venue.category, locale)} · {suburb}
             </span>
@@ -160,19 +184,53 @@ export function VenueDetail({
         </div>
       </header>
 
-      {/* 2) Staff roster — ahead of gallery / long copy */}
-      <VenueStaffRoster
-        staff={liveConsumer.staff}
-        activeCount={liveConsumer.activeStaffCount}
-      />
+      {/* Slot: Hook headline box */}
+      <VenueHookBox visibility={visibility} />
 
-      {/* 3) Course & pricing — 2-col mobile cards */}
-      <VenueCoursePricing content={content} />
+      {/* Slot: Quick Info */}
+      <div data-slot="quick-info" className="template-slot">
+        <VenueQuickInfoBar badges={liveConsumer.quickInfo} />
+      </div>
 
-      <VenueGallery images={gallery} alt={name} />
-      <VenueQualityChecklist scores={liveConsumer.quality} />
+      {/* Slot: Custom highlight badges / promo */}
+      <VenueHighlightWidget visibility={visibility} />
 
-      <div className="detail-info venue-detail-meta">
+      {/* Slot: Staff roster — uniform grid */}
+      <div data-slot="staff" className="template-slot template-staff">
+        <VenueStaffRoster
+          staff={liveConsumer.staff}
+          activeCount={liveConsumer.activeStaffCount}
+        />
+      </div>
+
+      {/* Slot: Course & pricing */}
+      <div data-slot="pricing" className="template-slot">
+        <VenueCoursePricing content={content} />
+      </div>
+
+      {/* Slot: Gallery — VIP gets fuller set */}
+      <div
+        data-slot="gallery"
+        className={
+          isPremium
+            ? "template-slot template-gallery is-premium"
+            : "template-slot template-gallery is-standard"
+        }
+      >
+        <VenueGallery images={galleryImages} alt={name} />
+        {!isPremium ? (
+          <p className="template-upgrade-hint">
+            Free listings use optimized placeholders. Upgrade to {VIP_PLAN_LABEL}{" "}
+            for high-resolution custom galleries and glowing VIP chrome.
+          </p>
+        ) : null}
+      </div>
+
+      <div data-slot="quality" className="template-slot">
+        <VenueQualityChecklist scores={liveConsumer.quality} />
+      </div>
+
+      <div className="detail-info venue-detail-meta" data-slot="contact">
         <span>
           <MapPin />
           {suburb}, {cityLabel(venue.city, locale)}
@@ -183,10 +241,10 @@ export function VenueDetail({
             {venue.hours}
           </span>
         ) : null}
-        {venue.verified ? (
+        {venue.verified || isPremium ? (
           <span>
             <ShieldCheck />
-            {t("verified")}
+            {isPremium ? "Elite verified" : t("verified")}
           </span>
         ) : null}
         {venue.website ? (
@@ -197,7 +255,9 @@ export function VenueDetail({
         ) : null}
       </div>
 
-      <VenueStructuredContent content={content} variant="overview" />
+      <div data-slot="overview" className="template-slot">
+        <VenueStructuredContent content={content} variant="overview" />
+      </div>
 
       {venue.fictional ? (
         <div className="demo-note" style={{ marginTop: 18 }}>
@@ -211,7 +271,7 @@ export function VenueDetail({
         </div>
       )}
 
-      <div className="venue-actions detail-actions">
+      <div className="venue-actions detail-actions template-contact-cta">
         {transit ? (
           <a href={transit} target="_blank" rel="noopener noreferrer">
             <Navigation className="h-4 w-4" />
@@ -231,7 +291,9 @@ export function VenueDetail({
         ) : null}
       </div>
 
-      <RelatedVenues venues={related} />
+      <div data-slot="related" className="template-slot">
+        <RelatedVenues venues={related} />
+      </div>
 
       <div className="reddit-share-box">
         <div>
@@ -244,7 +306,7 @@ export function VenueDetail({
         <RedditShareButton title={name} />
       </div>
 
-      {/* 4) Sticky conversion bar */}
+      {/* Sticky conversion bar — always present */}
       <VenueStickyCtaBar
         phoneHref={phoneHref}
         smsHref={liveConsumer.smsHref}
@@ -260,3 +322,4 @@ export { VenueStaffRoster } from "@/components/heybro/VenueStaffRoster";
 export { VenueCoursePricing } from "@/components/heybro/VenueCoursePricing";
 export { VenueQualityChecklist } from "@/components/heybro/VenueQualityChecklist";
 export { VenueStickyCtaBar } from "@/components/heybro/VenueStickyCtaBar";
+export { VenueHookBox } from "@/components/heybro/VenueHookBox";

@@ -7,9 +7,11 @@ import {
 } from "@/lib/venue-consumer";
 import { buildVenueGallery } from "@/lib/venue-gallery";
 import {
+  parseCustomHighlights,
   resolveVenueVisibility,
   type VenueVisibility,
 } from "@/lib/venue-highlights";
+import { enrichVisibilityForTemplate } from "@/lib/venue-template";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { getVenueById } from "@/lib/feed";
 import {
@@ -115,20 +117,39 @@ function composeDetail(options: {
     description: venue.description,
     tags: venue.tags,
   });
-  const visibility = resolveVenueVisibility({
-    isManaged: options.visibilityExtras?.isManaged ?? venue.isManaged,
-    customHighlights:
-      options.visibilityExtras?.customHighlights ?? venue.customHighlights,
-    content,
+  const customHighlights =
+    options.visibilityExtras?.customHighlights ?? venue.customHighlights;
+  const visibility = enrichVisibilityForTemplate({
+    venueId: venue.id,
+    customHighlights: parseCustomHighlights(customHighlights),
+    visibility: resolveVenueVisibility({
+      isManaged: options.visibilityExtras?.isManaged ?? venue.isManaged,
+      customHighlights,
+      content,
+    }),
   });
   const consumer = buildVenueConsumerView({
-    venue,
+    venue: {
+      ...venue,
+      isManaged: visibility.isManaged,
+      managedBadge: visibility.managedBadge,
+    },
     content,
     staffRows,
     gallery,
   });
   return {
-    venue,
+    venue: {
+      ...venue,
+      isManaged: visibility.isManaged,
+      managedBadge: visibility.managedBadge,
+      customHighlights: {
+        ...parseCustomHighlights(customHighlights),
+        hook: visibility.hook,
+        tier: visibility.tier,
+        managedBadge: visibility.managedBadge,
+      },
+    },
     gallery,
     related: options.related,
     content,

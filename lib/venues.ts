@@ -98,7 +98,9 @@ export function mapVenueRow(row: VenueRow): Venue {
     customHighlights: {
       badges: highlights.badges,
       promo: highlights.promo,
+      hook: highlights.hook,
       managedBadge: highlights.managedBadge,
+      tier: highlights.tier,
     },
   };
 }

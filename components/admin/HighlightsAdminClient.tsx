@@ -58,6 +58,20 @@ export function HighlightsAdminClient({
   const [promoCtaHref, setPromoCtaHref] = useState(
     selected?.rawHighlights.promo?.ctaHref || "",
   );
+  const [hookTitle, setHookTitle] = useState(
+    selected?.rawHighlights.hook?.title || "",
+  );
+  const [hookSubtitle, setHookSubtitle] = useState(
+    selected?.rawHighlights.hook?.subtitle || "",
+  );
+  const [tier, setTier] = useState<"free" | "managed" | "vip">(
+    selected?.rawHighlights.tier ||
+      (selected?.isManaged
+        ? selected.rawHighlights.managedBadge === "vip"
+          ? "vip"
+          : "managed"
+        : "free"),
+  );
   const [status, setStatus] = useState<string>("");
   const [saving, setSaving] = useState(false);
 
@@ -76,6 +90,16 @@ export function HighlightsAdminClient({
     setPromoBody(venue.rawHighlights.promo?.body || "");
     setPromoCtaLabel(venue.rawHighlights.promo?.ctaLabel || "Call Now");
     setPromoCtaHref(venue.rawHighlights.promo?.ctaHref || "");
+    setHookTitle(venue.rawHighlights.hook?.title || "");
+    setHookSubtitle(venue.rawHighlights.hook?.subtitle || "");
+    setTier(
+      venue.rawHighlights.tier ||
+        (venue.isManaged
+          ? venue.rawHighlights.managedBadge === "vip"
+            ? "vip"
+            : "managed"
+          : "free"),
+    );
   }
 
   async function login() {
@@ -103,9 +127,17 @@ export function HighlightsAdminClient({
     if (!selected) return;
     setSaving(true);
     setStatus("");
+    const nextManaged = tier !== "free" ? true : isManaged;
     const customHighlights: CustomHighlights = {
-      managedBadge,
+      managedBadge: tier === "vip" ? "vip" : managedBadge,
+      tier,
       badges: badges.filter((badge) => badge.label.trim()),
+      hook: hookTitle.trim()
+        ? {
+            title: hookTitle.trim(),
+            subtitle: hookSubtitle.trim() || undefined,
+          }
+        : null,
       promo: promoTitle.trim()
         ? {
             title: promoTitle.trim(),
@@ -120,7 +152,7 @@ export function HighlightsAdminClient({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         slug: selected.id,
-        isManaged,
+        isManaged: nextManaged,
         customHighlights,
       }),
     });
@@ -185,7 +217,10 @@ export function HighlightsAdminClient({
         <div>
           <div className="venue-section-label">Admin</div>
           <h1>Visibility highlights</h1>
-          <p>Configure neon badges, promo banners, and PRO/VIP managed flags.</p>
+          <p>
+            Configure the Canva-style template hooks, neon badges, and $40/mo VIP
+            tier chrome.
+          </p>
         </div>
       </div>
 
@@ -205,13 +240,22 @@ export function HighlightsAdminClient({
       </label>
 
       <div className="admin-grid">
-        <label className="admin-toggle">
-          <input
-            type="checkbox"
-            checked={isManaged}
-            onChange={(event) => setIsManaged(event.target.checked)}
-          />
-          <span>is_managed (agency / PRO service)</span>
+        <label className="admin-field">
+          <span>Listing tier</span>
+          <select
+            value={tier}
+            onChange={(event) => {
+              const next = event.target.value as "free" | "managed" | "vip";
+              setTier(next);
+              setIsManaged(next !== "free");
+              if (next === "vip") setManagedBadge("vip");
+              if (next === "managed") setManagedBadge("pro");
+            }}
+          >
+            <option value="free">Free template</option>
+            <option value="managed">PRO Managed ($40/mo)</option>
+            <option value="vip">Verified VIP ($40/mo)</option>
+          </select>
         </label>
         <label className="admin-field">
           <span>Managed badge</span>
@@ -220,12 +264,33 @@ export function HighlightsAdminClient({
             onChange={(event) =>
               setManagedBadge(event.target.value as "pro" | "vip")
             }
+            disabled={tier === "free"}
           >
             <option value="pro">PRO MANAGED</option>
             <option value="vip">VERIFIED VIP</option>
           </select>
         </label>
       </div>
+
+      <section className="admin-section">
+        <h2>Hook headline box</h2>
+        <label className="admin-field">
+          <span>Hook title</span>
+          <input
+            value={hookTitle}
+            onChange={(event) => setHookTitle(event.target.value)}
+            placeholder="🔥 20s Korean Staff, Zero Inner-Disappointment, Special Course Available"
+          />
+        </label>
+        <label className="admin-field">
+          <span>Hook subtitle</span>
+          <input
+            value={hookSubtitle}
+            onChange={(event) => setHookSubtitle(event.target.value)}
+            placeholder="Tonight's VIP lineup · book before peak hours"
+          />
+        </label>
+      </section>
 
       <section className="admin-section">
         <h2>Highlight badges</h2>

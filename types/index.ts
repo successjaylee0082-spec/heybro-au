@@ -51,7 +51,12 @@ export interface Venue {
       ctaLabel?: string;
       ctaHref?: string;
     } | null;
+    hook?: {
+      title: string;
+      subtitle?: string;
+    } | null;
     managedBadge?: "pro" | "vip";
+    tier?: "free" | "managed" | "vip" | null;
   };
 }
 

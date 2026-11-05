@@ -1,5 +1,7 @@
 import type { ParsedVenueContent } from "@/lib/venue-content";
 
+export type VenueListingTier = "free" | "managed" | "vip";
+
 export type HighlightTone = "emerald" | "rose" | "amber" | "violet";
 
 export type HighlightKind = "price" | "event" | "service" | "promo" | "custom";
@@ -18,19 +20,31 @@ export type VenuePromoBanner = {
   ctaHref?: string;
 };
 
+/** High-engagement OP-style hook shown near the top of every template. */
+export type VenueHookBanner = {
+  title: string;
+  subtitle?: string;
+};
+
 export type ManagedBadgeVariant = "pro" | "vip";
 
 export type CustomHighlights = {
   badges?: VenueHighlightBadge[];
   promo?: VenuePromoBanner | null;
+  hook?: VenueHookBanner | null;
   managedBadge?: ManagedBadgeVariant;
+  /** Explicit listing tier. When omitted, derived from is_managed + managedBadge. */
+  tier?: VenueListingTier | null;
 };
 
 export type VenueVisibility = {
   isManaged: boolean;
   managedBadge?: ManagedBadgeVariant;
+  tier?: VenueListingTier;
   badges: VenueHighlightBadge[];
   promo?: VenuePromoBanner;
+  hook?: VenueHookBanner;
+  planLabel?: string;
 };
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -65,6 +79,11 @@ function parseKind(value: unknown): HighlightKind {
   return "custom";
 }
 
+function parseTier(value: unknown): VenueListingTier | undefined {
+  if (value === "free" || value === "managed" || value === "vip") return value;
+  return undefined;
+}
+
 export function parseCustomHighlights(raw: unknown): CustomHighlights {
   const record = asRecord(raw) ?? {};
   const badgesRaw = Array.isArray(record.badges) ? record.badges : [];
@@ -95,6 +114,19 @@ export function parseCustomHighlights(raw: unknown): CustomHighlights {
       }
     : undefined;
 
+  const hookRecord = asRecord(record.hook);
+  const hookTitle = hookRecord
+    ? cleanText(hookRecord.title, 140)
+    : cleanText(record.hookTitle, 140);
+  const hook: VenueHookBanner | undefined = hookTitle
+    ? {
+        title: hookTitle,
+        subtitle:
+          cleanText(hookRecord?.subtitle, 160) ||
+          cleanText(record.hookSubtitle, 160),
+      }
+    : undefined;
+
   const managedBadge =
     record.managedBadge === "vip" || record.managedBadge === "pro"
       ? record.managedBadge
@@ -103,7 +135,9 @@ export function parseCustomHighlights(raw: unknown): CustomHighlights {
   return {
     badges,
     promo: promo ?? null,
+    hook: hook ?? null,
     managedBadge,
+    tier: parseTier(record.tier) ?? null,
   };
 }
 
@@ -150,7 +184,7 @@ export function resolveVenueVisibility(options: {
   content?: ParsedVenueContent;
 }): VenueVisibility {
   const parsed = parseCustomHighlights(options.customHighlights);
-  const isManaged = Boolean(options.isManaged);
+  const isManaged = Boolean(options.isManaged) || parsed.tier === "managed" || parsed.tier === "vip";
   const configuredBadges = parsed.badges ?? [];
   const derived =
     configuredBadges.length > 0
@@ -161,8 +195,12 @@ export function resolveVenueVisibility(options: {
 
   return {
     isManaged,
-    managedBadge: isManaged ? parsed.managedBadge || "pro" : undefined,
+    managedBadge: isManaged
+      ? parsed.managedBadge || (parsed.tier === "vip" ? "vip" : "pro")
+      : undefined,
+    tier: parsed.tier || undefined,
     badges: derived,
     promo: parsed.promo || undefined,
+    hook: parsed.hook || undefined,
   };
 }

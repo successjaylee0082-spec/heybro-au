@@ -3,22 +3,29 @@
 import { Megaphone, Sparkles } from "lucide-react";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { ManagedBadge } from "@/components/heybro/ManagedBadge";
+import { VIP_PLAN_NOTE } from "@/lib/venue-template";
 
 export function VenueHighlightWidget({
   visibility,
 }: {
   visibility: VenueVisibility;
 }) {
-  const { isManaged, managedBadge, badges, promo } = visibility;
-  if (!isManaged && badges.length === 0 && !promo) return null;
+  const { isManaged, managedBadge, badges, promo, tier, planLabel } = visibility;
+  const listingTier = tier || (isManaged ? "managed" : "free");
+  if (listingTier === "free" && badges.length === 0 && !promo) return null;
 
   return (
-    <section className="venue-highlight-widget" aria-label="Visibility highlights">
+    <section
+      className="venue-highlight-widget"
+      data-slot="highlights"
+      aria-label="Visibility highlights"
+    >
       {isManaged ? (
         <div className="venue-highlight-managed-row">
           <ManagedBadge variant={managedBadge || "pro"} />
           <span className="venue-highlight-managed-note">
-            Priority placement · agency-managed profile
+            {planLabel ? `${planLabel} · ` : ""}
+            {VIP_PLAN_NOTE}
           </span>
         </div>
       ) : null}
