@@ -1,7 +1,10 @@
 import "server-only";
 
 import { enrichVenueDistance } from "@/lib/geo";
-import { luxuryCoverFor } from "@/lib/luxury-assets";
+import {
+  assignDirectoryPoseCovers,
+  directoryPoseFor,
+} from "@/lib/directory-covers";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { parseCustomHighlights } from "@/lib/venue-highlights";
 import type { CategoryId, CityId, Venue } from "@/types";
@@ -67,9 +70,8 @@ export function mapVenueRow(row: VenueRow): Venue {
     category: normalizeCategory(row.category),
     description:
       row.description?.trim() || `${row.name} in ${row.suburb || row.city}.`,
-    // Directory cards use curated dark-luxury nightlife lounges only
-    // (no apartment stock, no mismatched staff portraits).
-    image: luxuryCoverFor(row.slug || row.id || row.name),
+    // Directory cards use masked alluring female poses (all different when listed).
+    image: directoryPoseFor(row.slug || row.id || row.name),
     tags: services.slice(0, 6),
     phone: row.phone || undefined,
     address:
@@ -139,7 +141,9 @@ export async function getDirectoryVenues(): Promise<DirectoryLoadResult> {
   }
 
   try {
-    const venues = (data as VenueRow[] | null)?.map(mapVenueRow) ?? [];
+    const venues = assignDirectoryPoseCovers(
+      (data as VenueRow[] | null)?.map(mapVenueRow) ?? [],
+    );
     return { venues, source: "supabase" };
   } catch (err) {
     return {

@@ -1,16 +1,22 @@
 "use client";
 
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Phone } from "lucide-react";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { categoryLabel, cityLabel } from "@/lib/cities";
+import { assignDirectoryPoseCovers } from "@/lib/directory-covers";
 import { withLocale } from "@/lib/i18n";
 import type { Venue } from "@/types";
 
 export function RelatedVenues({ venues }: { venues: Venue[] }) {
   const { locale } = useCopy();
-  if (!venues.length) return null;
+  const displayVenues = useMemo(
+    () => assignDirectoryPoseCovers(venues),
+    [venues],
+  );
+  if (!displayVenues.length) return null;
 
   return (
     <section className="related-venues">
@@ -20,7 +26,7 @@ export function RelatedVenues({ venues }: { venues: Venue[] }) {
         Similar Sydney venues with quick call and website actions.
       </p>
       <div className="related-venues-grid">
-        {venues.map((venue) => {
+        {displayVenues.map((venue) => {
           const name =
             locale === "zh" && venue.nameZh ? venue.nameZh : venue.name;
           const suburb =
@@ -36,7 +42,7 @@ export function RelatedVenues({ venues }: { venues: Venue[] }) {
                   src={venue.image}
                   alt=""
                   fill
-                  className="object-cover"
+                  className="object-cover object-[center_20%]"
                   sizes="(max-width: 820px) 100vw, 280px"
                 />
               </Link>

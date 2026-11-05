@@ -46,7 +46,7 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
             alt=""
             fill
             quality={90}
-            className="venue-image object-cover"
+            className="venue-image object-cover object-[center_20%]"
             sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 420px"
           />
         </Link>
