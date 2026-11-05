@@ -1,14 +1,9 @@
-import { STAFF_PORTRAIT_FALLBACKS } from "@/lib/staff-portraits";
+import { LUXURY_LOUNGES, LUXURY_PORTRAITS } from "@/lib/luxury-assets";
 
 /** Curated Unsplash fallbacks for venue galleries (luxury interiors + portraits). */
 export const VENUE_GALLERY_FALLBACKS = [
-  // Luxury lounge / suite interiors
-  "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=85",
-  "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85",
-  "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1600&q=85",
-  "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85",
-  // Realistic glamour portraits (Asian + Western)
-  ...STAFF_PORTRAIT_FALLBACKS.slice(0, 6),
+  ...LUXURY_LOUNGES.slice(0, 4),
+  ...LUXURY_PORTRAITS.slice(0, 6),
 ] as const;
 
 export function buildVenueGallery(options: {

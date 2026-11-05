@@ -1,5 +1,9 @@
 import "server-only";
 
+import {
+  luxuryCoverFor,
+  luxuryPortraitFor,
+} from "@/lib/luxury-assets";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { parseCustomHighlights } from "@/lib/venue-highlights";
 import type { CategoryId, CityId, Venue } from "@/types";
@@ -65,7 +69,18 @@ export function mapVenueRow(row: VenueRow): Venue {
     category: normalizeCategory(row.category),
     description:
       row.description?.trim() || `${row.name} in ${row.suburb || row.city}.`,
-    image: row.cover_image_url?.trim() || "/images/lounge.jpg",
+    // Directory cards use curated luxury portraits/lounges for a premium OP look.
+    // Original scraped covers still feed the detail gallery via cover_image_url.
+    image: (() => {
+      const seed = row.slug || row.id || row.name;
+      let hash = 0;
+      for (let i = 0; i < seed.length; i += 1) {
+        hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+      }
+      return hash % 3 === 0
+        ? luxuryCoverFor(seed)
+        : luxuryPortraitFor(seed);
+    })(),
     tags: services.slice(0, 6),
     phone: row.phone || undefined,
     address:

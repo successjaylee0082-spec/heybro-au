@@ -5,7 +5,7 @@
 @layer base {
   :root {
     color-scheme: dark;
-    --background: 222 44% 6%;
+    --background: 220 20% 2%;
     --foreground: 0 0% 96%;
     --card: 222 30% 8%;
     --card-foreground: 0 0% 96%;
@@ -25,7 +25,7 @@
     --input: 222 20% 18%;
     --ring: 347 77% 61%;
     --radius: 0.75rem;
-    --hb-base: #090d16;
+    --hb-base: #060709;
     --hb-rose: #f43f5e;
     --hb-pink: #ec4899;
   }
@@ -35,8 +35,8 @@
   body {
     @apply bg-background text-foreground;
     margin: 0;
-    background-color: #090d16;
-    font-family: "Inter", Arial, Helvetica, sans-serif;
+    background-color: #060709;
+    font-family: var(--font-sans), "Outfit", sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   html {
@@ -2400,4 +2400,343 @@
 }
 .app-shell {
   background: #090d16;
+}
+
+
+/* ========== LUXURY OP OVERHAUL ========== */
+.luxury-shell {
+  background: #060709;
+  color: #f8fafc;
+}
+.luxury-shell h1,
+.luxury-shell h2,
+.luxury-shell .brand-word,
+.luxury-shell .venue-title h3,
+.luxury-shell .hero h1,
+.luxury-shell .staff-overlay-name h3,
+.luxury-shell .section-heading h2 {
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+  letter-spacing: -0.02em;
+}
+.app-shell,
+.home-feed-nightlife::before {
+  background:
+    radial-gradient(ellipse at 10% -10%, #f43f5e1f, transparent 42%),
+    radial-gradient(ellipse at 90% 0%, #ec489918, transparent 36%),
+    linear-gradient(180deg, #060709, #0a0c12 45%, #060709) !important;
+}
+.site-header {
+  background: #060709cc !important;
+  border-bottom-color: #f43f5e2e !important;
+}
+.hero.hero-nightlife {
+  min-height: 560px;
+  border-radius: 22px;
+  border: 1px solid #f43f5e44;
+  background: #060709;
+  box-shadow: 0 0 50px #f43f5e1a, inset 0 0 80px #000a;
+}
+.hero-shade {
+  background:
+    linear-gradient(to bottom, rgb(6 7 9 / 0.55), rgb(6 7 9 / 0.82), #060709),
+    radial-gradient(ellipse at 75% 15%, #f43f5e40, transparent 50%) !important;
+}
+.hero h1 {
+  font-size: clamp(40px, 5vw, 68px) !important;
+  font-weight: 700 !important;
+}
+.hero-hook-badge {
+  border-radius: 999px;
+  border: 1px solid #f43f5e77 !important;
+  background: linear-gradient(135deg, #12080ecc, #1a0b16cc) !important;
+  box-shadow: 0 0 22px #f43f5e44 !important;
+}
+
+/* Venue listing cards */
+.venue-card.luxury-venue {
+  background: linear-gradient(180deg, #0c0e14, #060709);
+  border: 1px solid #1f2430;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px #0008;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.venue-card.luxury-venue:hover {
+  transform: translateY(-6px);
+  border-color: #f43f5e99;
+  box-shadow: 0 0 0 1px #f43f5e66, 0 0 36px #f43f5e40, 0 18px 40px #000a;
+}
+.venue-card.luxury-venue .venue-image-wrap {
+  height: 250px;
+}
+.venue-card.luxury-venue .venue-media-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to top, #060709f0 0%, #06070955 42%, transparent 70%);
+  z-index: 1;
+}
+.venue-card.luxury-venue .venue-image-button,
+.venue-card.luxury-venue .pick-badge,
+.venue-card.luxury-venue .managed-badge-slot,
+.venue-card.luxury-venue .save-button,
+.venue-card.luxury-venue .image-category,
+.venue-card.luxury-venue .venue-live-pill {
+  z-index: 2;
+}
+.venue-live-pill {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #052e1acc;
+  border: 1px solid #34d39988;
+  color: #6ee7b7;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 0 16px #22c55e55;
+  backdrop-filter: blur(8px);
+}
+.status-live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 0 4px #22c55e33, 0 0 10px #4ade80;
+  display: inline-block;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+.venue-card.luxury-venue .venue-content {
+  padding: 16px 16px 18px;
+  display: grid;
+  gap: 8px;
+}
+.venue-card.luxury-venue .venue-title h3 {
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 650;
+  margin: 0;
+}
+.venue-card.luxury-venue .venue-location {
+  color: #fda4af;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.venue-card.luxury-venue .listing-quick-badges span {
+  border-color: #f43f5e44;
+  background: #120810;
+  color: #fecdd3;
+}
+.venue-card.luxury-venue .listing-cta-call {
+  background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 0 18px #f43f5e55;
+}
+.venue-card.luxury-venue .listing-cta-sms {
+  background: #0c1018 !important;
+  border-color: #f43f5e66 !important;
+  color: #fecdd3 !important;
+}
+.venue-list {
+  gap: 22px !important;
+}
+
+/* Staff portfolio cards */
+.staff-card.portfolio-card {
+  position: relative;
+  border: 1px solid #2a2030;
+  border-radius: 20px;
+  background: #090b10;
+  overflow: hidden;
+  box-shadow: 0 12px 28px #0009;
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.staff-card.portfolio-card:hover {
+  transform: translateY(-4px);
+  border-color: #f43f5e99;
+  box-shadow: 0 0 28px #f43f5e44;
+}
+.staff-card.portfolio-card.is-active {
+  border-color: #34d39966;
+  box-shadow: 0 0 0 1px #34d39933, 0 0 24px #f43f5e33;
+}
+.staff-card.portfolio-card .staff-card-media {
+  aspect-ratio: 0.72;
+  min-height: 280px;
+}
+.staff-card.portfolio-card .staff-portrait {
+  filter: saturate(1.08) contrast(1.04);
+}
+.staff-media-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, #060709f5 0%, #06070999 38%, transparent 68%),
+    radial-gradient(ellipse at 50% 100%, #f43f5e33, transparent 55%);
+  z-index: 1;
+}
+.staff-card.portfolio-card .staff-status {
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  left: 10px;
+  top: 10px;
+  backdrop-filter: blur(8px);
+}
+.staff-card.portfolio-card .staff-status.status-active {
+  background: #052e1add;
+  color: #86efac;
+  border: 1px solid #34d39988;
+  box-shadow: 0 0 18px #22c55e55;
+}
+.staff-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  gap: 8px;
+  padding: 14px 12px 12px;
+}
+.staff-overlay-name h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 16px #000;
+}
+.staff-overlay-name em {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 11px;
+  color: #fda4af;
+  letter-spacing: 0.08em;
+}
+.staff-overlay-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.stat-pill {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #f8fafc;
+  background: #ffffff14;
+  border: 1px solid #ffffff2a;
+  backdrop-filter: blur(6px);
+}
+.stat-pill.ethnicity {
+  border-color: #f43f5e66;
+  color: #fecdd3;
+  background: #f43f5e22;
+}
+.staff-card.portfolio-card .staff-style-row span {
+  border-color: #f43f5e77 !important;
+  background: #f43f5e24 !important;
+  color: #fecdd3 !important;
+  box-shadow: 0 0 12px #f43f5e33;
+  font-weight: 700;
+}
+
+/* Pricing neon */
+.course-card {
+  background: linear-gradient(180deg, #0d1018, #060709) !important;
+  border: 1px solid #2a2030 !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
+  gap: 12px !important;
+  box-shadow: 0 10px 26px #0008;
+}
+.course-card.is-featured {
+  border-color: #f43f5e88 !important;
+  box-shadow: 0 0 0 1px #f43f5e44, 0 0 28px #f43f5e33;
+}
+.course-card-top {
+  align-items: center;
+}
+.course-card-top span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fda4af;
+}
+.neon-price {
+  color: #fb7185;
+  text-shadow: 0 0 18px #f43f5e99, 0 0 4px #ec489966;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -1.2px;
+}
+.service-chip {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px !important;
+  border: 1px solid #f43f5e55 !important;
+  background: #120810 !important;
+  color: #fecdd3 !important;
+  padding: 5px 9px !important;
+}
+.venue-section-label {
+  color: #fb7185 !important;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 800;
+}
+.staff-roster,
+.course-pricing,
+.quality-checklist,
+.venue-highlight-widget,
+.related-venues {
+  border-color: #f43f5e33 !important;
+  background: linear-gradient(180deg, #0a0c12, #060709) !important;
+}
+.sticky-cta-call {
+  background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
+  color: #fff !important;
+  box-shadow: 0 0 24px #f43f5e66 !important;
+}
+.venue-sticky-cta {
+  background: linear-gradient(180deg, #0a0c12ee, #060709f5) !important;
+  border-top-color: #f43f5e44 !important;
+}
+.section-heading h2 {
+  font-size: 34px !important;
+}
+.search-submit {
+  background: linear-gradient(135deg, #f43f5e, #ec4899) !important;
+  color: #fff !important;
+}
+@media (max-width: 820px) {
+  .venue-card.luxury-venue .venue-image-wrap {
+    height: 210px;
+  }
+  .staff-card.portfolio-card .staff-card-media {
+    min-height: 240px;
+  }
+  .neon-price {
+    font-size: 28px;
+  }
+  .hero.hero-nightlife {
+    min-height: 520px;
+    border-radius: 16px;
+  }
 }

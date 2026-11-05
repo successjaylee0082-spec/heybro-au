@@ -4,8 +4,8 @@ import Image from "next/image";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 function statusLabel(status: StaffRosterMember["status"]) {
-  if (status === "active") return "On shift · 出勤中";
-  if (status === "soon") return "Soon · 即将";
+  if (status === "active") return "Active Now";
+  if (status === "soon") return "Soon";
   return "Off";
 }
 
@@ -19,19 +19,19 @@ export function VenueStaffRoster({
   if (!staff.length) return null;
 
   return (
-    <section className="staff-roster">
+    <section className="staff-roster luxury-staff">
       <div className="staff-roster-head">
         <div>
-          <div className="venue-section-label">Active Staff · 今日出勤</div>
-          <h2>Tonight&apos;s lineup</h2>
+          <div className="venue-section-label">Tonight&apos;s Agency Lineup</div>
+          <h2>Premium staff portfolio</h2>
           <p>
-            Realistic profile cards with stage name, stats and style tags —
-            scan who&apos;s on before you call.
+            High-clarity profiles with stage name, stats and style tags —
+            scan who&apos;s on before you book.
           </p>
         </div>
         <div className="staff-roster-count">
-          Today Active
-          <strong>{activeCount} Ladies</strong>
+          Live roster
+          <strong>{activeCount} Active</strong>
         </div>
       </div>
       <div className="staff-roster-grid">
@@ -39,7 +39,9 @@ export function VenueStaffRoster({
           <article
             key={member.id}
             className={
-              member.status === "active" ? "staff-card is-active" : "staff-card"
+              member.status === "active"
+                ? "staff-card portfolio-card is-active"
+                : "staff-card portfolio-card"
             }
           >
             <div className="staff-card-media">
@@ -47,32 +49,32 @@ export function VenueStaffRoster({
                 src={member.image}
                 alt={member.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 820px) 50vw, 200px"
+                className="object-cover staff-portrait"
+                sizes="(max-width: 820px) 50vw, 220px"
               />
+              <div className="staff-media-shade" aria-hidden />
               <span className={`staff-status status-${member.status}`}>
+                {member.status === "active" ? (
+                  <i className="status-live-dot" aria-hidden />
+                ) : null}
                 {statusLabel(member.status)}
               </span>
-            </div>
-            <div className="staff-card-body">
-              <div className="staff-card-name">
-                <div>
+              <div className="staff-overlay">
+                <div className="staff-overlay-name">
                   <h3>{member.name}</h3>
-                  {member.nameZh ? (
-                    <div className="staff-name-zh">{member.nameZh}</div>
-                  ) : null}
+                  {member.nameZh ? <em>{member.nameZh}</em> : null}
                 </div>
-                <span className="staff-age">{member.age}</span>
-              </div>
-              <div className="staff-stats">
-                <span>{member.ethnicity}</span>
-                <span>{member.heightCm}cm</span>
-                <span>{member.cup} cup</span>
-              </div>
-              <div className="staff-style-row">
-                {member.styles.map((style) => (
-                  <span key={style}>{style}</span>
-                ))}
+                <div className="staff-overlay-badges">
+                  <span className="stat-pill">{member.age} yrs</span>
+                  <span className="stat-pill">{member.heightCm}cm</span>
+                  <span className="stat-pill">{member.cup} cup</span>
+                  <span className="stat-pill ethnicity">{member.ethnicity}</span>
+                </div>
+                <div className="staff-style-row">
+                  {member.styles.map((style) => (
+                    <span key={style}>{style}</span>
+                  ))}
+                </div>
               </div>
             </div>
           </article>

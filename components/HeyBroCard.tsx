@@ -32,7 +32,13 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
     mode: "transit",
   });
   return (
-    <article className={venue.isManaged ? "venue-card is-managed" : "venue-card"}>
+    <article
+      className={
+        venue.isManaged
+          ? "venue-card luxury-venue is-managed"
+          : "venue-card luxury-venue"
+      }
+    >
       <div className="venue-image-wrap">
         <Link href={detailHref} className="venue-image-button" aria-label={name}>
           <Image
@@ -43,6 +49,7 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
             sizes="(max-width: 820px) 50vw, 33vw"
           />
         </Link>
+        <div className="venue-media-shade" aria-hidden />
         {venue.isManaged ? (
           <span className="managed-badge-slot">
             <ManagedBadge variant={venue.managedBadge || "pro"} size="sm" />
@@ -69,6 +76,12 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
         <span className="image-category">
           {categoryLabel(venue.category, locale)}
         </span>
+        {venue.isManaged ? (
+          <span className="venue-live-pill">
+            <i className="status-live-dot" aria-hidden />
+            Active Now
+          </span>
+        ) : null}
       </div>
       <div className="venue-content">
         <div className="venue-location">
@@ -79,7 +92,6 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           <h3>{name}</h3>
         </Link>
         <div className="listing-quick-badges">
-          <span>{suburb}</span>
           <span>Cash OK</span>
           <span>EFTPOS</span>
           <span>WeChat 微信</span>
@@ -87,9 +99,6 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           {tags.slice(0, 1).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
-          {venue.isManaged ? (
-            <span className="listing-quick-hot">Today Active</span>
-          ) : null}
         </div>
         <p className="listing-snip">
           {description.length > 96 ? `${description.slice(0, 93)}…` : description}

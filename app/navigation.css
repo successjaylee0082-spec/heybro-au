@@ -13,7 +13,7 @@
   width: min(100%, 420px);
   border: 1px solid #254636;
   border-radius: 16px;
-  background: linear-gradient(180deg, #0f172a, #090d16);
+  background: linear-gradient(180deg, #0f172a, #060709);
   padding: 28px 24px;
   box-shadow: 0 24px 80px #000a;
 }
@@ -110,7 +110,7 @@
   top: auto;
   z-index: 40;
   width: 100%;
-  background: #09090b;
+  background: #060709;
   border-top: 1px solid #232326;
   border-bottom: none;
   padding: 8px 10px calc(8px + env(safe-area-inset-bottom));

@@ -1,5 +1,6 @@
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
+import { luxuryPortraitFor } from "@/lib/luxury-assets";
 import {
   STAFF_PORTRAIT_FALLBACKS,
   STAFF_PROFILE_TEMPLATES,
@@ -158,7 +159,8 @@ export function buildStaffRoster(options: {
 
     const image = isUsableStaffImage(row?.image_url)
       ? (row?.image_url as string)
-      : portraitPool[index % portraitPool.length];
+      : luxuryPortraitFor(seed, index) ||
+        portraitPool[index % portraitPool.length];
 
     members.push({
       id: row?.id || `${options.venueId}-staff-${index}`,

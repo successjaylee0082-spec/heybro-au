@@ -1,6 +1,14 @@
 "use client";
 
+import {
+  Flame,
+  Heart,
+  Sparkles,
+  Timer,
+  Waves,
+} from "lucide-react";
 import type { ParsedVenueContent, VenuePriceRow } from "@/lib/venue-content";
+import type { ReactNode } from "react";
 
 /** AU + CN consumer rate cards (AUD). */
 const FALLBACK_COURSES: VenuePriceRow[] = [
@@ -9,12 +17,24 @@ const FALLBACK_COURSES: VenuePriceRow[] = [
   { label: "60 mins · 一小时", duration: "60 min", price: "$250" },
 ];
 
-const DEFAULT_SERVICE_CHIPS = [
-  "GFE",
-  "Oral",
-  "Passionate Kissing",
-  "Body to Body",
-  "Light BDSM",
+const SERVICE_META: Array<{ key: string; label: string; icon: ReactNode }> = [
+  { key: "gfe", label: "GFE", icon: <Heart className="h-3.5 w-3.5" /> },
+  { key: "oral", label: "Oral", icon: <Sparkles className="h-3.5 w-3.5" /> },
+  {
+    key: "kiss",
+    label: "Passionate Kissing",
+    icon: <Flame className="h-3.5 w-3.5" />,
+  },
+  {
+    key: "b2b",
+    label: "Body to Body",
+    icon: <Waves className="h-3.5 w-3.5" />,
+  },
+  {
+    key: "bdsm",
+    label: "Light BDSM",
+    icon: <Flame className="h-3.5 w-3.5" />,
+  },
 ];
 
 function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
@@ -27,7 +47,6 @@ function normalizeCourse(row: VenuePriceRow): VenuePriceRow {
     return { label: "40 mins · 40分钟", duration: "40 min", price: row.price || "$200" };
   }
   if (mins === 30 || mins === 20) {
-    // Map legacy 20-min scrapes upward to the AU consumer 30-min card.
     return {
       label: "30 mins · 半小时",
       duration: "30 min",
@@ -42,49 +61,49 @@ export function VenueCoursePricing({
 }: {
   content: ParsedVenueContent;
 }) {
-  // Always present the AU/CN consumer rate ladder for conversion clarity.
-  // Scraped minute prices remain available in overview copy when present.
   const courses = FALLBACK_COURSES.map(normalizeCourse);
+  const serviceLabels = new Set(
+    (content.services.length
+      ? content.services
+      : SERVICE_META.map((item) => item.label)
+    ).map((item) => item.toLowerCase()),
+  );
 
-  const serviceChips = (
-    content.services.length ? content.services : DEFAULT_SERVICE_CHIPS
-  )
-    .map((service) => service.trim())
-    .filter(Boolean)
-    .slice(0, 8);
-
-  // Ensure core OP-style tags remain visible.
-  for (const chip of DEFAULT_SERVICE_CHIPS) {
-    if (
-      serviceChips.length < 8 &&
-      !serviceChips.some((item) => item.toLowerCase() === chip.toLowerCase())
-    ) {
-      serviceChips.push(chip);
-    }
-  }
+  const services = SERVICE_META.filter(
+    (item) =>
+      serviceLabels.has(item.label.toLowerCase()) ||
+      [...serviceLabels].some((label) => label.includes(item.key)),
+  );
+  const visibleServices = services.length ? services : SERVICE_META;
 
   return (
-    <section className="course-pricing">
+    <section className="course-pricing luxury-pricing">
       <div className="venue-section-label">Rates · 价格表</div>
       <h2>Course & Pricing (AUD)</h2>
-      <p>Clear dual-language rate cards for Australian & Chinese guests.</p>
+      <p>Neon-clear dual-language rate cards with core service icons.</p>
       <div className="course-pricing-grid">
-        {courses.map((course) => (
+        {courses.map((course, index) => (
           <article
             key={`${course.price}-${course.duration}`}
-            className="course-card"
+            className={index === 1 ? "course-card is-featured" : "course-card"}
           >
             <div className="course-card-top">
-              <span>{course.label}</span>
+              <span>
+                <Timer className="h-3.5 w-3.5" />
+                {course.label}
+              </span>
               <strong>{course.duration}</strong>
             </div>
             <div className="course-card-price">
-              {course.price}
+              <span className="neon-price">{course.price}</span>
               <em>AUD</em>
             </div>
             <div className="course-card-chips">
-              {serviceChips.map((service) => (
-                <span key={service}>{service}</span>
+              {visibleServices.map((service) => (
+                <span key={service.label} className="service-chip">
+                  {service.icon}
+                  {service.label}
+                </span>
               ))}
             </div>
           </article>

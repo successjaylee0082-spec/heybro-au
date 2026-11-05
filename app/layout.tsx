@@ -1,16 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
-import { Inter } from "next/font/google";
+import { Cormorant_Garamond, Outfit } from "next/font/google";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getRequestLocale } from "@/lib/i18n-server";
 import "./globals.css";
 import "./navigation.css";
 
-const inter = Inter({
+const display = Cormorant_Garamond({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+});
+
+const sans = Outfit({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
 });
 
 export const dynamic = "force-dynamic";
@@ -53,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 export const viewport: Viewport = {
-  themeColor: "#09090b",
+  themeColor: "#060709",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -66,9 +73,11 @@ export default async function RootLayout({
   return (
     <html
       lang={locale === "zh" ? "zh-Hans" : "en-AU"}
-      className={`dark ${inter.variable}`}
+      className={`dark ${display.variable} ${sans.variable}`}
     >
-      <body className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}>
+      <body
+        className={`${sans.className} min-h-screen bg-background text-foreground antialiased luxury-shell`}
+      >
         <PwaRegistration />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
       </body>
