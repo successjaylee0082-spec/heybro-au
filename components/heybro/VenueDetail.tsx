@@ -16,13 +16,21 @@ import { RedditLogo } from "@/components/RedditLogo";
 import { RedditShareButton } from "@/components/RedditShareButton";
 import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { RelatedVenues } from "@/components/heybro/RelatedVenues";
+import { VenueCoursePricing } from "@/components/heybro/VenueCoursePricing";
 import { VenueGallery } from "@/components/heybro/VenueGallery";
 import { VenueHighlightWidget } from "@/components/heybro/VenueHighlightWidget";
+import { VenueQualityChecklist } from "@/components/heybro/VenueQualityChecklist";
+import { VenueQuickInfoBar } from "@/components/heybro/VenueQuickInfoBar";
+import { VenueStaffRoster } from "@/components/heybro/VenueStaffRoster";
+import { VenueStickyCtaBar } from "@/components/heybro/VenueStickyCtaBar";
 import { VenueStructuredContent } from "@/components/heybro/VenueStructuredContent";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
+import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
 import { categoryLabel, cityLabel } from "@/lib/cities";
+import type { VenueConsumerView } from "@/lib/venue-consumer";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
 import { withLocale } from "@/lib/i18n";
@@ -35,12 +43,14 @@ export function VenueDetail({
   related,
   content,
   visibility,
+  consumer,
 }: {
   venue: Venue;
   gallery: string[];
   related: Venue[];
   content: ParsedVenueContent;
   visibility: VenueVisibility;
+  consumer: VenueConsumerView;
 }) {
   const { locale, t } = useCopy();
   const { isSaved, toggleSaved, showToast } = useNavigation();
@@ -48,6 +58,21 @@ export function VenueDetail({
   const name = locale === "zh" && venue.nameZh ? venue.nameZh : venue.name;
   const suburb =
     locale === "zh" && venue.suburbZh ? venue.suburbZh : venue.suburb;
+  const distanceKm = useApproxDistanceKm(venue.lat, venue.lng);
+  const liveConsumer = useMemo(() => {
+    if (distanceKm == null) return consumer;
+    return {
+      ...consumer,
+      quickInfo: consumer.quickInfo.map((badge) =>
+        badge.kind === "location"
+          ? {
+              ...badge,
+              value: `${distanceKm.toFixed(1)}km away`,
+            }
+          : badge,
+      ),
+    };
+  }, [consumer, distanceKm]);
   const transit = buildMapsUrl({
     lat: venue.lat,
     lng: venue.lng,
@@ -61,17 +86,17 @@ export function VenueDetail({
     mode: "walking",
   });
   const tel = venue.phone?.replace(/[^\d+]/g, "");
+  const phoneHref = tel ? `tel:${tel}` : undefined;
 
   return (
-    <article className="venue-detail-page">
+    <article className="venue-detail-page has-sticky-cta">
       <Link href={withLocale(locale, "/")} className="text-link venue-back">
         <ArrowLeft className="h-4 w-4" />
         {t("backHome")}
       </Link>
 
+      <VenueQuickInfoBar badges={liveConsumer.quickInfo} />
       <VenueHighlightWidget visibility={visibility} />
-
-      <VenueGallery images={gallery} alt={name} />
 
       <header
         className={
@@ -109,8 +134,8 @@ export function VenueDetail({
             />
             {t("save")}
           </Button>
-          {tel ? (
-            <a href={`tel:${tel}`} className="venue-primary-cta">
+          {phoneHref ? (
+            <a href={phoneHref} className="venue-primary-cta">
               <Phone className="h-4 w-4" />
               Call Now
             </a>
@@ -128,6 +153,16 @@ export function VenueDetail({
           ) : null}
         </div>
       </header>
+
+      <VenueGallery images={gallery} alt={name} />
+
+      <VenueStaffRoster
+        staff={liveConsumer.staff}
+        activeCount={liveConsumer.activeStaffCount}
+      />
+
+      <VenueCoursePricing content={content} />
+      <VenueQualityChecklist scores={liveConsumer.quality} />
 
       <div className="detail-info venue-detail-meta">
         <span>
@@ -154,7 +189,7 @@ export function VenueDetail({
         ) : null}
       </div>
 
-      <VenueStructuredContent content={content} />
+      <VenueStructuredContent content={content} variant="overview" />
 
       {venue.fictional ? (
         <div className="demo-note" style={{ marginTop: 18 }}>
@@ -163,8 +198,8 @@ export function VenueDetail({
         </div>
       ) : (
         <div className="demo-note venue-photo-note">
-          Gallery photos may include venue media and illustrative lifestyle
-          imagery used when a listing has limited source photography.
+          Staff cards may blend venue media with illustrative portraits when
+          source profiles are limited. Always confirm availability by phone.
         </div>
       )}
 
@@ -180,8 +215,8 @@ export function VenueDetail({
             {t("walking")}
           </a>
         ) : null}
-        {tel ? (
-          <a href={`tel:${tel}`}>
+        {phoneHref ? (
+          <a href={phoneHref}>
             <Phone className="h-4 w-4" />
             {t("call")}
           </a>
@@ -200,6 +235,12 @@ export function VenueDetail({
         </div>
         <RedditShareButton title={name} />
       </div>
+
+      <VenueStickyCtaBar
+        phoneHref={phoneHref}
+        smsHref={liveConsumer.smsHref}
+        telegramHref={liveConsumer.telegramHref}
+      />
     </article>
   );
 }

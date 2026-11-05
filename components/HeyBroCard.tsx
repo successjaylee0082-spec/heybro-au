@@ -85,13 +85,22 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
         <Link href={detailHref} className="venue-title">
           <h3>{name}</h3>
         </Link>
-        <p>{description}</p>
-        <div className="venue-tags">
-          {tags.map((tag) => (
+        <div className="listing-quick-badges">
+          <span>{suburb}</span>
+          <span>Cash OK</span>
+          {tags.slice(0, 2).map((tag) => (
             <span key={tag}>{tag}</span>
           ))}
+          {venue.isManaged ? <span className="listing-quick-hot">Active lineup</span> : null}
         </div>
-        <div className="venue-actions">
+        <p>{description.length > 120 ? `${description.slice(0, 117)}…` : description}</p>
+        <div className="venue-actions listing-cta-row">
+          {venue.phone ? (
+            <a href={`tel:${venue.phone.replace(/[^\d+]/g, "")}`} className="listing-cta-call">
+              <Phone className="h-3.5 w-3.5" />
+              Call Now
+            </a>
+          ) : null}
           {transit ? (
             <a href={transit} target="_blank" rel="noopener noreferrer">
               <Navigation className="h-3.5 w-3.5" />
@@ -101,12 +110,6 @@ export function HeyBroCard({ venue }: { venue: Venue }) {
           {walking ? (
             <a href={walking} target="_blank" rel="noopener noreferrer">
               {t("walking")}
-            </a>
-          ) : null}
-          {venue.phone ? (
-            <a href={`tel:${venue.phone}`}>
-              <Phone className="h-3.5 w-3.5" />
-              {t("call")}
             </a>
           ) : null}
         </div>

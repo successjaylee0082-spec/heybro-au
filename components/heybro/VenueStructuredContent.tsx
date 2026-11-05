@@ -33,9 +33,12 @@ function amenityIcon(label: string): ReactNode {
 
 export function VenueStructuredContent({
   content,
+  variant = "full",
 }: {
   content: ParsedVenueContent;
+  variant?: "full" | "overview";
 }) {
+  const showExtras = variant === "full";
   return (
     <div className="venue-structured">
       <section className="venue-section">
@@ -44,7 +47,7 @@ export function VenueStructuredContent({
         <p>{content.overview}</p>
       </section>
 
-      {content.pricing.length > 0 ? (
+      {showExtras && content.pricing.length > 0 ? (
         <section className="venue-section">
           <div className="venue-section-label">Pricing</div>
           <h2>Session rates</h2>
@@ -65,7 +68,7 @@ export function VenueStructuredContent({
         </section>
       ) : null}
 
-      {content.services.length > 0 ? (
+      {showExtras && content.services.length > 0 ? (
         <section className="venue-section">
           <div className="venue-section-label">Services Offered</div>
           <h2>What you can book</h2>
