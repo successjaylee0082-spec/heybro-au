@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Bookmark,
+  Lock,
   MapPin,
   MessageCircle,
   Navigation,
@@ -21,6 +22,7 @@ import { withLocale } from "@/lib/i18n";
 import {
   isVipListing,
   resolveVenueListingTier,
+  VIP_MONTHLY_PRICE,
 } from "@/lib/listing-tier";
 import { listingServiceChips } from "@/lib/venue-profiles";
 import { buildMapsUrl } from "@/utils/googleMaps";
@@ -32,10 +34,12 @@ const TAG_PILL_HOT =
   "inline-flex items-center px-2.5 py-1 text-xs rounded-md bg-rose-950/60 text-rose-200 border border-rose-700/50 whitespace-nowrap";
 const CTA_BASE =
   "inline-flex items-center justify-center gap-1.5 min-h-9 px-3 text-xs font-semibold rounded-md border border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-rose-500/60";
+const CTA_ELITE =
+  "inline-flex items-center justify-center gap-1.5 min-h-9 px-3 text-xs font-semibold rounded-md border border-rose-500/70 bg-rose-950/50 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.25)] hover:bg-rose-900/60";
 
 /**
- * Roster / directory card — masked pose cover with spaced tag pills and
- * non-overlapping CTA / badge rows (Tailwind structure, no globals edits).
+ * Roster / directory card — VIP elite glow vs muted free listing.
+ * Tailwind-only differentiation (no globals / layout / tailwind config edits).
  */
 export function VenueCard({ venue }: { venue: Venue }) {
   const { locale, t } = useCopy();
@@ -52,8 +56,9 @@ export function VenueCard({ venue }: { venue: Venue }) {
     locale === "zh" && venue.tagsZh?.length ? venue.tagsZh : venue.tags;
   const detailHref = withLocale(locale, `/venue/${venue.id}`);
   const cover = resolveCardPoseCover(venue.id, venue.image);
-  const vip = isVipListing(venue);
   const tier = resolveVenueListingTier(venue);
+  const elite = tier === "vip";
+  const managed = isVipListing(venue);
   const transit = buildMapsUrl({
     lat: venue.lat,
     lng: venue.lng,
@@ -61,13 +66,13 @@ export function VenueCard({ venue }: { venue: Venue }) {
     mode: "transit",
   });
   const phoneDigits = venue.phone?.replace(/[^\d+]/g, "") || "";
-  const whatsappHref = vip
+  const whatsappHref = managed
     ? buildWhatsAppHref(
         venue.customHighlights?.whatsapp || venue.phone,
         `Hi, I found ${venue.name} on Hey Bro — are you available tonight?`,
       )
     : undefined;
-  const wechat = vip
+  const wechat = managed
     ? resolveWeChatContact({
         wechatId: venue.customHighlights?.wechat || undefined,
         qrPath: venue.customHighlights?.wechat
@@ -76,13 +81,13 @@ export function VenueCard({ venue }: { venue: Venue }) {
       })
     : { configured: false as const };
 
-  const chips = vip
+  const chips = managed
     ? listingServiceChips(venue)
     : listingServiceChips(venue).slice(0, 3);
   const paymentTags = Array.from(
     new Set([
       ...chips,
-      ...(vip ? tags.slice(0, 1) : []),
+      ...(managed ? tags.slice(0, 1) : []),
       ...(venue.profile?.payments || []).map((payment) =>
         payment
           .replace("WeChat Pay 微信", "WeChat")
@@ -93,38 +98,78 @@ export function VenueCard({ venue }: { venue: Venue }) {
     ]),
   ).filter(Boolean);
 
+  const articleClass = elite
+    ? [
+        "venue-card luxury-venue is-managed is-vip tier-vip relative overflow-hidden",
+        "rounded-xl border border-rose-500/80 bg-neutral-950",
+        "shadow-[0_0_25px_rgba(244,63,94,0.3)]",
+        "ring-1 ring-rose-400/40",
+        "before:pointer-events-none before:absolute before:inset-0 before:rounded-xl",
+        "before:shadow-[inset_0_0_30px_rgba(244,63,94,0.18)]",
+      ].join(" ")
+    : managed
+      ? "venue-card luxury-venue is-managed tier-managed relative overflow-hidden rounded-xl border border-rose-500/40 bg-neutral-950 shadow-[0_0_16px_rgba(244,63,94,0.15)]"
+      : [
+          "venue-card luxury-venue is-free tier-free relative overflow-hidden",
+          "rounded-xl border border-neutral-800/80 bg-neutral-950/80",
+          "opacity-90 shadow-none",
+        ].join(" ");
+
   return (
     <article
-      className={
-        vip
-          ? `venue-card luxury-venue is-managed is-vip tier-${tier}`
-          : "venue-card luxury-venue is-free tier-free"
-      }
+      className={articleClass}
       data-cover="masked-pose"
       data-tier={tier}
+      data-elite={elite ? "true" : "false"}
     >
-      <div className="venue-image-wrap relative">
+      {/* Rose-gold glow rim for Verified Elite only */}
+      {elite ? (
+        <div
+          className="pointer-events-none absolute -inset-px z-0 animate-pulse rounded-xl bg-gradient-to-br from-rose-400/55 via-amber-200/25 to-rose-600/45 opacity-90 blur-[1.5px]"
+          aria-hidden
+        />
+      ) : null}
+
+      <div className="venue-image-wrap relative z-[1]">
         <Link href={detailHref} className="venue-image-button" aria-label={name}>
           <Image
             src={cover}
             alt=""
             fill
             quality={90}
-            className="venue-image object-cover object-[center_20%]"
+            className={
+              elite
+                ? "venue-image object-cover object-[center_20%] contrast-[1.05]"
+                : "venue-image object-cover object-[center_20%] saturate-[0.85] contrast-[0.95]"
+            }
             sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 420px"
           />
         </Link>
         <div className="venue-media-shade" aria-hidden />
 
-        {/* Verification badges — clear of title/description via absolute media slot */}
+        {!managed ? (
+          <span
+            className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center"
+            aria-hidden
+          >
+            <span className="rotate-[-18deg] select-none text-[13px] font-black tracking-[0.35em] text-neutral-100/25">
+              FREE LISTING
+            </span>
+          </span>
+        ) : null}
+
         <div className="managed-badge-slot absolute left-3 top-3 z-[2] flex flex-row flex-wrap items-center gap-2">
-          {vip ? (
+          {elite ? (
+            <ManagedBadge variant="vip" size="sm" />
+          ) : managed ? (
             <ManagedBadge
-              variant={venue.managedBadge || (tier === "vip" ? "vip" : "pro")}
+              variant={venue.managedBadge || "pro"}
               size="sm"
             />
           ) : (
-            <span className="free-listing-tag">Free listing</span>
+            <span className="inline-flex items-center rounded-md border border-neutral-700/80 bg-neutral-950/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+              Free listing
+            </span>
           )}
         </div>
 
@@ -150,15 +195,18 @@ export function VenueCard({ venue }: { venue: Venue }) {
         <span className="image-category absolute bottom-3 right-3 z-[2]">
           {categoryLabel(venue.category, locale)}
         </span>
-        {vip ? (
-          <span className="venue-live-pill absolute bottom-3 left-3 z-[2]">
-            <i className="status-live-dot" aria-hidden />
+        {elite ? (
+          <span className="venue-live-pill absolute bottom-3 left-3 z-[2] inline-flex items-center gap-1.5 rounded-full border border-rose-400/60 bg-rose-950/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-rose-100 shadow-[0_0_16px_rgba(244,63,94,0.45)]">
+            <i
+              className="status-live-dot inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.9)]"
+              aria-hidden
+            />
             Active Now
           </span>
         ) : null}
       </div>
 
-      <div className="venue-content flex flex-col gap-2 p-4">
+      <div className="venue-content relative z-[1] flex flex-col gap-2 p-4">
         <div className="flex flex-row flex-wrap items-center gap-2">
           <div className="venue-location inline-flex items-center gap-1">
             <MapPin className="h-3 w-3 shrink-0" />
@@ -178,64 +226,94 @@ export function VenueCard({ venue }: { venue: Venue }) {
         </div>
 
         <Link href={detailHref} className="venue-title block">
-          <h3 className="m-0 leading-snug">{name}</h3>
+          <h3
+            className={
+              elite
+                ? "m-0 bg-gradient-to-r from-rose-100 via-amber-100 to-rose-200 bg-clip-text text-transparent leading-snug"
+                : "m-0 leading-snug text-neutral-200"
+            }
+          >
+            {name}
+          </h3>
         </Link>
 
-        {/* Payment / amenity pills — flex-wrap + gap so labels never concatenate */}
         <div
-          className="listing-quick-badges flex flex-wrap gap-2 mt-2"
+          className="listing-quick-badges mt-2 flex flex-wrap gap-2"
           aria-label="Payments and amenities"
         >
           {paymentTags.map((chip) => (
             <span
               key={chip}
-              className={chip === "CBD" ? TAG_PILL_HOT : TAG_PILL}
+              className={chip === "CBD" || elite ? TAG_PILL_HOT : TAG_PILL}
             >
               {chip}
             </span>
           ))}
         </div>
 
-        <p className="listing-snip m-0 text-sm text-neutral-400">
-          {description.length > (vip ? 110 : 72)
-            ? `${description.slice(0, vip ? 107 : 69)}…`
+        <p
+          className={
+            elite
+              ? "listing-snip m-0 text-sm text-neutral-300"
+              : "listing-snip m-0 text-sm text-neutral-500"
+          }
+        >
+          {description.length > (managed ? 110 : 72)
+            ? `${description.slice(0, managed ? 107 : 69)}…`
             : description}
         </p>
 
-        {/* Contact CTAs — spaced flex row, wraps cleanly on mobile */}
         <div className="venue-actions listing-cta-row mt-3 flex flex-row flex-wrap items-center gap-3">
-          {vip && phoneDigits ? (
+          {managed && phoneDigits ? (
             <a
               href={`tel:${phoneDigits}`}
-              className={`${CTA_BASE} listing-cta-call`}
+              className={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-call`}
             >
               <Phone className="h-3.5 w-3.5" />
               Call Now
             </a>
           ) : null}
-          {vip && whatsappHref ? (
+          {managed && whatsappHref ? (
             <a
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className={`${CTA_BASE} listing-cta-whatsapp`}
+              className={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-whatsapp`}
             >
               <MessageCircle className="h-3.5 w-3.5" />
               WhatsApp
             </a>
           ) : null}
-          {vip ? (
+          {managed ? (
             <WeChatQrDialog
               contact={wechat}
-              triggerClassName={`${CTA_BASE} listing-cta-wechat`}
+              triggerClassName={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-wechat`}
               label="WeChat"
             />
           ) : null}
-          {!vip ? (
-            <Link href={detailHref} className={`${CTA_BASE} listing-cta-view`}>
-              <ShieldCheck className="h-3.5 w-3.5" />
-              View details
-            </Link>
+          {!managed ? (
+            <>
+              <span
+                className={`${CTA_BASE} cursor-not-allowed opacity-45`}
+                aria-disabled="true"
+                title={`Upgrade to Business VIP · ${VIP_MONTHLY_PRICE}`}
+              >
+                <Lock className="h-3.5 w-3.5" />
+                WhatsApp
+              </span>
+              <span
+                className={`${CTA_BASE} cursor-not-allowed opacity-45`}
+                aria-disabled="true"
+                title={`Upgrade to Business VIP · ${VIP_MONTHLY_PRICE}`}
+              >
+                <Lock className="h-3.5 w-3.5" />
+                WeChat
+              </span>
+              <Link href={detailHref} className={`${CTA_BASE} listing-cta-view`}>
+                <ShieldCheck className="h-3.5 w-3.5" />
+                View details
+              </Link>
+            </>
           ) : null}
           {transit ? (
             <a
@@ -250,9 +328,13 @@ export function VenueCard({ venue }: { venue: Venue }) {
           ) : null}
         </div>
 
-        {!vip ? (
-          <p className="listing-upgrade-hint mt-1 mb-0 text-xs text-neutral-500">
-            Messaging unlocks on Business VIP · $40/mo
+        {!managed ? (
+          <p className="listing-upgrade-hint mb-0 mt-1 text-xs text-neutral-500">
+            Direct chat unlocks on Business VIP · {VIP_MONTHLY_PRICE}
+          </p>
+        ) : elite ? (
+          <p className="listing-upgrade-hint mb-0 mt-1 text-xs font-medium text-rose-300/80">
+            Verified Elite · priority placement · direct booking open
           </p>
         ) : null}
       </div>
