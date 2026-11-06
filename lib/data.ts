@@ -311,7 +311,22 @@ export const MELBOURNE_VERIFIED_VENUES: Venue[] = melbourneVenues.map(
 
 /** Full seed catalog ready for HomeFeed when Supabase has no Melbourne rows. */
 export function getSeedDirectoryVenues(): Venue[] {
-  return attachPricingToVenues(MELBOURNE_VERIFIED_VENUES);
+  try {
+    const source =
+      Array.isArray(MELBOURNE_VERIFIED_VENUES) && MELBOURNE_VERIFIED_VENUES.length
+        ? MELBOURNE_VERIFIED_VENUES
+        : Array.isArray(melbourneVenues)
+          ? melbourneVenues.map((seed, index) =>
+              seedVenueToDirectoryVenue(seed, index),
+            )
+          : [];
+    return attachPricingToVenues(source);
+  } catch (error) {
+    console.error("[getSeedDirectoryVenues] fallback", error);
+    return Array.isArray(MELBOURNE_VERIFIED_VENUES)
+      ? MELBOURNE_VERIFIED_VENUES
+      : [];
+  }
 }
 
 /** Minimum AUD course price from the shared pricing ladder. */

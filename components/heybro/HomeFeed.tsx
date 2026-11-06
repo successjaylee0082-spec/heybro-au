@@ -55,38 +55,46 @@ export function HomeFeed({
 
   // Instant seed-first list — never waits on Supabase / never starts empty.
   const venues = useMemo(() => {
-    const selectedCity = normalizeToken(city) || "melbourne";
-    const selectedCategory = normalizeToken(String(category)) || "all";
+    try {
+      const selectedCity = normalizeToken(city) || "melbourne";
+      const selectedCategory = normalizeToken(String(category || "all")) || "all";
+      const catalog =
+        Array.isArray(SEED_CATALOG) && SEED_CATALOG.length > 0
+          ? SEED_CATALOG
+          : MELBOURNE_VERIFIED_VENUES;
 
-    let next = filterVenues({
-      venues: SEED_CATALOG,
-      city: selectedCity === "melbourne" ? "melbourne" : (city as typeof city),
-      category: selectedCategory === "all" ? "all" : category,
-      sort,
-      origin: sort === "cbd-distance" ? origin : null,
-    });
-
-    if (next.length === 0 && selectedCity === "melbourne") {
-      next = filterVenues({
-        venues: SEED_CATALOG,
-        city: "melbourne",
-        category: "all",
+      let next = filterVenues({
+        venues: catalog,
+        city: selectedCity === "melbourne" ? "melbourne" : city,
+        category: selectedCategory === "all" ? "all" : category,
         sort,
         origin: sort === "cbd-distance" ? origin : null,
       });
-    }
 
-    // Absolute last resort: map seedVenues ids so UI always has 5 Melbourne shops.
-    if (next.length === 0) {
-      next = filterVenues({
-        venues: SEED_CATALOG,
-        city: "melbourne",
-        category: "all",
-        sort: "cbd-distance",
-      });
-    }
+      if (next.length === 0 && selectedCity === "melbourne") {
+        next = filterVenues({
+          venues: catalog,
+          city: "melbourne",
+          category: "all",
+          sort,
+          origin: sort === "cbd-distance" ? origin : null,
+        });
+      }
 
-    return next;
+      if (next.length === 0) {
+        next = filterVenues({
+          venues: catalog,
+          city: "melbourne",
+          category: "all",
+          sort: "cbd-distance",
+        });
+      }
+
+      return Array.isArray(next) ? next : catalog;
+    } catch (error) {
+      console.error("[HomeFeed] filter fallback", error);
+      return MELBOURNE_VERIFIED_VENUES;
+    }
   }, [city, category, sort, origin]);
 
   const cbdCount = venues.filter((venue) => venue.isCbd).length;
