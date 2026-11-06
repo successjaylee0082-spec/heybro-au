@@ -71,8 +71,87 @@ export type SeedVenueRecord = {
 };
 
 /**
+ * Original Sydney directory listings — preserved intact for Sydney city filter.
+ */
+export const sydneyVenues: Venue[] = [
+  {
+    id: "harbour-glow-lounge",
+    name: "Harbour Glow Lounge",
+    nameZh: "海港微光酒廊",
+    city: "sydney",
+    suburb: "Circular Quay",
+    suburbZh: "环形码头",
+    category: "nightlife-events",
+    description:
+      "Fictional waterfront lounge with harbour views, late cocktails and a calm late-week crowd.",
+    descriptionZh: "虚构的海港酒廊，适合晚间鸡尾酒与轻松周末氛围。",
+    image: "/images/directory/01.jpg",
+    tags: ["Cocktails", "Harbour", "Late"],
+    tagsZh: ["鸡尾酒", "海港", "深夜"],
+    phone: "0297019001",
+    address: "1 Demo Quay, Sydney NSW 2000",
+    lat: -33.861,
+    lng: 151.211,
+    isCbd: true,
+    verified: true,
+    fictional: true,
+    isManaged: true,
+    managedBadge: "vip",
+    customHighlights: {
+      tier: "vip",
+      managedBadge: "vip",
+      wechat: "HeyBroHarbour",
+      whatsapp: "0297019001",
+    },
+    hours: "Thu–Sat 6pm–2am",
+  },
+  {
+    id: "surry-neon-room",
+    name: "Surry Neon Room",
+    nameZh: "萨里霓虹厅",
+    city: "sydney",
+    suburb: "Surry Hills",
+    suburbZh: "萨里山",
+    category: "nightlife-events",
+    description:
+      "Demo basement bar with neon corners, vinyl nights and small-plate service.",
+    descriptionZh: "演示地下室酒吧，霓虹角落与黑胶夜晚。",
+    image: "/images/directory/02.jpg",
+    tags: ["Vinyl", "Small plates"],
+    tagsZh: ["黑胶", "小食"],
+    phone: "0297019002",
+    address: "88 Demo Crown St, Surry Hills NSW 2010",
+    lat: -33.884,
+    lng: 151.212,
+    verified: true,
+    fictional: true,
+    hours: "Wed–Sun 5pm–1am",
+  },
+  {
+    id: "cross-stage-club",
+    name: "Cross Stage Club",
+    nameZh: "十字舞台俱乐部",
+    city: "sydney",
+    suburb: "Kings Cross",
+    suburbZh: "国王十字",
+    category: "strip-clubs",
+    description:
+      "Illustrative late venue card for directory layout only. Not a real business listing.",
+    descriptionZh: "仅用于目录布局的示意场所卡片，并非真实商家。",
+    image: "/images/directory/03.jpg",
+    tags: ["Late", "Stage"],
+    tagsZh: ["深夜", "舞台"],
+    phone: "0297019003",
+    address: "12 Demo Darlinghurst Rd, Potts Point NSW 2011",
+    lat: -33.874,
+    lng: 151.224,
+    fictional: true,
+    hours: "Fri–Sat 9pm–3am",
+  },
+];
+
+/**
  * Verified Melbourne directory seed — English-only copy for local EN/ZH patrons.
- * Sydney feed rows in lib/feed.ts are intentionally untouched.
  */
 export const melbourneVenues: SeedVenueRecord[] = [
   {
@@ -195,6 +274,7 @@ function normalizeSeedCity(seed: SeedVenueRecord): CityId {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-");
+  if (slug === "sydney" || seed.city.toLowerCase() === "sydney") return "sydney";
   if (slug === "melbourne" || seed.city.toLowerCase() === "melbourne") {
     return "melbourne";
   }
@@ -305,27 +385,32 @@ export function seedVenueToDirectoryVenue(
 }
 
 /** Melbourne directory venues derived from `melbourneVenues` (SSOT for feed + fallback). */
-export const MELBOURNE_VERIFIED_VENUES: Venue[] = melbourneVenues.map(
+export const MELBOURNE_VERIFIED_VENUES: Venue[] = (melbourneVenues || []).map(
   (seed, index) => seedVenueToDirectoryVenue(seed, index),
 );
 
-/** Full seed catalog ready for HomeFeed when Supabase has no Melbourne rows. */
+/** Unified Sydney + Melbourne catalog for the home feed. */
+export const venues: Venue[] = [
+  ...(Array.isArray(sydneyVenues) ? sydneyVenues : []),
+  ...(Array.isArray(MELBOURNE_VERIFIED_VENUES) ? MELBOURNE_VERIFIED_VENUES : []),
+];
+
+/** Full Sydney + Melbourne seed catalog (safe for HomeFeed / page fallbacks). */
 export function getSeedDirectoryVenues(): Venue[] {
   try {
-    const source =
-      Array.isArray(MELBOURNE_VERIFIED_VENUES) && MELBOURNE_VERIFIED_VENUES.length
-        ? MELBOURNE_VERIFIED_VENUES
-        : Array.isArray(melbourneVenues)
-          ? melbourneVenues.map((seed, index) =>
-              seedVenueToDirectoryVenue(seed, index),
-            )
-          : [];
-    return attachPricingToVenues(source);
+    const catalog =
+      Array.isArray(venues) && venues.length > 0
+        ? venues
+        : [
+            ...(Array.isArray(sydneyVenues) ? sydneyVenues : []),
+            ...(Array.isArray(MELBOURNE_VERIFIED_VENUES)
+              ? MELBOURNE_VERIFIED_VENUES
+              : []),
+          ];
+    return attachPricingToVenues(catalog);
   } catch (error) {
     console.error("[getSeedDirectoryVenues] fallback", error);
-    return Array.isArray(MELBOURNE_VERIFIED_VENUES)
-      ? MELBOURNE_VERIFIED_VENUES
-      : [];
+    return Array.isArray(venues) ? venues : [];
   }
 }
 

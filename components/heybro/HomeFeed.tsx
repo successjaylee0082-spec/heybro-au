@@ -20,7 +20,8 @@ import { cities } from "@/lib/cities";
 import {
   getSeedDirectoryVenues,
   MELBOURNE_VERIFIED_VENUES,
-  seedVenues,
+  sydneyVenues,
+  venues as unifiedVenues,
 } from "@/lib/data";
 import { filterVenues } from "@/lib/feed";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
@@ -33,11 +34,24 @@ function normalizeToken(value: string | null | undefined): string {
     .replace(/\s+/g, "-");
 }
 
-/** Primary catalog — Melbourne seed only. Supabase is bypassed for the feed. */
-const SEED_CATALOG: Venue[] =
-  getSeedDirectoryVenues().length > 0
-    ? getSeedDirectoryVenues()
-    : MELBOURNE_VERIFIED_VENUES;
+function safeArray(list: Venue[] | null | undefined): Venue[] {
+  return Array.isArray(list) ? list : [];
+}
+
+/** Primary catalog — Sydney + Melbourne from lib/data (Supabase bypassed). */
+const SEED_CATALOG: Venue[] = (() => {
+  try {
+    const seeded = getSeedDirectoryVenues();
+    if (safeArray(seeded).length) return seeded;
+  } catch {
+    // ignore
+  }
+  return [
+    ...safeArray(unifiedVenues),
+    ...safeArray(sydneyVenues),
+    ...safeArray(MELBOURNE_VERIFIED_VENUES),
+  ];
+})();
 
 export function HomeFeed({
   venues: _ignoredDirectoryVenues,
@@ -58,14 +72,16 @@ export function HomeFeed({
     try {
       const selectedCity = normalizeToken(city) || "melbourne";
       const selectedCategory = normalizeToken(String(category || "all")) || "all";
-      const catalog =
-        Array.isArray(SEED_CATALOG) && SEED_CATALOG.length > 0
-          ? SEED_CATALOG
-          : MELBOURNE_VERIFIED_VENUES;
+      const catalog = safeArray(
+        SEED_CATALOG.length > 0 ? SEED_CATALOG : unifiedVenues,
+      );
 
       let next = filterVenues({
         venues: catalog,
-        city: selectedCity === "melbourne" ? "melbourne" : city,
+        city:
+          selectedCity === "melbourne" || selectedCity === "sydney"
+            ? selectedCity
+            : city,
         category: selectedCategory === "all" ? "all" : category,
         sort,
         origin: sort === "cbd-distance" ? origin : null,
@@ -73,18 +89,17 @@ export function HomeFeed({
 
       if (next.length === 0 && selectedCity === "melbourne") {
         next = filterVenues({
-          venues: catalog,
+          venues: safeArray(MELBOURNE_VERIFIED_VENUES),
           city: "melbourne",
           category: "all",
-          sort,
-          origin: sort === "cbd-distance" ? origin : null,
+          sort: "cbd-distance",
         });
       }
 
-      if (next.length === 0) {
+      if (next.length === 0 && selectedCity === "sydney") {
         next = filterVenues({
-          venues: catalog,
-          city: "melbourne",
+          venues: safeArray(sydneyVenues),
+          city: "sydney",
           category: "all",
           sort: "cbd-distance",
         });
@@ -93,12 +108,12 @@ export function HomeFeed({
       return Array.isArray(next) ? next : catalog;
     } catch (error) {
       console.error("[HomeFeed] filter fallback", error);
-      return MELBOURNE_VERIFIED_VENUES;
+      return safeArray(SEED_CATALOG);
     }
   }, [city, category, sort, origin]);
 
-  const cbdCount = venues.filter((venue) => venue.isCbd).length;
-  const seedCount = seedVenues.length || SEED_CATALOG.length;
+  const cbdCount = (venues || []).filter((venue) => venue.isCbd).length;
+  const seedCount = safeArray(SEED_CATALOG).length;
 
   return (
     <div className="home-feed home-feed-nightlife">
@@ -171,13 +186,15 @@ export function HomeFeed({
       </div>
 
       <VenueList
-        venues={venues}
+        venues={venues || []}
         selectedCity={city || "melbourne"}
         selectedCategory={category || "all"}
       />
 
       <div className="result-notice">
-        {`Showing ${venues.length} listing${venues.length === 1 ? "" : "s"} · ${
+        {`Showing ${(venues || []).length} listing${
+          (venues || []).length === 1 ? "" : "s"
+        } · ${
           sort === "cbd-distance"
             ? origin
               ? "CBD first, then distance from you"

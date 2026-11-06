@@ -5,7 +5,8 @@ import { VenueList as BaseVenueList } from "@/components/VenueList";
 import {
   getSeedDirectoryVenues,
   MELBOURNE_VERIFIED_VENUES,
-  seedVenues,
+  sydneyVenues,
+  venues as unifiedVenues,
 } from "@/lib/data";
 import type { RankedVenue } from "@/lib/geo";
 import type { CategoryId, CityId, Venue } from "@/types";
@@ -38,14 +39,26 @@ function matchesCategory(
   return normalizeToken(venue.category) === normalizeToken(selectedCategory);
 }
 
-const MELBOURNE_SEED: Venue[] =
-  getSeedDirectoryVenues().length > 0
-    ? getSeedDirectoryVenues()
-    : MELBOURNE_VERIFIED_VENUES;
+function safeList(list: Venue[] | null | undefined): Venue[] {
+  return Array.isArray(list) ? list : [];
+}
+
+const FALLBACK_CATALOG: Venue[] = (() => {
+  try {
+    const seeded = getSeedDirectoryVenues();
+    if (safeList(seeded).length) return seeded;
+  } catch {
+    // ignore
+  }
+  return [
+    ...safeList(sydneyVenues),
+    ...safeList(MELBOURNE_VERIFIED_VENUES),
+    ...safeList(unifiedVenues),
+  ];
+})();
 
 /**
- * Seed-first venue grid. Ignores empty Supabase payloads and always has the
- * Melbourne seedVenues houses available for instant render.
+ * Seed-first venue grid for Sydney + Melbourne. Never throws on undefined arrays.
  */
 export function VenueList({
   venues,
@@ -59,36 +72,36 @@ export function VenueList({
   const displayVenues = useMemo(() => {
     const city = selectedCity || "melbourne";
     const category = selectedCategory || "all";
-    const isMelbourne = normalizeToken(city) === "melbourne";
+    const incoming = safeList(venues as Venue[] | null | undefined);
+    const catalog = incoming.length > 0 ? incoming : FALLBACK_CATALOG;
 
-    // Primary source for Melbourne: hardcoded seedVenues (via MELBOURNE_SEED).
-    const source = isMelbourne
-      ? MELBOURNE_SEED
-      : venues && venues.length > 0
-        ? venues
-        : MELBOURNE_SEED;
-
-    const filtered = source.filter(
+    const filtered = catalog.filter(
       (venue) => matchesCity(venue, city) && matchesCategory(venue, category),
     );
 
     if (filtered.length > 0) return filtered as RankedVenue[];
-    if (isMelbourne) return MELBOURNE_SEED as RankedVenue[];
+
+    // City-specific hard fallbacks so neither Sydney nor Melbourne blanks.
+    const token = normalizeToken(city);
+    if (token === "melbourne") {
+      return safeList(MELBOURNE_VERIFIED_VENUES) as RankedVenue[];
+    }
+    if (token === "sydney") {
+      return safeList(sydneyVenues) as RankedVenue[];
+    }
     return [] as RankedVenue[];
   }, [venues, selectedCity, selectedCategory]);
 
-  // Keep a data attribute for debugging seed count in the DOM.
   if (!displayVenues.length) {
-    return (
-      <div className="venue-list" data-seed-count={seedVenues.length}>
-        {/* Intentionally empty — Melbourne path above should never land here. */}
-      </div>
-    );
+    return <div className="venue-list" data-seed-count={0} />;
   }
 
   return (
-    <div data-seed-count={seedVenues.length} data-source="seedVenues">
-      <BaseVenueList venues={displayVenues} />
+    <div
+      data-seed-count={displayVenues.length}
+      data-source="sydney+melbourne"
+    >
+      <BaseVenueList venues={displayVenues || []} />
     </div>
   );
 }

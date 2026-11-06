@@ -1,32 +1,34 @@
 import { HomeFeed } from "@/components/heybro/HomeFeed";
 import {
   getSeedDirectoryVenues,
-  melbourneVenues,
   MELBOURNE_VERIFIED_VENUES,
-  seedVenues,
+  sydneyVenues,
+  venues,
 } from "@/lib/data";
 import { isLocale } from "@/lib/i18n";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-function safeSeedVenues() {
+function safeCatalog() {
   try {
     const seeded = getSeedDirectoryVenues();
     if (Array.isArray(seeded) && seeded.length > 0) return seeded;
   } catch {
     // fall through
   }
-  if (Array.isArray(MELBOURNE_VERIFIED_VENUES) && MELBOURNE_VERIFIED_VENUES.length) {
-    return MELBOURNE_VERIFIED_VENUES;
-  }
-  // Last resort: empty array still allows HomeFeed's own seed fallback.
-  return [];
+  return [
+    ...(Array.isArray(sydneyVenues) ? sydneyVenues : []),
+    ...(Array.isArray(MELBOURNE_VERIFIED_VENUES)
+      ? MELBOURNE_VERIFIED_VENUES
+      : []),
+    ...(Array.isArray(venues) ? venues : []),
+  ];
 }
 
 /**
- * Home feed uses Melbourne seed listings (Sydney feed data remains in lib/feed).
- * Locale / seed loading is guarded so a bad cache or empty params cannot 500.
+ * Home feed renders the unified Sydney + Melbourne catalog from lib/data.
+ * Locale / catalog loading is guarded so undefined arrays never 500.
  */
 export default async function HomePage({
   params,
@@ -45,14 +47,10 @@ export default async function HomePage({
 
     if (!isLocale(locale)) notFound();
 
-    const seed = safeSeedVenues();
-    // Touch exports so bundlers keep both melbourne + seed aliases live.
-    void melbourneVenues;
-    void seedVenues;
-
-    return <HomeFeed venues={seed} source="seed" />;
+    const catalog = safeCatalog() || [];
+    return <HomeFeed venues={catalog} source="seed" />;
   } catch (error) {
     console.error("[HomePage] recoverable render failure", error);
-    return <HomeFeed venues={safeSeedVenues()} source="seed" />;
+    return <HomeFeed venues={safeCatalog() || []} source="seed" />;
   }
 }
