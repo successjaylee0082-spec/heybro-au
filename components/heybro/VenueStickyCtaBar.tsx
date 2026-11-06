@@ -3,6 +3,7 @@
 import { MessageCircle, Phone } from "lucide-react";
 import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
 import type { WeChatContact } from "@/lib/booking-links";
+import { VIP_MONTHLY_PRICE } from "@/lib/listing-tier";
 
 /**
  * Day-5 mobile sticky bottom action bar.
@@ -48,7 +49,7 @@ export function VenueStickyCtaBar({
           href={upgradeHref || "/partners#vip-upgrade"}
           className="sticky-cta sticky-cta-upgrade"
         >
-          Unlock VIP messaging · $40/mo
+          Unlock VIP messaging · {VIP_MONTHLY_PRICE}
         </a>
       </div>
     );

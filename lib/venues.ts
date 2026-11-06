@@ -81,13 +81,15 @@ export function mapVenueRow(row: VenueRow): Venue {
   const listingTier =
     row.listing_tier === "vip" ||
     row.listing_tier === "managed" ||
-    row.listing_tier === "free"
+    row.listing_tier === "free" ||
+    row.listing_tier === "enterprise"
       ? row.listing_tier
       : highlights.tier || undefined;
   const isManaged =
     Boolean(row.is_managed) ||
     listingTier === "managed" ||
-    listingTier === "vip";
+    listingTier === "vip" ||
+    listingTier === "enterprise";
   const base: Venue = {
     id: row.slug || row.id,
     name: row.name,

@@ -65,7 +65,7 @@ export type SeedVenueRecord = {
   website: string;
   description: string;
   pricing: Array<{ duration: string; price: number }>;
-  tier: "managed_vip" | "standard" | string;
+  tier: "managed_vip" | "enterprise" | "standard" | string;
   isVerified: boolean;
   tags: string[];
 };
@@ -694,13 +694,13 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "0478 575 305",
     website: "https://www.manhattanterrace.com.au",
     description:
-      "World-class luxury brothel and 24/7 escort agency located conveniently near the Melbourne CBD, offering premier in-call and out-call experiences.",
+      "Elite Melbourne Lineup · Instant 30/45/60min Booking & Verification. Flagship CBD companion house with 24/7 in-call and out-call service.",
     pricing: [
       { duration: "30m", price: 160 },
       { duration: "45m", price: 200 },
       { duration: "60m", price: 250 },
     ],
-    tier: "managed_vip",
+    tier: "enterprise",
     isVerified: true,
     tags: ["CBD First", "Cash OK", "EFTPOS", "24/7 Available"],
   },
@@ -716,7 +716,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "(03) 9614 1414",
     website: "https://www.518flinders.com.au",
     description:
-      "Premier adult entertainment venue situated near Crown Casino featuring an extensive selection of gorgeous companions and high-end discrete service.",
+      "Elite Melbourne Lineup · Instant 30/45/60min Booking & Verification. Premier Flinders Street venue near Crown with discreet high-end service.",
     pricing: [
       { duration: "30m", price: 170 },
       { duration: "45m", price: 210 },
@@ -738,7 +738,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "(03) 9699 9269",
     website: "https://gotham-city.com.au",
     description:
-      "Multi-million dollar luxury bordello complex in South Melbourne, renowned for opulence, stunning companions, and top-tier service.",
+      "South Melbourne luxury house with opulent suites, verified companions, and polished service for English and Mandarin-speaking patrons.",
     pricing: [
       { duration: "30m", price: 180 },
       { duration: "45m", price: 220 },
@@ -760,7 +760,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "(03) 9415 8055",
     website: "https://www.clubcollingwood.au",
     description:
-      "First-class adult entertainment venue only 5 minutes from the CBD, proudly female-operated since 1997 with a focus on privacy and respect.",
+      "Female-operated Collingwood house five minutes from the CBD — discreet entry, respectful service, and verified companions for Melbourne patrons.",
     pricing: [
       { duration: "30m", price: 150 },
       { duration: "45m", price: 200 },
@@ -782,7 +782,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "(03) 9563 6221",
     website: "https://www.bambrabrothelmelbourne.com.au",
     description:
-      "Six-star gentlemen club featuring elegant marble interiors, a sophisticated atmosphere, and refined companion services.",
+      "Caulfield six-star gentlemen club with marble suites, a refined lounge atmosphere, and polished companion booking for Melbourne visitors.",
     pricing: [
       { duration: "30m", price: 160 },
       { duration: "45m", price: 200 },
@@ -855,9 +855,15 @@ export function seedVenueToDirectoryVenue(
     } as VenueOperationalProfile,
   });
   const rateLine = formatPricingRateLine(pricing);
-  const isVip = seed.tier === "managed_vip";
+  const isEnterprise = seed.tier === "enterprise";
+  const isVip = seed.tier === "managed_vip" || isEnterprise;
   const coords = SEED_COORDS[seed.id];
   const amenities = amenitiesFromTags(seed.tags);
+  const listingTier = isEnterprise
+    ? ("enterprise" as const)
+    : isVip
+      ? ("vip" as const)
+      : ("free" as const);
   return {
     id: seed.id,
     name: seed.name,
@@ -876,7 +882,7 @@ export function seedVenueToDirectoryVenue(
         ...amenities,
       ]),
     ),
-    // English-only Melbourne listings — no ko/zh display fields.
+    // English-only Melbourne listings for EN/ZH patrons.
     nameZh: undefined,
     descriptionZh: undefined,
     suburbZh: undefined,
@@ -898,16 +904,26 @@ export function seedVenueToDirectoryVenue(
     managedBadge: isVip ? "vip" : undefined,
     customHighlights: isVip
       ? {
-          tier: "vip",
+          tier: listingTier,
           managedBadge: "vip",
           wechat: seed.id.replace(/-/g, ""),
           whatsapp: seed.phone.replace(/[^\d+]/g, ""),
+          hook: {
+            title: seed.description.split(".")[0],
+            subtitle: isEnterprise
+              ? "Enterprise Ultimate · dedicated concierge booking"
+              : "Managed VIP Elite · instant course booking",
+          },
         }
       : {
           tier: "free",
         },
     profile: {
-      tierLabel: isVip ? "VIP Suite" : "Standard",
+      tierLabel: isEnterprise
+        ? "Enterprise Ultimate"
+        : isVip
+          ? "VIP Suite"
+          : "Basic",
       pricing,
       // Cast: Melbourne uses English payment labels (no CJK suffixes).
       payments: MELBOURNE_PAYMENTS as VenuePaymentChip[],

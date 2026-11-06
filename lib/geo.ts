@@ -213,7 +213,7 @@ export function sortVenuesByMode(
   origin?: LatLng | null,
 ): RankedVenue[] {
   const ranked = venues.map((venue) => enrichVenueDistance(venue, origin));
-  // Commercial rule: Business VIP / managed listings always pin above Free.
+  // Commercial rule: Enterprise / Managed VIP Elite always pin above Basic.
   const byTierThen = (
     a: RankedVenue,
     b: RankedVenue,

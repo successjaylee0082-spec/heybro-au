@@ -83,7 +83,7 @@ export interface Venue {
       subtitle?: string;
     } | null;
     managedBadge?: "pro" | "vip";
-    tier?: "free" | "managed" | "vip" | null;
+    tier?: "free" | "managed" | "vip" | "enterprise" | null;
     wechat?: string | null;
     whatsapp?: string | null;
     telegram?: string | null;

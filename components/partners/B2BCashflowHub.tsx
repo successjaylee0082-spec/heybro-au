@@ -12,7 +12,11 @@ import {
   Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { VIP_MONTHLY_PRICE } from "@/lib/listing-tier";
+import {
+  BASIC_MONTHLY_PRICE,
+  ENTERPRISE_MONTHLY_PRICE,
+  VIP_MONTHLY_PRICE,
+} from "@/lib/listing-tier";
 import { buildWhatsAppHref } from "@/lib/booking-links";
 
 const PARTNER_WHATSAPP =
@@ -20,7 +24,7 @@ const PARTNER_WHATSAPP =
 const PARTNER_TELEGRAM =
   process.env.NEXT_PUBLIC_PARTNER_TELEGRAM || "heybro_partners";
 
-type ChannelId = "vip" | "retail" | "partnership";
+type ChannelId = "basic" | "vip" | "enterprise";
 
 const CHANNELS: Array<{
   id: ChannelId;
@@ -33,49 +37,49 @@ const CHANNELS: Array<{
   cta: string;
 }> = [
   {
-    id: "vip",
-    eyebrow: "Venue Management",
-    title: `Managed VIP Upgrade · ${VIP_MONTHLY_PRICE}`,
-    body: "Pin your venue above free listings with neon VIP chrome, verified elite badge, live roster, and unlocked WhatsApp / WeChat / Call CTAs.",
-    price: VIP_MONTHLY_PRICE,
+    id: "basic",
+    eyebrow: "Basic Listing",
+    title: `Basic Directory Listing · ${BASIC_MONTHLY_PRICE}`,
+    body: "Get your venue on the Sydney & Melbourne directory with a clean profile, maps link, and call-to-confirm discovery.",
+    price: BASIC_MONTHLY_PRICE,
     bullets: [
-      "Priority placement above Free listings",
-      "VERIFIED ELITE / MANAGED VIP badge",
-      "Direct WhatsApp + WeChat QR messaging",
-      "OP hook banners + highlight widgets",
-    ],
-    icon: BadgeCheck,
-    cta: "Apply for Managed VIP",
-  },
-  {
-    id: "retail",
-    eyebrow: "Adult Retail & Sex Shops",
-    title: "Display Ads & Sponsorship Listings",
-    body: "Put your boutique or adult retail brand in front of high-intent nightlife traffic with sponsored cards and category takeovers.",
-    price: "From $120/wk",
-    bullets: [
-      "Homepage & category sponsorship slots",
-      "Geo-targeted Sydney / Melbourne packs",
-      "Tracked enquiry links for staff",
-      "Optional WeChat / Alipay landing blocks",
+      "Standard directory card & detail page",
+      "City + category discovery filters",
+      "Call venue CTA for patrons",
+      "Upgrade path to Managed VIP Elite",
     ],
     icon: Store,
-    cta: "Book retail sponsorship",
+    cta: "Start with Basic",
   },
   {
-    id: "partnership",
-    eyebrow: "Commercial Partnerships",
-    title: "Bespoke Banners & Sponsored Articles",
-    body: "Run campaign takeovers, partner features, and direct business inquiries with a dedicated account path for agencies and venues.",
-    price: "Custom retainer",
+    id: "vip",
+    eyebrow: "Managed VIP Elite",
+    title: `Managed VIP Elite · ${VIP_MONTHLY_PRICE}`,
+    body: "Pin your venue above Basic listings with rose-gold elite chrome, verified badge, live roster, and unlocked WhatsApp / WeChat / Call CTAs.",
+    price: VIP_MONTHLY_PRICE,
     bullets: [
-      "Hero / sidebar banner inventory",
-      "Sponsored partner features",
-      "Co-branded campaign landers",
-      "Direct Telegram + WhatsApp sales desk",
+      "Priority placement above Basic listings",
+      "VERIFIED ELITE badge + Active Now status",
+      "Direct WhatsApp + WeChat QR messaging",
+      "Promo hooks + highlight widgets",
+    ],
+    icon: BadgeCheck,
+    cta: "Apply for Managed VIP Elite",
+  },
+  {
+    id: "enterprise",
+    eyebrow: "Enterprise Ultimate",
+    title: `Enterprise Ultimate · ${ENTERPRISE_MONTHLY_PRICE}`,
+    body: "Top-of-feed placement with dedicated concierge support, multi-channel booking, and campaign-ready Ultimate branding for flagship venues.",
+    price: ENTERPRISE_MONTHLY_PRICE,
+    bullets: [
+      "Top placement across Sydney & Melbourne",
+      "ULTIMATE badge + dedicated concierge",
+      "Multi-channel booking desk",
+      "Campaign landers & partner features",
     ],
     icon: Megaphone,
-    cta: "Talk to partnerships",
+    cta: "Talk to Enterprise sales",
   },
 ];
 
@@ -98,7 +102,7 @@ function buildLeadMessage(options: {
 }
 
 export function B2BCashflowHub({ locale }: { locale: "en" | "zh" }) {
-  const [active, setActive] = useState<ChannelId>("vip");
+  const [active, setActive] = useState<ChannelId>("basic");
   const [name, setName] = useState("");
   const [business, setBusiness] = useState("");
   const [contact, setContact] = useState("");
@@ -160,21 +164,21 @@ export function B2BCashflowHub({ locale }: { locale: "en" | "zh" }) {
         </h1>
         <p>
           {locale === "zh"
-            ? `托管 VIP（${VIP_MONTHLY_PRICE}）、成人零售赞助与品牌合作——直接对接销售渠道。`
-            : `Managed VIP upgrades (${VIP_MONTHLY_PRICE}), adult retail sponsorships, and bespoke partnerships — with direct sales CTAs.`}
+            ? `基础 ${BASIC_MONTHLY_PRICE} · 托管 VIP Elite ${VIP_MONTHLY_PRICE} · 企业 Ultimate ${ENTERPRISE_MONTHLY_PRICE}——直接对接销售渠道。`
+            : `Basic ${BASIC_MONTHLY_PRICE}, Managed VIP Elite ${VIP_MONTHLY_PRICE}, and Enterprise Ultimate ${ENTERPRISE_MONTHLY_PRICE} — with direct sales CTAs for Sydney & Melbourne venues.`}
         </p>
         <div className="b2b-hero-pills">
           <span>
-            <Sparkles className="h-3.5 w-3.5" />
-            VIP ranking boost
+            <Store className="h-3.5 w-3.5" />
+            Basic {BASIC_MONTHLY_PRICE}
           </span>
           <span>
-            <Store className="h-3.5 w-3.5" />
-            Retail display ads
+            <Sparkles className="h-3.5 w-3.5" />
+            VIP Elite {VIP_MONTHLY_PRICE}
           </span>
           <span>
             <Megaphone className="h-3.5 w-3.5" />
-            Sponsored features
+            Ultimate {ENTERPRISE_MONTHLY_PRICE}
           </span>
         </div>
       </section>

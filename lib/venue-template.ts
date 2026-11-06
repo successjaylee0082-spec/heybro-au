@@ -5,11 +5,18 @@ import type {
   VenueListingTier,
   VenueVisibility,
 } from "@/lib/venue-highlights";
+import {
+  ENTERPRISE_MONTHLY_PRICE,
+  planLabelForTier,
+  VIP_MONTHLY_PRICE,
+} from "@/lib/listing-tier";
 
 export type { VenueListingTier };
 
-export const VIP_PLAN_LABEL = "$40/mo VIP";
-export const VIP_PLAN_NOTE = "Verified elite profile · priority placement";
+export const VIP_PLAN_LABEL = `Managed VIP Elite · ${VIP_MONTHLY_PRICE}`;
+export const ENTERPRISE_PLAN_LABEL = `Enterprise Ultimate · ${ENTERPRISE_MONTHLY_PRICE}`;
+export const VIP_PLAN_NOTE =
+  "Verified elite profile · priority placement · direct booking open";
 
 /** Standardized Canva-style section order for every venue page. */
 export const VENUE_TEMPLATE_SLOTS = [
@@ -30,32 +37,48 @@ export type VenueTemplateSlot = (typeof VENUE_TEMPLATE_SLOTS)[number];
 
 const DEFAULT_MANAGED_HOOKS: VenueHookBanner[] = [
   {
-    title: "🔥 20s Korean Staff • Top Tier Service • 100% Discreet",
-    subtitle: "VERIFIED PRO · Call / WhatsApp / WeChat booking",
+    title: "Elite Sydney Lineup · Instant 30/45/60min Booking & Verification",
+    subtitle: "VERIFIED ELITE · Call / WhatsApp / WeChat booking",
   },
   {
-    title: "❤️부천/시드니 최다인원! 20대 한국인 상큼함 내상제로❤️",
-    subtitle: "VIP roster · confirm tonight's 30/45/60 course rates",
+    title: "Elite Melbourne Lineup · Instant 30/45/60min Booking & Verification",
+    subtitle: "VIP roster · confirm tonight's course rates",
   },
   {
-    title: "💎 Fresh Asian Beauties On Shift · Book 30 / 45 / 60",
+    title: "Fresh Companions On Shift · Book 30 / 45 / 60 Tonight",
     subtitle: "WeChat / WhatsApp booking · discreet entry",
   },
   {
-    title: "✨ 시드니 최강 라인업 · 30/45/60분 코스 바로 예약",
-    subtitle: "Agency-managed profile with live availability",
+    title: "Premier CBD Roster · Live Availability & Verified Profiles",
+    subtitle: "Agency-managed profile with priority placement",
   },
 ];
 
 const DEFAULT_FREE_HOOK: VenueHookBanner = {
   title: "Browse tonight's roster · Call to confirm availability",
-  subtitle: "Standard listing · upgrade to VIP for custom promo hooks",
+  subtitle: "Basic listing · upgrade to Managed VIP Elite for promo hooks",
 };
 
 const DEFAULT_VIP_BADGES: VenueHighlightBadge[] = [
-  { kind: "promo", label: "VIP Elite", value: VIP_PLAN_LABEL, tone: "violet" },
+  {
+    kind: "promo",
+    label: "VIP Elite",
+    value: VIP_PLAN_LABEL,
+    tone: "violet",
+  },
   { kind: "service", label: "Live Lineup", tone: "emerald" },
   { kind: "event", label: "Priority Placement", tone: "amber" },
+];
+
+const DEFAULT_ENTERPRISE_BADGES: VenueHighlightBadge[] = [
+  {
+    kind: "promo",
+    label: "Ultimate",
+    value: ENTERPRISE_PLAN_LABEL,
+    tone: "violet",
+  },
+  { kind: "service", label: "Dedicated Concierge", tone: "emerald" },
+  { kind: "event", label: "Top Placement", tone: "amber" },
 ];
 
 function hashSeed(input: string): number {
@@ -71,7 +94,12 @@ export function resolveListingTier(options: {
   managedBadge?: "pro" | "vip";
   tier?: VenueListingTier | null;
 }): VenueListingTier {
-  if (options.tier === "free" || options.tier === "managed" || options.tier === "vip") {
+  if (
+    options.tier === "free" ||
+    options.tier === "managed" ||
+    options.tier === "vip" ||
+    options.tier === "enterprise"
+  ) {
     return options.tier;
   }
   if (!options.isManaged) return "free";
@@ -100,6 +128,13 @@ export function defaultHookForVenue(options: {
     return { title: options.custom.title, subtitle: subtitle || undefined };
   }
   if (options.tier === "free") return DEFAULT_FREE_HOOK;
+  if (options.tier === "enterprise") {
+    return {
+      title:
+        "Enterprise Ultimate Lineup · Instant 30/45/60min Booking & Verification",
+      subtitle: "Dedicated concierge · top placement · multi-channel booking",
+    };
+  }
   const index = hashSeed(options.venueId) % DEFAULT_MANAGED_HOOKS.length;
   return DEFAULT_MANAGED_HOOKS[index];
 }
@@ -124,17 +159,23 @@ export function enrichVisibilityForTemplate(options: {
 
   let badges = options.visibility.badges;
   if (tier !== "free" && badges.length < 2) {
-    badges = [...badges, ...DEFAULT_VIP_BADGES].slice(0, 6);
+    const defaults =
+      tier === "enterprise" ? DEFAULT_ENTERPRISE_BADGES : DEFAULT_VIP_BADGES;
+    badges = [...badges, ...defaults].slice(0, 6);
   }
 
   return {
     ...options.visibility,
     isManaged: tier !== "free",
     managedBadge:
-      tier === "vip" ? "vip" : tier === "managed" ? "pro" : undefined,
+      tier === "vip" || tier === "enterprise"
+        ? "vip"
+        : tier === "managed"
+          ? "pro"
+          : undefined,
     tier,
     hook,
     badges,
-    planLabel: tier === "free" ? "Free listing" : VIP_PLAN_LABEL,
+    planLabel: planLabelForTier(tier),
   };
 }

@@ -3,7 +3,7 @@
 /**
  * Standardized Canva-style venue template.
  * Slots: Hero → Hook → Quick Info → Highlights → Staff → Pricing → Gallery → Contact CTA.
- * Tier styling: free (clean) vs managed/vip ($40/mo neon elite).
+ * Tier styling: Basic ($49) vs Managed VIP Elite ($149) vs Enterprise ($249).
  */
 
 import Link from "next/link";
@@ -285,7 +285,7 @@ export function VenueDetail({
         <RedditShareButton title={name} />
       </div>
 
-      {/* Day-5 sticky conversion bar — messaging unlocks on Business VIP only */}
+      {/* Day-5 sticky conversion bar — messaging unlocks on Managed VIP Elite+ */}
       <VenueStickyCtaBar
         phoneHref={phoneHref}
         whatsappHref={vipListing ? liveConsumer.whatsappHref : undefined}

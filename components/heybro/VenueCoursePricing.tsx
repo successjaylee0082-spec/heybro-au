@@ -74,7 +74,7 @@ export function VenueCoursePricing({
       data-slot="pricing"
       aria-label="Course and pricing"
     >
-      <div className="venue-section-label">Course & Pricing · 코스 가격</div>
+      <div className="venue-section-label">Course & Pricing</div>
       <h2>Rates (AUD)</h2>
       <p>
         Tiered session rates for this venue — 30 / 45 / 60 minute courses in AUD.

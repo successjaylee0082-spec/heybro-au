@@ -1,4 +1,4 @@
--- Free vs Business VIP listing tiers for directory monetization.
+-- Listing tiers: Basic $49 / Managed VIP Elite $149 / Enterprise Ultimate $249.
 alter table public.venues
   add column if not exists listing_tier text not null default 'free';
 
@@ -11,7 +11,7 @@ begin
   ) then
     alter table public.venues
       add constraint venues_listing_tier_check
-      check (listing_tier in ('free', 'managed', 'vip'));
+      check (listing_tier in ('free', 'managed', 'vip', 'enterprise'));
   end if;
 end $$;
 
@@ -19,7 +19,7 @@ create index if not exists venues_listing_tier_idx
   on public.venues (listing_tier);
 
 comment on column public.venues.listing_tier is
-  'Commercial listing tier: free (muted card, no messaging) | managed | vip ($40/mo Business VIP neon chrome + unlocked CTAs).';
+  'Commercial listing tier: free/basic ($49/mo) | managed/vip Managed VIP Elite ($149/mo) | enterprise Ultimate ($249/mo).';
 
 -- Keep JSON highlights aligned for managed inventory.
 update public.venues

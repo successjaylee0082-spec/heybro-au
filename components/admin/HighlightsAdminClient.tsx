@@ -64,7 +64,7 @@ export function HighlightsAdminClient({
   const [hookSubtitle, setHookSubtitle] = useState(
     selected?.rawHighlights.hook?.subtitle || "",
   );
-  const [tier, setTier] = useState<"free" | "managed" | "vip">(
+  const [tier, setTier] = useState<"free" | "managed" | "vip" | "enterprise">(
     selected?.rawHighlights.tier ||
       (selected?.isManaged
         ? selected.rawHighlights.managedBadge === "vip"
@@ -218,8 +218,8 @@ export function HighlightsAdminClient({
           <div className="venue-section-label">Admin</div>
           <h1>Visibility highlights</h1>
           <p>
-            Configure the Canva-style template hooks, neon badges, and $40/mo VIP
-            tier chrome.
+            Configure the Canva-style template hooks, neon badges, and listing
+            tiers (Basic $49 · Managed VIP Elite $149 · Enterprise $249).
           </p>
         </div>
       </div>
@@ -245,16 +245,21 @@ export function HighlightsAdminClient({
           <select
             value={tier}
             onChange={(event) => {
-              const next = event.target.value as "free" | "managed" | "vip";
+              const next = event.target.value as
+                | "free"
+                | "managed"
+                | "vip"
+                | "enterprise";
               setTier(next);
               setIsManaged(next !== "free");
-              if (next === "vip") setManagedBadge("vip");
+              if (next === "vip" || next === "enterprise") setManagedBadge("vip");
               if (next === "managed") setManagedBadge("pro");
             }}
           >
-            <option value="free">Free template</option>
-            <option value="managed">PRO Managed ($40/mo)</option>
-            <option value="vip">Verified VIP ($40/mo)</option>
+            <option value="free">Basic · $49/mo</option>
+            <option value="managed">Managed VIP · $149/mo</option>
+            <option value="vip">Managed VIP Elite · $149/mo</option>
+            <option value="enterprise">Enterprise Ultimate · $249/mo</option>
           </select>
         </label>
         <label className="admin-field">

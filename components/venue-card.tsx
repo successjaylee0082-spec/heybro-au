@@ -57,7 +57,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const detailHref = withLocale(locale, `/venue/${venue.id}`);
   const cover = resolveCardPoseCover(venue.id, venue.image);
   const tier = resolveVenueListingTier(venue);
-  const elite = tier === "vip";
+  const elite = tier === "vip" || tier === "enterprise";
   const managed = isVipListing(venue);
   const transit = buildMapsUrl({
     lat: venue.lat,
@@ -160,7 +160,11 @@ export function VenueCard({ venue }: { venue: Venue }) {
 
         <div className="managed-badge-slot absolute left-3 top-3 z-[2] flex flex-row flex-wrap items-center gap-2">
           {elite ? (
-            <ManagedBadge variant="vip" size="sm" />
+            <ManagedBadge
+              variant="vip"
+              size="sm"
+              enterprise={tier === "enterprise"}
+            />
           ) : managed ? (
             <ManagedBadge
               variant={venue.managedBadge || "pro"}
@@ -168,7 +172,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
             />
           ) : (
             <span className="inline-flex items-center rounded-md border border-neutral-700/80 bg-neutral-950/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-              Free listing
+              Basic · $49/mo
             </span>
           )}
         </div>
@@ -296,7 +300,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
               <span
                 className={`${CTA_BASE} cursor-not-allowed opacity-45`}
                 aria-disabled="true"
-                title={`Upgrade to Business VIP · ${VIP_MONTHLY_PRICE}`}
+                title={`Upgrade to Managed VIP Elite · ${VIP_MONTHLY_PRICE}`}
               >
                 <Lock className="h-3.5 w-3.5" />
                 WhatsApp
@@ -304,7 +308,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
               <span
                 className={`${CTA_BASE} cursor-not-allowed opacity-45`}
                 aria-disabled="true"
-                title={`Upgrade to Business VIP · ${VIP_MONTHLY_PRICE}`}
+                title={`Upgrade to Managed VIP Elite · ${VIP_MONTHLY_PRICE}`}
               >
                 <Lock className="h-3.5 w-3.5" />
                 WeChat
@@ -330,7 +334,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
 
         {!managed ? (
           <p className="listing-upgrade-hint mb-0 mt-1 text-xs text-neutral-500">
-            Direct chat unlocks on Business VIP · {VIP_MONTHLY_PRICE}
+            Direct chat unlocks on Managed VIP Elite · {VIP_MONTHLY_PRICE}
           </p>
         ) : elite ? (
           <p className="listing-upgrade-hint mb-0 mt-1 text-xs font-medium text-rose-300/80">

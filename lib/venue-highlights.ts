@@ -3,7 +3,7 @@ import {
   type ParsedVenueContent,
 } from "@/lib/venue-content";
 
-export type VenueListingTier = "free" | "managed" | "vip";
+export type VenueListingTier = "free" | "managed" | "vip" | "enterprise";
 
 export type HighlightTone = "emerald" | "rose" | "amber" | "violet";
 
@@ -99,7 +99,14 @@ function parseKind(value: unknown): HighlightKind {
 }
 
 function parseTier(value: unknown): VenueListingTier | undefined {
-  if (value === "free" || value === "managed" || value === "vip") return value;
+  if (
+    value === "free" ||
+    value === "managed" ||
+    value === "vip" ||
+    value === "enterprise"
+  ) {
+    return value;
+  }
   return undefined;
 }
 
@@ -252,7 +259,11 @@ export function resolveVenueVisibility(options: {
   content?: ParsedVenueContent;
 }): VenueVisibility {
   const parsed = parseCustomHighlights(options.customHighlights);
-  const isManaged = Boolean(options.isManaged) || parsed.tier === "managed" || parsed.tier === "vip";
+  const isManaged =
+    Boolean(options.isManaged) ||
+    parsed.tier === "managed" ||
+    parsed.tier === "vip" ||
+    parsed.tier === "enterprise";
   const configuredBadges = parsed.badges ?? [];
   const derived =
     configuredBadges.length > 0
@@ -264,7 +275,8 @@ export function resolveVenueVisibility(options: {
   return {
     isManaged,
     managedBadge: isManaged
-      ? parsed.managedBadge || (parsed.tier === "vip" ? "vip" : "pro")
+      ? parsed.managedBadge ||
+        (parsed.tier === "vip" || parsed.tier === "enterprise" ? "vip" : "pro")
       : undefined,
     tier: parsed.tier || undefined,
     badges: derived,
