@@ -31,13 +31,10 @@ export {
   parseVenueContent,
 };
 
-/** Standard AU directory payment chips for verified Melbourne houses. */
-const MELBOURNE_PAYMENTS: VenuePaymentChip[] = [
-  "Cash OK",
-  "EFTPOS",
-  "WeChat Pay 微信",
-  "Alipay 支付宝",
-];
+/** English-only payment chips for Melbourne verified houses. */
+const MELBOURNE_PAYMENTS: Array<
+  VenuePaymentChip | "WeChat Pay" | "Alipay"
+> = ["Cash OK", "EFTPOS", "WeChat Pay", "Alipay"];
 
 const SEED_COORDS: Record<string, { lat: number; lng: number }> = {
   "melb-1": { lat: -37.8006, lng: 144.964 },
@@ -74,10 +71,10 @@ export type SeedVenueRecord = {
 };
 
 /**
- * Hardcoded Melbourne seed — used when Supabase is offline or returns no
- * Melbourne rows so the city filter never shows "No venues match".
+ * Verified Melbourne directory seed — English-only copy for local EN/ZH patrons.
+ * Sydney feed rows in lib/feed.ts are intentionally untouched.
  */
-export const seedVenues: SeedVenueRecord[] = [
+export const melbourneVenues: SeedVenueRecord[] = [
   {
     id: "melb-1",
     name: "Manhattan Terrace",
@@ -90,7 +87,7 @@ export const seedVenues: SeedVenueRecord[] = [
     phone: "0478 575 305",
     website: "https://www.manhattanterrace.com.au",
     description:
-      "World class brothel and 24/7 escort agency located conveniently near the CBD.",
+      "World-class luxury brothel and 24/7 escort agency located conveniently near the Melbourne CBD, offering premier in-call and out-call experiences.",
     pricing: [
       { duration: "30m", price: 160 },
       { duration: "45m", price: 200 },
@@ -98,7 +95,7 @@ export const seedVenues: SeedVenueRecord[] = [
     ],
     tier: "managed_vip",
     isVerified: true,
-    tags: ["CBD First", "Cash OK", "EFTPOS", "24/7"],
+    tags: ["CBD First", "Cash OK", "EFTPOS", "24/7 Available"],
   },
   {
     id: "melb-2",
@@ -112,7 +109,7 @@ export const seedVenues: SeedVenueRecord[] = [
     phone: "(03) 9614 1414",
     website: "https://www.518flinders.com.au",
     description:
-      "Premier adult venue situated next to Waterside Hotel and Crown Casino featuring over 80 companions.",
+      "Premier adult entertainment venue situated near Crown Casino featuring an extensive selection of gorgeous companions and high-end discrete service.",
     pricing: [
       { duration: "30m", price: 170 },
       { duration: "45m", price: 210 },
@@ -120,7 +117,7 @@ export const seedVenues: SeedVenueRecord[] = [
     ],
     tier: "managed_vip",
     isVerified: true,
-    tags: ["CBD First", "WeChat Pay", "Discrete Entrance"],
+    tags: ["CBD First", "WeChat Pay", "Discrete Entrance", "Premium VIP"],
   },
   {
     id: "melb-3",
@@ -133,7 +130,8 @@ export const seedVenues: SeedVenueRecord[] = [
     isCbd: true,
     phone: "(03) 9699 9269",
     website: "https://gotham-city.com.au",
-    description: "Multi-million dollar luxury bordello complex in South Melbourne.",
+    description:
+      "Multi-million dollar luxury bordello complex in South Melbourne, renowned for opulence, stunning companions, and top-tier service.",
     pricing: [
       { duration: "30m", price: 180 },
       { duration: "45m", price: 220 },
@@ -141,7 +139,7 @@ export const seedVenues: SeedVenueRecord[] = [
     ],
     tier: "standard",
     isVerified: true,
-    tags: ["EFTPOS", "Private Shower"],
+    tags: ["EFTPOS", "Private Shower", "Luxury Complex"],
   },
   {
     id: "melb-4",
@@ -155,7 +153,7 @@ export const seedVenues: SeedVenueRecord[] = [
     phone: "(03) 9415 8055",
     website: "https://www.clubcollingwood.au",
     description:
-      "First class adult entertainment venue 5 minutes from the CBD, operated by women since 1997.",
+      "First-class adult entertainment venue only 5 minutes from the CBD, proudly female-operated since 1997 with a focus on privacy and respect.",
     pricing: [
       { duration: "30m", price: 150 },
       { duration: "45m", price: 200 },
@@ -163,7 +161,7 @@ export const seedVenues: SeedVenueRecord[] = [
     ],
     tier: "standard",
     isVerified: true,
-    tags: ["Cash OK", "Discreet"],
+    tags: ["Cash OK", "Female Operated", "Discreet"],
   },
   {
     id: "melb-5",
@@ -176,7 +174,8 @@ export const seedVenues: SeedVenueRecord[] = [
     isCbd: false,
     phone: "(03) 9563 6221",
     website: "https://www.bambrabrothelmelbourne.com.au",
-    description: "Six-star gentlemen club with elegant marble interiors.",
+    description:
+      "Six-star gentlemen club featuring elegant marble interiors, a sophisticated atmosphere, and refined companion services.",
     pricing: [
       { duration: "30m", price: 160 },
       { duration: "45m", price: 200 },
@@ -184,9 +183,12 @@ export const seedVenues: SeedVenueRecord[] = [
     ],
     tier: "standard",
     isVerified: true,
-    tags: ["EFTPOS", "VIP Lounge"],
+    tags: ["EFTPOS", "VIP Lounge", "Six-Star"],
   },
 ];
+
+/** @deprecated Prefer `melbourneVenues` — kept for HomeFeed / venue-list imports. */
+export const seedVenues = melbourneVenues;
 
 function normalizeSeedCity(seed: SeedVenueRecord): CityId {
   const slug = (seed.citySlug || seed.city || "")
@@ -266,6 +268,11 @@ export function seedVenueToDirectoryVenue(
         ...amenities,
       ]),
     ),
+    // English-only Melbourne listings — no ko/zh display fields.
+    nameZh: undefined,
+    descriptionZh: undefined,
+    suburbZh: undefined,
+    tagsZh: undefined,
     phone: seed.phone,
     address: seed.address,
     lat: coords?.lat,
@@ -288,7 +295,8 @@ export function seedVenueToDirectoryVenue(
     profile: {
       tierLabel: isVip ? "VIP Suite" : "Premium",
       pricing,
-      payments: MELBOURNE_PAYMENTS,
+      // Cast: Melbourne uses English payment labels (no CJK suffixes).
+      payments: MELBOURNE_PAYMENTS as VenuePaymentChip[],
       amenities,
       services: ["GFE", "Massage", "Oral"],
       rateLine,
@@ -296,8 +304,8 @@ export function seedVenueToDirectoryVenue(
   };
 }
 
-/** Melbourne directory venues derived from `seedVenues` (SSOT for feed + fallback). */
-export const MELBOURNE_VERIFIED_VENUES: Venue[] = seedVenues.map(
+/** Melbourne directory venues derived from `melbourneVenues` (SSOT for feed + fallback). */
+export const MELBOURNE_VERIFIED_VENUES: Venue[] = melbourneVenues.map(
   (seed, index) => seedVenueToDirectoryVenue(seed, index),
 );
 
