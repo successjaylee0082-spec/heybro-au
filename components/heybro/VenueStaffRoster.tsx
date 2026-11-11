@@ -1,6 +1,7 @@
 "use client";
 
 import { StaffCard } from "@/components/staff-card";
+import { safeDisplayedAge } from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 export function VenueStaffRoster({
@@ -11,6 +12,11 @@ export function VenueStaffRoster({
   activeCount: number;
 }) {
   if (!staff.length) return null;
+
+  const safeStaff = staff.map((member) => ({
+    ...member,
+    age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
+  }));
 
   return (
     <section className="staff-roster luxury-staff">
@@ -29,7 +35,7 @@ export function VenueStaffRoster({
         </div>
       </div>
       <div className="staff-roster-grid">
-        {staff.map((member) => (
+        {safeStaff.map((member) => (
           <StaffCard key={member.id} member={member} />
         ))}
       </div>
