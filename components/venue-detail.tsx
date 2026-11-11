@@ -94,8 +94,8 @@ export function VenueDetail({
         : consumer.staff
     ).map((member) => ({
       ...member,
-      // Absolute UI floor — under-19 ages can never render.
-      age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
+      // Absolute UI floor — under-20 ages can never render.
+      age: Math.max(20, Number(member.age) || 21, safeDisplayedAge(member.age)),
     }));
     const activeStaffCount = rosterFromLadies.filter(
       (member) => member.status === "active",

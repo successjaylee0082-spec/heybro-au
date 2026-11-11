@@ -12,10 +12,10 @@ function statusLabel(status: StaffRosterMember["status"]) {
 
 /**
  * Staff roster card — masked / body-pose focused portraits only.
- * Age is hard-capped at Math.max(21, …) so under-19 values can never render.
+ * Age is hard-capped at Math.max(20, …) so under-20 values can never render.
  */
 export function StaffCard({ member }: { member: StaffRosterMember }) {
-  const age = safeDisplayedAge(member.age);
+  const age = Math.max(20, Number(member.age) || 21, safeDisplayedAge(member.age));
 
   return (
     <article
@@ -48,7 +48,7 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
             <h3>{member.name}</h3>
           </div>
           <div className="staff-overlay-badges">
-            <span className="stat-pill">{Math.max(21, Number(age) || 21)} yrs</span>
+            <span className="stat-pill">{Math.max(20, Number(age) || 21)} yrs</span>
             <span className="stat-pill">{member.heightCm}cm</span>
             <span className="stat-pill">{member.cup} cup</span>
             <span className="stat-pill ethnicity">{member.ethnicity}</span>

@@ -16,6 +16,7 @@ import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { trackVenueContact } from "@/lib/analytics";
+import { safeDisplayedAge } from "@/lib/companion-profile";
 import { buildWhatsAppHref, resolveWeChatContact } from "@/lib/booking-links";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { resolveCardPoseCover } from "@/lib/directory-covers";
@@ -71,6 +72,12 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const elite = isPaidVipTier(venue, tier);
   const managed = isVipListing(venue) || elite;
   const ultimate = tier === "enterprise" || venue.badgeStatus === "enterprise";
+  const safeLadies = Array.isArray(venue.ladies)
+    ? venue.ladies.map((lady) => ({
+        ...lady,
+        age: Math.max(20, Number(lady.age) || 21, safeDisplayedAge(lady.age)),
+      }))
+    : [];
   const transit = buildMapsUrl({
     lat: venue.lat,
     lng: venue.lng,
@@ -254,7 +261,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
           </h3>
         </Link>
 
-        {Array.isArray(venue.ladies) && venue.ladies.length > 0 ? (
+        {safeLadies.length > 0 ? (
           <p
             className={
               elite
@@ -263,7 +270,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
             }
             aria-label="Tonight's companions"
           >
-            {venue.ladies.map((lady) => lady.name).join(" · ")}
+            {safeLadies.map((lady) => lady.name).join(" · ")}
           </p>
         ) : null}
 

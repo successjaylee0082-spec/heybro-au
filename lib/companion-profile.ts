@@ -1,12 +1,12 @@
 /**
  * Strict companion attribute normalization for AU adult directory compliance.
- * Ages MUST be 19–25; UI additionally hard-caps below 20.
+ * Ages MUST be 20–25; UI hard-caps anything below 20.
  */
 
-export const COMPANION_AGE_MIN = 19;
+export const COMPANION_AGE_MIN = 20;
 export const COMPANION_AGE_MAX = 25;
 /** Display floor — never render below this even if data is corrupt. */
-export const COMPANION_AGE_DISPLAY_FLOOR = 21;
+export const COMPANION_AGE_DISPLAY_FLOOR = 20;
 
 export const COMPANION_HEIGHT_MIN = 160;
 export const COMPANION_HEIGHT_MAX = 175;
@@ -39,7 +39,7 @@ function hashSeed(input: string): number {
   return hash >>> 0;
 }
 
-/** Clamp any age into the legal 19–25 band. */
+/** Clamp any age into the legal 20–25 band. */
 export function normalizeCompanionAge(value: unknown, seed = "default"): number {
   const numeric = Number(value);
   if (Number.isFinite(numeric)) {
@@ -49,21 +49,21 @@ export function normalizeCompanionAge(value: unknown, seed = "default"): number 
     );
   }
   // Unsigned shift — signed `>>` previously produced ages like 15.
-  return COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 7);
+  return COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 6);
 }
 
-/** UI hard floor — never show under 21 yrs under any condition. */
+/** UI hard floor — never show under 20 yrs under any condition. */
 export function displayCompanionAge(value: unknown, seed = "default"): number {
   return Math.max(
     COMPANION_AGE_DISPLAY_FLOOR,
-    Number(value) || COMPANION_AGE_DISPLAY_FLOOR,
+    Number(value) || 21,
     normalizeCompanionAge(value, seed),
   );
 }
 
 /** Absolute UI guard used at every render site. */
 export function safeDisplayedAge(value: unknown): number {
-  return Math.max(21, Number(value) || 21);
+  return Math.max(20, Number(value) || 21);
 }
 
 export function normalizeCompanionHeight(
