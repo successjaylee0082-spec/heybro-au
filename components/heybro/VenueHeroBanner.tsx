@@ -59,24 +59,31 @@ export function VenueHeroBanner({
     <header
       className={
         isPremium
-          ? "venue-hero-banner template-hero is-premium"
-          : "venue-hero-banner template-hero is-standard"
+          ? "venue-hero-banner template-hero is-premium border border-rose-500/80 shadow-[0_0_20px_rgba(244,63,94,0.35)]"
+          : "venue-hero-banner template-hero is-standard border border-neutral-800/70 opacity-80 grayscale-[0.15]"
       }
       data-slot="hero"
+      data-elite={isPremium ? "true" : "false"}
     >
       <div className="venue-hero-banner-glow" aria-hidden />
       <div className="venue-hero-banner-inner">
         <div className="venue-hero-kicker">
           {isPremium ? (
-            <ManagedBadge
-              variant={
-                visibility.managedBadge || (tier === "vip" ? "vip" : "pro")
-              }
-              size="sm"
-              showPlan
-            />
+            <span className="inline-flex items-center rounded-md border border-rose-400/80 bg-rose-950/90 shadow-[0_0_20px_rgba(244,63,94,0.35)]">
+              <ManagedBadge
+                variant={
+                  visibility.managedBadge ||
+                  (tier === "vip" || tier === "enterprise" ? "vip" : "pro")
+                }
+                size="sm"
+                showPlan
+                enterprise={tier === "enterprise"}
+              />
+            </span>
           ) : (
-            <span className="free-listing-chip">Free listing</span>
+            <span className="free-listing-chip inline-flex items-center rounded-md border border-neutral-800 bg-neutral-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+              Basic · Free listing
+            </span>
           )}
           <span className="venue-hero-stars" aria-label="Verified 5 star rating">
             {Array.from({ length: 5 }).map((_, index) => (

@@ -43,8 +43,8 @@ export function VenueGallery({
       <div
         className={
           isPortrait
-            ? "venue-gallery-hero is-portrait"
-            : "venue-gallery-hero is-lounge"
+            ? "venue-gallery-hero is-portrait relative aspect-[4/5] w-full overflow-hidden sm:aspect-[16/10]"
+            : "venue-gallery-hero is-lounge relative aspect-[16/10] w-full overflow-hidden"
         }
       >
         <Image
@@ -52,13 +52,14 @@ export function VenueGallery({
           alt={alt}
           fill
           priority
-          quality={90}
+          quality={82}
+          decoding="async"
           className={
             isPortrait
               ? "object-cover object-[center_18%]"
-              : "object-cover"
+              : "object-cover object-center"
           }
-          sizes="(max-width: 900px) 100vw, 1100px"
+          sizes="(max-width: 640px) 100vw, (max-width: 1100px) 90vw, 1100px"
         />
         <div className="venue-gallery-fade" />
         <div className="venue-gallery-count">
@@ -88,8 +89,11 @@ export function VenueGallery({
               src={src}
               alt=""
               fill
+              loading="lazy"
+              decoding="async"
+              quality={70}
               className="object-cover object-[center_20%]"
-              sizes="120px"
+              sizes="(max-width: 640px) 22vw, 120px"
             />
           </button>
         ))}

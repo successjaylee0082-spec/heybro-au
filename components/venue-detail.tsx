@@ -47,7 +47,12 @@ import {
 } from "@/lib/data";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { VenueVisibility } from "@/lib/venue-highlights";
-import { isVipListing } from "@/lib/listing-tier";
+import {
+  isVipListing,
+  resolveVenueListingTier,
+  VIP_BADGE_ELITE,
+  VIP_BADGE_ENTERPRISE,
+} from "@/lib/listing-tier";
 import { VIP_PLAN_LABEL } from "@/lib/venue-template";
 import { buildMapsUrl } from "@/utils/googleMaps";
 import type { Venue } from "@/types";
@@ -132,13 +137,22 @@ export function VenueDetail({
     mode: "walking",
   });
   const phoneHref = liveConsumer.phoneHref;
+  const listingTier = resolveVenueListingTier(venue);
   const tier =
-    visibility.tier || (visibility.isManaged ? "managed" : "free");
-  const isPremium = tier !== "free";
-  const vipChrome =
-    isPremium
-      ? "border border-rose-500/80 shadow-[0_0_15px_rgba(244,63,94,0.3)]"
-      : "";
+    visibility.tier ||
+    listingTier ||
+    (visibility.isManaged ? "managed" : "free");
+  const isPremium =
+    tier !== "free" ||
+    venue.badgeStatus === "verified_elite" ||
+    venue.badgeStatus === "managed_vip" ||
+    venue.badgeStatus === "enterprise" ||
+    isVipListing(venue);
+  const ultimate =
+    tier === "enterprise" || venue.badgeStatus === "enterprise";
+  const vipChrome = isPremium
+    ? "rounded-[22px] border border-rose-500/80 shadow-[0_0_20px_rgba(244,63,94,0.35)] ring-1 ring-rose-400/40"
+    : "rounded-[22px] border border-neutral-800/70 opacity-80 grayscale-[0.2]";
   const galleryImages =
     isPremium && gallery.length
       ? gallery
@@ -161,11 +175,32 @@ export function VenueDetail({
       className={`venue-detail-page has-sticky-cta venue-template tier-${tier} ${vipChrome}`}
       data-template="canva-op"
       data-tier={tier}
+      data-elite={isPremium ? "true" : "false"}
     >
       <Link href={withLocale(locale, "/")} className="text-link venue-back">
         <ArrowLeft className="h-4 w-4" />
         {t("backHome")}
       </Link>
+
+      {isPremium ? (
+        <div className="mb-3 flex flex-wrap items-center gap-2 px-1">
+          <span className="inline-flex items-center rounded-md border border-rose-400/80 bg-rose-950/90 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-rose-50 shadow-[0_0_20px_rgba(244,63,94,0.35)]">
+            {ultimate ? VIP_BADGE_ENTERPRISE : VIP_BADGE_ELITE}
+          </span>
+          <span className="text-xs font-medium text-rose-200/80">
+            Paid VIP chrome · priority placement · direct booking open
+          </span>
+        </div>
+      ) : (
+        <div className="mb-3 flex flex-wrap items-center gap-2 px-1">
+          <span className="inline-flex items-center rounded-md border border-neutral-800 bg-neutral-950/70 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+            Basic · Free listing
+          </span>
+          <span className="text-xs text-neutral-600">
+            Upgrade to Managed VIP Elite for neon placement and unlocked chat.
+          </span>
+        </div>
+      )}
 
       {/* Slot: Clean dark-luxury hero — no stock lingerie banners */}
       <VenueHeroBanner
