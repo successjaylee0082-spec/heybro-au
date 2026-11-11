@@ -41,8 +41,9 @@ export function ApplicationShell({
       {showGate ? <AgeGateModal /> : null}
       <div
         className={cn("app-shell", showGate && "is-gated")}
-        aria-hidden={showGate || undefined}
-        {...(showGate ? { inert: true } : {})}
+        // Defer gate attrs until after mount so SSR/client markup matches.
+        aria-hidden={showGate ? true : undefined}
+        suppressHydrationWarning
       >
         <Header />
         <main className="page-shell app-main">{children}</main>

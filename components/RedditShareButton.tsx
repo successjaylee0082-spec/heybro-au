@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { ClientOnly } from "@/components/ClientOnly";
 import { RedditLogo } from "@/components/RedditLogo";
 
 function sanitizeShareUrl(href: string): string | null {
@@ -43,24 +44,28 @@ export function RedditShareButton({ title }: { title: string }) {
   const className =
     "reddit-share-button inline-flex min-h-12 w-full items-center justify-center gap-2 touch-manipulation sm:w-auto";
 
-  if (!href) {
-    return (
-      <button type="button" className={className} disabled>
-        <RedditLogo size={18} />
-        Share on Reddit
-      </button>
-    );
-  }
-
-  return (
-    <a
-      className={className}
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
+  const inert = (
+    <button type="button" className={className} disabled suppressHydrationWarning>
       <RedditLogo size={18} />
       Share on Reddit
-    </a>
+    </button>
+  );
+
+  return (
+    <ClientOnly fallback={inert}>
+      {!href ? (
+        inert
+      ) : (
+        <a
+          className={className}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <RedditLogo size={18} />
+          Share on Reddit
+        </a>
+      )}
+    </ClientOnly>
   );
 }

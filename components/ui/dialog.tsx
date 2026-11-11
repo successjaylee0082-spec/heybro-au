@@ -33,6 +33,8 @@ export const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      // Radix injects ephemeral aria/id attrs — ignore benign hydration diffs.
+      suppressHydrationWarning
       className={cn(
         "fixed left-1/2 top-1/2 z-50 grid w-[min(92vw,440px)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-[#2a2a30] bg-[#111113] p-6 shadow-xl",
         className,
