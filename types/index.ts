@@ -27,6 +27,12 @@ export type VenueLady = {
   name: string;
   status: "Available Now" | "In Shift" | "Off Shift";
   image: string;
+  /** Strict AU compliance band: 19–25 only. */
+  age?: number;
+  heightCm?: number;
+  cup?: string;
+  ethnicity?: string;
+  styles?: string[];
 };
 
 /** Queryable listing badge status for rapid Melbourne onboarding updates. */

@@ -11,122 +11,96 @@ export { STAFF_PORTRAIT_FALLBACKS };
 
 export type StaffProfileTemplate = {
   name: string;
-  nameZh?: string;
   ethnicity: StaffEthnicityLabel;
-  ethnicityZh?: string;
   heightCm: number;
   cup: string;
   styles: string[];
 };
 
-/** Deterministic premium roster templates — varied looks for AU + CN clientele. */
+/** Deterministic premium roster templates — official English attributes only. */
 export const STAFF_PROFILE_TEMPLATES: StaffProfileTemplate[] = [
   {
     name: "Mei Lin",
-    nameZh: "美琳",
-    ethnicity: "Chinese",
-    ethnicityZh: "华人",
+    ethnicity: "Asian",
     heightCm: 165,
     cup: "C",
-    styles: ["GFE", "Cute", "Sensual"],
+    styles: ["GFE", "Sensual", "Elegant"],
   },
   {
     name: "Sofia",
-    nameZh: "索菲亚",
     ethnicity: "European",
-    ethnicityZh: "欧美",
     heightCm: 172,
     cup: "D",
     styles: ["GFE", "Slim", "Elegant"],
   },
   {
     name: "Hana",
-    nameZh: "花",
-    ethnicity: "Japanese",
-    ethnicityZh: "日系",
+    ethnicity: "Asian",
     heightCm: 160,
     cup: "B",
-    styles: ["Cute", "Sensual", "Petite"],
+    styles: ["Sensual", "GFE", "Elegant"],
   },
   {
     name: "Aria",
-    nameZh: "艾瑞娅",
-    ethnicity: "Australian",
-    ethnicityZh: "澳洲本地",
+    ethnicity: "Western",
     heightCm: 168,
     cup: "C",
-    styles: ["GFE", "Playful", "Fit"],
+    styles: ["GFE", "Playful", "Elegant"],
   },
   {
     name: "Nina",
-    nameZh: "妮娜",
     ethnicity: "Asian",
-    ethnicityZh: "亚洲",
     heightCm: 166,
     cup: "C",
-    styles: ["Cute", "Slim", "GFE"],
+    styles: ["GFE", "Slim", "Sensual"],
   },
   {
     name: "Valentina",
-    nameZh: "瓦伦蒂娜",
     ethnicity: "Latina",
-    ethnicityZh: "拉美",
     heightCm: 170,
     cup: "D",
-    styles: ["Sensual", "Busty", "Glam"],
+    styles: ["Sensual", "Glam", "Elegant"],
   },
   {
     name: "Chloe",
-    nameZh: "克洛伊",
     ethnicity: "Western",
-    ethnicityZh: "欧美",
     heightCm: 174,
     cup: "C",
-    styles: ["Tall", "GFE", "Elegant"],
+    styles: ["GFE", "Elegant", "Glam"],
   },
   {
     name: "Ling",
-    nameZh: "玲",
-    ethnicity: "Chinese",
-    ethnicityZh: "华人",
+    ethnicity: "Asian",
     heightCm: 162,
     cup: "B",
-    styles: ["Cute", "GFE", "Sweet"],
+    styles: ["GFE", "Sensual", "Elegant"],
   },
   {
     name: "Zara",
-    nameZh: "扎拉",
-    ethnicity: "Black",
-    ethnicityZh: "非裔",
+    ethnicity: "Western",
     heightCm: 171,
-    cup: "D",
-    styles: ["Glam", "Tall", "Elegant"],
+    cup: "DD",
+    styles: ["Glam", "Elegant", "Sensual"],
   },
   {
     name: "Camila",
-    nameZh: "卡米拉",
     ethnicity: "Latina",
-    ethnicityZh: "拉美",
     heightCm: 167,
     cup: "C",
-    styles: ["Sensual", "GFE", "Curvy"],
+    styles: ["Sensual", "GFE", "Elegant"],
   },
   {
     name: "Ivy",
-    nameZh: "艾薇",
     ethnicity: "Western",
-    ethnicityZh: "欧美",
     heightCm: 169,
     cup: "B",
     styles: ["Slim", "Playful", "GFE"],
   },
   {
     name: "Sora",
-    nameZh: "ソラ",
-    ethnicity: "Japanese",
-    ethnicityZh: "日系",
-    heightCm: 158,
+    ethnicity: "Asian",
+    heightCm: 160,
     cup: "B",
-    styles: ["Petite", "Cute", "Sweet"],
+    styles: ["GFE", "Sensual", "Elegant"],
   },
 ];

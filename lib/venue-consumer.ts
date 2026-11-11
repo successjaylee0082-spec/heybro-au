@@ -5,6 +5,14 @@ import {
   resolveWeChatContact,
   type WeChatContact,
 } from "@/lib/booking-links";
+import {
+  COMPANION_AGE_OVERRIDES,
+  normalizeCompanionAge,
+  normalizeCompanionCup,
+  normalizeCompanionEthnicity,
+  normalizeCompanionHeight,
+  normalizeCompanionStyles,
+} from "@/lib/companion-profile";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
 import { nextMaskedStaffPortrait } from "@/lib/data";
@@ -159,15 +167,25 @@ export function buildStaffRoster(options: {
             used: usedImages,
           });
       usedImages.add(image);
+      const overrideAge = COMPANION_AGE_OVERRIDES[lady.name];
       return {
         id: lady.id || `${options.venueId}-lady-${index + 1}`,
         name: lady.name,
-        age: 21 + ((hashSeed(seed) >> 2) % 7),
-        ethnicity: template.ethnicity,
-        heightCm: template.heightCm,
-        cup: template.cup,
+        age: normalizeCompanionAge(
+          overrideAge ?? lady.age,
+          seed,
+        ),
+        ethnicity: normalizeCompanionEthnicity(
+          lady.ethnicity ?? template.ethnicity,
+          seed,
+        ),
+        heightCm: normalizeCompanionHeight(
+          lady.heightCm ?? template.heightCm,
+          seed,
+        ),
+        cup: normalizeCompanionCup(lady.cup ?? template.cup, seed),
         image,
-        styles: template.styles,
+        styles: normalizeCompanionStyles(lady.styles ?? template.styles, seed),
         status: mapLadyStatus(lady.status),
       };
     });
@@ -184,7 +202,7 @@ export function buildStaffRoster(options: {
       STAFF_PROFILE_TEMPLATES[
         (hashSeed(seed) + index) % STAFF_PROFILE_TEMPLATES.length
       ];
-    const age = 21 + ((hashSeed(seed) >> 2) % 7);
+    const age = normalizeCompanionAge(undefined, seed);
     const status: StaffRosterMember["status"] =
       index < Math.ceil(count * 0.65)
         ? "active"
@@ -207,14 +225,12 @@ export function buildStaffRoster(options: {
     members.push({
       id: row?.id || `${options.venueId}-staff-${index}`,
       name: template.name,
-      nameZh: template.nameZh,
       age,
-      ethnicity: template.ethnicity,
-      ethnicityZh: template.ethnicityZh,
-      heightCm: template.heightCm,
-      cup: template.cup,
+      ethnicity: normalizeCompanionEthnicity(template.ethnicity, seed),
+      heightCm: normalizeCompanionHeight(template.heightCm, seed),
+      cup: normalizeCompanionCup(template.cup, seed),
       image,
-      styles: template.styles,
+      styles: normalizeCompanionStyles(template.styles, seed),
       status,
     });
   }
