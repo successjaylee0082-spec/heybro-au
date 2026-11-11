@@ -14,6 +14,8 @@ function missingLocalePage() {
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   if (isSystemPath(path)) return NextResponse.next();
+  // Day 7 Reddit organic landing — allow root `/` to serve `app/page.tsx`.
+  if (path === "/" || path === "") return NextResponse.next();
   const segment = path.split("/")[1];
   if (!isLocale(segment)) {
     if (/^[a-z]{2}$/i.test(segment)) return missingLocalePage();

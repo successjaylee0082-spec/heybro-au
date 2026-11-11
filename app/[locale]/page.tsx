@@ -1,4 +1,5 @@
 import { HomeFeed } from "@/components/heybro/HomeFeed";
+import { RedditOrganicLanding } from "@/components/heybro/RedditOrganicLanding";
 import {
   getSeedDirectoryVenues,
   MELBOURNE_VERIFIED_VENUES,
@@ -28,7 +29,7 @@ function safeCatalog() {
 
 /**
  * Home feed renders the unified Sydney + Melbourne catalog from lib/data.
- * Locale / catalog loading is guarded so undefined arrays never 500.
+ * Day 7 Reddit fold sits above the directory for CBD / pricing / safety trust.
  */
 export default async function HomePage({
   params,
@@ -48,9 +49,19 @@ export default async function HomePage({
     if (!isLocale(locale)) notFound();
 
     const catalog = safeCatalog() || [];
-    return <HomeFeed venues={catalog} source="seed" />;
+    return (
+      <div className="home-page-shell space-y-4">
+        <RedditOrganicLanding />
+        <HomeFeed venues={catalog} source="seed" />
+      </div>
+    );
   } catch (error) {
     console.error("[HomePage] recoverable render failure", error);
-    return <HomeFeed venues={safeCatalog() || []} source="seed" />;
+    return (
+      <div className="home-page-shell space-y-4">
+        <RedditOrganicLanding />
+        <HomeFeed venues={safeCatalog() || []} source="seed" />
+      </div>
+    );
   }
 }

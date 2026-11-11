@@ -13,15 +13,15 @@ export const HERO_NIGHTLIFE_FALLBACKS = [
 export const HERO_GLAMOUR_SILHOUETTE = "/images/hero/studio-silhouette.jpg";
 
 export const HERO_HOOK_BADGES = [
-  { id: "active", label: "🔥 Active Ladies Online", labelZh: "🔥 今日出勤中" },
+  { id: "active", label: "Active Ladies Online", labelZh: "Active Ladies Online" },
   {
     id: "chat",
-    label: "💬 WeChat / WhatsApp Direct",
-    labelZh: "💬 微信 / WhatsApp 直聊",
+    label: "WeChat / WhatsApp Direct",
+    labelZh: "WeChat / WhatsApp Direct",
   },
   {
     id: "pay",
-    label: "💳 EFTPOS / Cash Accepted",
-    labelZh: "💳 EFTPOS / 现金支付",
+    label: "EFTPOS / Cash Accepted",
+    labelZh: "EFTPOS / Cash Accepted",
   },
 ] as const;

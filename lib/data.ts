@@ -21,9 +21,15 @@ import {
   type VenueOperationalProfile,
   type VenuePaymentChip,
 } from "@/lib/venue-profiles";
-import type { CategoryId, CityId, Venue } from "@/types";
+import type {
+  CategoryId,
+  CityId,
+  Venue,
+  VenueBadgeStatus,
+  VenueMessagingHandles,
+} from "@/types";
 
-export type { VenuePriceRow };
+export type { VenuePriceRow, VenueBadgeStatus, VenueMessagingHandles };
 export {
   formatPricingRateLine,
   resolveVenuePricing,
@@ -90,7 +96,8 @@ export type SeedVenueRecord = {
   website: string;
   description: string;
   pricing: Array<{ duration: string; price: number }>;
-  tier: "managed_vip" | "enterprise" | "standard" | string;
+  /** Seed badge tier — maps to queryable `badgeStatus` on directory venues. */
+  tier: "managed_vip" | "enterprise" | "standard" | "verified_elite" | string;
   isVerified: boolean;
   tags: string[];
   ladies?: Array<{
@@ -99,6 +106,10 @@ export type SeedVenueRecord = {
     status: "Available Now" | "In Shift" | "Off Shift";
     image: string;
   }>;
+  /** Optional direct messaging overrides for rapid Melbourne onboarding. */
+  messaging?: VenueMessagingHandles;
+  /** Optional explicit badge override (`verified_elite` / `managed_vip`). */
+  badgeStatus?: VenueBadgeStatus;
 };
 
 /**
@@ -1196,6 +1207,162 @@ function amenitiesFromTags(tags: string[]): VenueAmenityChip[] {
   return matched.length ? matched : ["Discreet Entrance", "Private Shower"];
 }
 
+/** Map seed / listing tier fields onto queryable badge statuses. */
+export function resolveVenueBadgeStatus(
+  venue: Pick<
+    Venue,
+    "badgeStatus" | "isManaged" | "managedBadge" | "customHighlights" | "verified"
+  > & { tier?: string },
+): VenueBadgeStatus {
+  if (
+    venue.badgeStatus === "verified_elite" ||
+    venue.badgeStatus === "managed_vip" ||
+    venue.badgeStatus === "enterprise" ||
+    venue.badgeStatus === "basic"
+  ) {
+    return venue.badgeStatus;
+  }
+  const tier = venue.customHighlights?.tier || venue.tier;
+  if (tier === "enterprise") return "enterprise";
+  if (tier === "verified_elite") return "verified_elite";
+  if (
+    tier === "managed_vip" ||
+    tier === "vip" ||
+    tier === "managed" ||
+    venue.managedBadge === "vip" ||
+    venue.customHighlights?.managedBadge === "vip" ||
+    venue.isManaged
+  ) {
+    return venue.verified === false ? "managed_vip" : "verified_elite";
+  }
+  return "basic";
+}
+
+/** Active companions — Available Now statuses, else full roster length. */
+export function resolveActiveRosterCount(
+  venue: Pick<Venue, "ladies" | "activeRosterCount">,
+): number {
+  if (
+    typeof venue.activeRosterCount === "number" &&
+    Number.isFinite(venue.activeRosterCount)
+  ) {
+    return Math.max(0, Math.floor(venue.activeRosterCount));
+  }
+  const ladies = Array.isArray(venue.ladies) ? venue.ladies : [];
+  if (!ladies.length) return 0;
+  const active = ladies.filter((lady) =>
+    /available/i.test(String(lady.status || "")),
+  ).length;
+  return active > 0 ? active : ladies.length;
+}
+
+/** Direct messaging handles for Call / WhatsApp / WeChat conversion CTAs. */
+export function resolveVenueMessaging(
+  venue: Pick<Venue, "phone" | "messaging" | "customHighlights" | "id">,
+): VenueMessagingHandles {
+  const phone = venue.messaging?.phone || venue.phone || null;
+  return {
+    phone,
+    whatsapp:
+      venue.messaging?.whatsapp ||
+      venue.customHighlights?.whatsapp ||
+      (phone ? phone.replace(/[^\d+]/g, "") : null),
+    wechat:
+      venue.messaging?.wechat ||
+      venue.customHighlights?.wechat ||
+      (venue.id ? venue.id.replace(/-/g, "") : null),
+    telegram: venue.messaging?.telegram || venue.customHighlights?.telegram || null,
+  };
+}
+
+/**
+ * Attach Day-6 queryable badge / roster / messaging fields without wiping
+ * existing Sydney or Melbourne catalog rows.
+ */
+export function withDirectorySchema<T extends Venue>(venue: T): T {
+  const badgeStatus = resolveVenueBadgeStatus(venue);
+  const activeRosterCount = resolveActiveRosterCount(venue);
+  const messaging = resolveVenueMessaging(venue);
+  const isManaged =
+    badgeStatus === "verified_elite" ||
+    badgeStatus === "managed_vip" ||
+    badgeStatus === "enterprise" ||
+    Boolean(venue.isManaged);
+  return {
+    ...venue,
+    badgeStatus,
+    activeRosterCount,
+    messaging,
+    isManaged,
+    managedBadge:
+      badgeStatus === "basic" ? venue.managedBadge : venue.managedBadge || "vip",
+    customHighlights: {
+      ...(venue.customHighlights || {}),
+      managedBadge:
+        badgeStatus === "basic"
+          ? venue.customHighlights?.managedBadge
+          : venue.customHighlights?.managedBadge || "vip",
+      tier:
+        venue.customHighlights?.tier ||
+        (badgeStatus === "enterprise"
+          ? "enterprise"
+          : badgeStatus === "basic"
+            ? "free"
+            : "vip"),
+      wechat: messaging.wechat,
+      whatsapp: messaging.whatsapp,
+      telegram: messaging.telegram,
+    },
+  };
+}
+
+export type DirectoryVenueQuery = {
+  city?: CityId | string;
+  badgeStatus?: VenueBadgeStatus | VenueBadgeStatus[];
+  isCbd?: boolean;
+  minActiveRoster?: number;
+  hasMessaging?: boolean;
+};
+
+/** Filter the unified catalog by badge / CBD / roster / messaging handles. */
+export function queryDirectoryVenues(
+  filters: DirectoryVenueQuery = {},
+  catalog?: Venue[],
+): Venue[] {
+  const source = (catalog || getSeedDirectoryVenues()).map(withDirectorySchema);
+  const badges = filters.badgeStatus
+    ? Array.isArray(filters.badgeStatus)
+      ? filters.badgeStatus
+      : [filters.badgeStatus]
+    : null;
+  return source.filter((venue) => {
+    if (filters.city && String(venue.city) !== String(filters.city)) return false;
+    if (typeof filters.isCbd === "boolean" && Boolean(venue.isCbd) !== filters.isCbd) {
+      return false;
+    }
+    if (badges && !badges.includes(resolveVenueBadgeStatus(venue))) return false;
+    if (
+      typeof filters.minActiveRoster === "number" &&
+      resolveActiveRosterCount(venue) < filters.minActiveRoster
+    ) {
+      return false;
+    }
+    if (filters.hasMessaging) {
+      const handles = resolveVenueMessaging(venue);
+      if (!handles.phone && !handles.whatsapp && !handles.wechat) return false;
+    }
+    return true;
+  });
+}
+
+/** CBD-first Melbourne rows ready for rapid onboarding / badge updates. */
+export function getMelbourneOnboardingVenues(): Venue[] {
+  return queryDirectoryVenues({ city: "melbourne" }).sort((a, b) => {
+    if (Boolean(a.isCbd) !== Boolean(b.isCbd)) return a.isCbd ? -1 : 1;
+    return resolveActiveRosterCount(b) - resolveActiveRosterCount(a);
+  });
+}
+
 /** Map a seed record into the directory Venue shape (city id = melbourne). */
 export function seedVenueToDirectoryVenue(
   seed: SeedVenueRecord,
@@ -1209,7 +1376,16 @@ export function seedVenueToDirectoryVenue(
   });
   const rateLine = formatPricingRateLine(pricing);
   const isEnterprise = seed.tier === "enterprise";
-  const isVip = seed.tier === "managed_vip" || isEnterprise;
+  const isVerifiedElite =
+    seed.badgeStatus === "verified_elite" ||
+    seed.tier === "verified_elite" ||
+    (seed.isVerified && (seed.tier === "managed_vip" || isEnterprise));
+  const isVip =
+    seed.tier === "managed_vip" ||
+    seed.tier === "verified_elite" ||
+    seed.badgeStatus === "managed_vip" ||
+    seed.badgeStatus === "verified_elite" ||
+    isEnterprise;
   const coords = SEED_COORDS[seed.id];
   const amenities = amenitiesFromTags(seed.tags);
   const listingTier = isEnterprise
@@ -1217,7 +1393,26 @@ export function seedVenueToDirectoryVenue(
     : isVip
       ? ("vip" as const)
       : ("free" as const);
-  return {
+  const messaging: VenueMessagingHandles = {
+    phone: seed.messaging?.phone || seed.phone,
+    whatsapp:
+      seed.messaging?.whatsapp || seed.phone.replace(/[^\d+]/g, ""),
+    wechat: seed.messaging?.wechat || seed.id.replace(/-/g, ""),
+    telegram: seed.messaging?.telegram || null,
+  };
+  const badgeStatus: VenueBadgeStatus =
+    seed.badgeStatus ||
+    (isEnterprise
+      ? "enterprise"
+      : isVerifiedElite
+        ? "verified_elite"
+        : isVip
+          ? "managed_vip"
+          : "basic");
+  const ladies = seed.ladies;
+  const activeRosterCount = resolveActiveRosterCount({ ladies });
+
+  return withDirectorySchema({
     id: seed.id,
     name: seed.name,
     city: normalizeSeedCity(seed),
@@ -1240,7 +1435,7 @@ export function seedVenueToDirectoryVenue(
     descriptionZh: undefined,
     suburbZh: undefined,
     tagsZh: undefined,
-    ladies: seed.ladies,
+    ladies,
     phone: seed.phone,
     address: seed.address,
     lat: coords?.lat,
@@ -1256,12 +1451,16 @@ export function seedVenueToDirectoryVenue(
     rateLine,
     isManaged: isVip,
     managedBadge: isVip ? "vip" : undefined,
+    badgeStatus,
+    activeRosterCount,
+    messaging,
     customHighlights: isVip
       ? {
           tier: listingTier,
           managedBadge: "vip",
-          wechat: seed.id.replace(/-/g, ""),
-          whatsapp: seed.phone.replace(/[^\d+]/g, ""),
+          wechat: messaging.wechat,
+          whatsapp: messaging.whatsapp,
+          telegram: messaging.telegram,
           hook: {
             title: seed.description.split(".")[0],
             subtitle: isEnterprise
@@ -1285,7 +1484,7 @@ export function seedVenueToDirectoryVenue(
       services: ["GFE", "Massage", "Oral"],
       rateLine,
     },
-  };
+  });
 }
 
 /** Melbourne directory venues derived from `melbourneVenues` (SSOT for feed + fallback). */
@@ -1311,10 +1510,10 @@ export function getSeedDirectoryVenues(): Venue[] {
               ? MELBOURNE_VERIFIED_VENUES
               : []),
           ];
-    return attachPricingToVenues(catalog);
+    return attachPricingToVenues(catalog).map(withDirectorySchema);
   } catch (error) {
     console.error("[getSeedDirectoryVenues] fallback", error);
-    return Array.isArray(venues) ? venues : [];
+    return (Array.isArray(venues) ? venues : []).map(withDirectorySchema);
   }
 }
 

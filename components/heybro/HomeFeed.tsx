@@ -164,13 +164,11 @@ export function HomeFeed({
           </h2>
           <p>
             {t("resultsHint")}{" "}
-            {locale === "zh"
-              ? `CBD优先排序 · ${cbdCount} 个CBD场所置顶。`
-              : `Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`}
+            {`Sorted CBD-first · ${cbdCount} CBD venue${cbdCount === 1 ? "" : "s"} pinned.`}
           </p>
         </div>
         <label className="results-sort">
-          <span>{locale === "zh" ? "排序" : "Sort"}</span>
+          <span>Sort</span>
           <select
             value={sort}
             onChange={(event) => setSort(event.target.value as VenueSortMode)}

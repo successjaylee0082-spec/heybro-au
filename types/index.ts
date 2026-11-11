@@ -29,6 +29,21 @@ export type VenueLady = {
   image: string;
 };
 
+/** Queryable listing badge status for rapid Melbourne onboarding updates. */
+export type VenueBadgeStatus =
+  | "verified_elite"
+  | "managed_vip"
+  | "enterprise"
+  | "basic";
+
+/** Direct messaging handles used by Call / WhatsApp / WeChat CTAs. */
+export type VenueMessagingHandles = {
+  phone?: string | null;
+  whatsapp?: string | null;
+  wechat?: string | null;
+  telegram?: string | null;
+};
+
 export interface Venue {
   id: string;
   name: string;
@@ -75,6 +90,15 @@ export interface Venue {
   website?: string;
   isManaged?: boolean;
   managedBadge?: "pro" | "vip";
+  /**
+   * Day 6 — queryable badge status (`verified_elite` / `managed_vip` / …).
+   * Derived from tier fields; safe to filter and update without rewriting catalogs.
+   */
+  badgeStatus?: VenueBadgeStatus;
+  /** Count of companions currently Available Now / active on roster. */
+  activeRosterCount?: number;
+  /** Direct messaging handles for conversion CTAs. */
+  messaging?: VenueMessagingHandles;
   customHighlights?: {
     badges?: Array<{
       kind: "price" | "event" | "service" | "promo" | "custom";

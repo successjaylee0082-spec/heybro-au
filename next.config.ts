@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     // Next config supports relative destinations; middleware response constructors
     // require absolute redirect URLs, which are unsafe to infer from a proxy Host.
     return [
-      { source: "/", destination: "/en", permanent: true },
+      // Day 7: `/` serves app/page.tsx Reddit organic landing (no auto-bounce).
       { source: "/saved", destination: "/en/saved", permanent: true },
       { source: "/blog", destination: "/en/partners", permanent: true },
       { source: "/blog/:slug", destination: "/en/partners", permanent: true },
