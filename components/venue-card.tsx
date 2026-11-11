@@ -241,6 +241,19 @@ export function VenueCard({ venue }: { venue: Venue }) {
           </h3>
         </Link>
 
+        {Array.isArray(venue.ladies) && venue.ladies.length > 0 ? (
+          <p
+            className={
+              elite
+                ? "m-0 text-xs leading-relaxed text-rose-100/90"
+                : "m-0 text-xs leading-relaxed text-neutral-400"
+            }
+            aria-label="Tonight's companions"
+          >
+            {venue.ladies.map((lady) => lady.name).join(" · ")}
+          </p>
+        ) : null}
+
         <div
           className="listing-quick-badges mt-2 flex flex-wrap gap-2"
           aria-label="Payments and amenities"

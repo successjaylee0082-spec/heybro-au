@@ -43,7 +43,6 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
         <div className="staff-overlay">
           <div className="staff-overlay-name">
             <h3>{member.name}</h3>
-            {member.nameZh ? <em>{member.nameZh}</em> : null}
           </div>
           <div className="staff-overlay-badges">
             <span className="stat-pill">{member.age} yrs</span>

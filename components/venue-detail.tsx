@@ -34,7 +34,10 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { withLocale } from "@/lib/i18n";
-import type { VenueConsumerView } from "@/lib/venue-consumer";
+import {
+  buildStaffRoster,
+  type VenueConsumerView,
+} from "@/lib/venue-consumer";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -73,10 +76,35 @@ export function VenueDetail({
     locale === "zh" && venue.suburbZh ? venue.suburbZh : venue.suburb;
   const distanceKm = useApproxDistanceKm(venue.lat, venue.lng);
   const liveConsumer = useMemo(() => {
-    if (distanceKm == null) return consumer;
-    return {
+    // Prefer official English companion strings from venue.ladies — never placeholders.
+    const rosterFromLadies =
+      Array.isArray(venue.ladies) && venue.ladies.length > 0
+        ? buildStaffRoster({
+            venueId: venue.id,
+            ladies: venue.ladies,
+            managed: venue.isManaged,
+          })
+        : consumer.staff;
+    const activeStaffCount = rosterFromLadies.filter(
+      (member) => member.status === "active",
+    ).length;
+    const withRoster = {
       ...consumer,
+      staff: rosterFromLadies,
+      activeStaffCount,
       quickInfo: consumer.quickInfo.map((badge) =>
+        badge.kind === "staff"
+          ? {
+              ...badge,
+              value: `${activeStaffCount} Ladies`,
+            }
+          : badge,
+      ),
+    };
+    if (distanceKm == null) return withRoster;
+    return {
+      ...withRoster,
+      quickInfo: withRoster.quickInfo.map((badge) =>
         badge.kind === "location"
           ? {
               ...badge,
@@ -88,7 +116,7 @@ export function VenueDetail({
           : badge,
       ),
     };
-  }, [consumer, distanceKm]);
+  }, [consumer, distanceKm, venue.id, venue.isManaged, venue.ladies]);
 
   const transit = buildMapsUrl({
     lat: venue.lat,
