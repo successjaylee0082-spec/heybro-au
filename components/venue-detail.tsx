@@ -39,7 +39,7 @@ import {
   type VenueConsumerView,
 } from "@/lib/venue-consumer";
 import { trackVenueContact } from "@/lib/analytics";
-import { displayCompanionAge } from "@/lib/companion-profile";
+import { safeDisplayedAge } from "@/lib/companion-profile";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -94,8 +94,8 @@ export function VenueDetail({
         : consumer.staff
     ).map((member) => ({
       ...member,
-      // Hard UI floor — invalid under-19 ages can never render.
-      age: Math.max(20, displayCompanionAge(member.age, member.id)),
+      // Absolute UI floor — under-19 ages can never render.
+      age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
     }));
     const activeStaffCount = rosterFromLadies.filter(
       (member) => member.status === "active",

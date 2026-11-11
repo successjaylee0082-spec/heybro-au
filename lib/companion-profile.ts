@@ -6,7 +6,7 @@
 export const COMPANION_AGE_MIN = 19;
 export const COMPANION_AGE_MAX = 25;
 /** Display floor — never render below this even if data is corrupt. */
-export const COMPANION_AGE_DISPLAY_FLOOR = 20;
+export const COMPANION_AGE_DISPLAY_FLOOR = 21;
 
 export const COMPANION_HEIGHT_MIN = 160;
 export const COMPANION_HEIGHT_MAX = 175;
@@ -52,12 +52,18 @@ export function normalizeCompanionAge(value: unknown, seed = "default"): number 
   return COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 7);
 }
 
-/** UI hard floor — never show under 20 yrs. */
+/** UI hard floor — never show under 21 yrs under any condition. */
 export function displayCompanionAge(value: unknown, seed = "default"): number {
   return Math.max(
     COMPANION_AGE_DISPLAY_FLOOR,
+    Number(value) || COMPANION_AGE_DISPLAY_FLOOR,
     normalizeCompanionAge(value, seed),
   );
+}
+
+/** Absolute UI guard used at every render site. */
+export function safeDisplayedAge(value: unknown): number {
+  return Math.max(21, Number(value) || 21);
 }
 
 export function normalizeCompanionHeight(

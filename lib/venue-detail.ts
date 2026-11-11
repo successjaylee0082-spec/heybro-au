@@ -19,6 +19,7 @@ import {
 } from "@/lib/venue-highlights";
 import { enrichVisibilityForTemplate } from "@/lib/venue-template";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import { getSeedDirectoryVenues } from "@/lib/data";
 import { getVenueById } from "@/lib/feed";
 import {
   getDirectoryVenues,
@@ -28,6 +29,14 @@ import {
 } from "@/lib/venues";
 import type { Venue } from "@/types";
 import type { VenueRow } from "@/types/database";
+
+/** Prefer seed catalog ladies so Supabase rows still get compliant rosters. */
+function withSeedLadies(venue: Venue): Venue {
+  if (Array.isArray(venue.ladies) && venue.ladies.length > 0) return venue;
+  const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
+  if (!seed?.ladies?.length) return venue;
+  return { ...venue, ladies: seed.ladies };
+}
 
 export type VenueStaffRow = {
   id: string;
@@ -113,7 +122,7 @@ function composeDetail(options: {
     customHighlights?: unknown;
   };
 }): VenueDetailPayload {
-  const venue = withCoords(options.venue);
+  const venue = withSeedLadies(withCoords(options.venue));
   const staffRows = options.staffRows ?? [];
   const customHighlights =
     options.visibilityExtras?.customHighlights ?? venue.customHighlights;

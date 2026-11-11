@@ -12,6 +12,7 @@ import {
   normalizeCompanionEthnicity,
   normalizeCompanionHeight,
   normalizeCompanionStyles,
+  safeDisplayedAge,
 } from "@/lib/companion-profile";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
@@ -294,7 +295,10 @@ export function buildVenueConsumerView(options: {
     gallery: options.gallery,
     managed: venue.isManaged,
     ladies: venue.ladies,
-  });
+  }).map((member) => ({
+    ...member,
+    age: safeDisplayedAge(member.age),
+  }));
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;
   const payments =
