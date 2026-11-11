@@ -38,6 +38,7 @@ import {
   buildStaffRoster,
   type VenueConsumerView,
 } from "@/lib/venue-consumer";
+import { trackVenueContact } from "@/lib/analytics";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -291,9 +292,19 @@ export function VenueDetail({
           </a>
         ) : null}
         {phoneHref ? (
-          <a href={phoneHref}>
+          <a
+            href={phoneHref}
+            className="min-h-11 touch-manipulation"
+            onClick={() =>
+              trackVenueContact({
+                venue_id: venue.id,
+                venue_name: venue.name,
+                contact_type: "call",
+              })
+            }
+          >
             <Phone className="h-4 w-4" />
-            {t("call")}
+            Call Now
           </a>
         ) : null}
       </div>
@@ -302,13 +313,17 @@ export function VenueDetail({
         <RelatedVenues venues={related} />
       </div>
 
-      <div className="reddit-share-box">
+      <div className="reddit-share-box flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="eyebrow">
             <RedditLogo size={16} />
             REDDIT
           </div>
           <h2>{t("joinReddit")}</h2>
+          <p className="m-0 text-sm text-neutral-400">
+            Share this listing for TikTok, Reels, and Reddit traffic — dark
+            luxury preview included.
+          </p>
         </div>
         <RedditShareButton title={name} />
       </div>
@@ -320,6 +335,8 @@ export function VenueDetail({
         wechat={vipListing ? liveConsumer.wechat : undefined}
         isVip={vipListing}
         upgradeHref={withLocale(locale, "/partners#vip-upgrade")}
+        venueId={venue.id}
+        venueName={venue.name}
       />
     </article>
   );

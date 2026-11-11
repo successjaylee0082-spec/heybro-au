@@ -2,12 +2,13 @@
 
 import { MessageCircle, Phone } from "lucide-react";
 import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
+import { trackVenueContact } from "@/lib/analytics";
 import type { WeChatContact } from "@/lib/booking-links";
 import { VIP_MONTHLY_PRICE } from "@/lib/listing-tier";
 
 /**
- * Day-5 mobile sticky bottom action bar.
- * Branded CTAs: Call Now · WhatsApp Direct · WeChat Chat / QR popup
+ * Mobile sticky bottom action bar for TikTok / Reels / Reddit traffic.
+ * Branded CTAs: Call Now · WhatsApp Direct · WeChat QR
  */
 export function VenueStickyCtaBar({
   phoneHref,
@@ -15,6 +16,8 @@ export function VenueStickyCtaBar({
   wechat,
   isVip = false,
   upgradeHref,
+  venueId,
+  venueName,
 }: {
   phoneHref?: string;
   whatsappHref?: string;
@@ -25,8 +28,18 @@ export function VenueStickyCtaBar({
   /** Direct messaging CTAs only unlock on Business VIP / managed listings. */
   isVip?: boolean;
   upgradeHref?: string;
+  venueId?: string;
+  venueName?: string;
 }) {
   const contact = wechat ?? { configured: false };
+  const track = (contact_type: "call" | "whatsapp" | "wechat") => {
+    if (!venueId || !venueName) return;
+    trackVenueContact({
+      venue_id: venueId,
+      venue_name: venueName,
+      contact_type,
+    });
+  };
 
   if (!isVip) {
     return (
@@ -36,7 +49,11 @@ export function VenueStickyCtaBar({
         aria-label="Upgrade to unlock messaging"
       >
         {phoneHref ? (
-          <a href={phoneHref} className="sticky-cta sticky-cta-call">
+          <a
+            href={phoneHref}
+            className="sticky-cta sticky-cta-call min-h-12 touch-manipulation"
+            onClick={() => track("call")}
+          >
             <Phone className="h-4 w-4" aria-hidden />
             <span>Call venue</span>
           </a>
@@ -47,7 +64,7 @@ export function VenueStickyCtaBar({
         )}
         <a
           href={upgradeHref || "/partners#vip-upgrade"}
-          className="sticky-cta sticky-cta-upgrade"
+          className="sticky-cta sticky-cta-upgrade min-h-12 touch-manipulation"
         >
           Unlock VIP messaging · {VIP_MONTHLY_PRICE}
         </a>
@@ -64,13 +81,17 @@ export function VenueStickyCtaBar({
       aria-label="Mobile booking actions"
     >
       {phoneHref ? (
-        <a href={phoneHref} className="sticky-cta sticky-cta-call">
+        <a
+          href={phoneHref}
+          className="sticky-cta sticky-cta-call min-h-12 touch-manipulation"
+          onClick={() => track("call")}
+        >
           <Phone className="h-4 w-4" aria-hidden />
-          <span>📞 Call Now</span>
+          <span>Call Now</span>
         </a>
       ) : (
         <span className="sticky-cta sticky-cta-disabled" aria-disabled="true">
-          📞 Call Now
+          Call Now
         </span>
       )}
 
@@ -79,21 +100,23 @@ export function VenueStickyCtaBar({
           href={whatsappHref}
           target="_blank"
           rel="noopener noreferrer"
-          className="sticky-cta sticky-cta-whatsapp"
+          className="sticky-cta sticky-cta-whatsapp min-h-12 touch-manipulation"
+          onClick={() => track("whatsapp")}
         >
           <MessageCircle className="h-4 w-4" aria-hidden />
-          <span>💬 WhatsApp Direct</span>
+          <span>WhatsApp Direct</span>
         </a>
       ) : (
         <span className="sticky-cta sticky-cta-disabled" aria-disabled="true">
-          💬 WhatsApp
+          WhatsApp Direct
         </span>
       )}
 
       <WeChatQrDialog
         contact={contact}
-        triggerClassName="sticky-cta sticky-cta-wechat"
-        label="🟢 WeChat Chat"
+        triggerClassName="sticky-cta sticky-cta-wechat min-h-12 touch-manipulation"
+        label="WeChat QR"
+        onOpen={() => track("wechat")}
       />
     </div>
   );

@@ -40,24 +40,27 @@ export function RedditShareButton({ title }: { title: string }) {
     );
   }, [pathname, title]);
 
+  const className =
+    "reddit-share-button inline-flex min-h-12 w-full items-center justify-center gap-2 touch-manipulation sm:w-auto";
+
   if (!href) {
     return (
-      <button type="button" className="reddit-share-button" disabled>
+      <button type="button" className={className} disabled>
         <RedditLogo size={18} />
-        Reddit
+        Share on Reddit
       </button>
     );
   }
 
   return (
     <a
-      className="reddit-share-button"
+      className={className}
       href={href}
       target="_blank"
       rel="noopener noreferrer"
     >
       <RedditLogo size={18} />
-      Reddit
+      Share on Reddit
     </a>
   );
 }

@@ -15,11 +15,14 @@ import type { WeChatContact } from "@/lib/booking-links";
 export function WeChatQrDialog({
   contact,
   triggerClassName = "sticky-cta sticky-cta-wechat",
-  label = "🟢 WeChat Chat",
+  label = "WeChat QR",
+  onOpen,
 }: {
   contact: WeChatContact;
   triggerClassName?: string;
   label?: string;
+  /** Fired when the QR dialog opens (GA4 lead conversion). */
+  onOpen?: () => void;
 }) {
   const [copied, setCopied] = useState(false);
   const [qrFailed, setQrFailed] = useState(false);
@@ -36,7 +39,11 @@ export function WeChatQrDialog({
   }
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(open) => {
+        if (open) onOpen?.();
+      }}
+    >
       <DialogTrigger asChild>
         <button type="button" className={triggerClassName}>
           {label}
@@ -44,7 +51,7 @@ export function WeChatQrDialog({
       </DialogTrigger>
       <DialogContent className="wechat-dialog">
         <DialogHeader>
-          <DialogTitle>WeChat Chat 微信</DialogTitle>
+          <DialogTitle>WeChat Chat</DialogTitle>
           <DialogDescription>
             Scan the QR or copy the WeChat ID to message this venue directly.
           </DialogDescription>

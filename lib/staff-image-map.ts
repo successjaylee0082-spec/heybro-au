@@ -13,7 +13,6 @@ export type StaffEthnicityBucket =
 export type StaffEthnicityLabel =
   | "Chinese"
   | "Japanese"
-  | "Korean"
   | "Asian"
   | "European"
   | "Australian"
@@ -84,7 +83,6 @@ const LABEL_TO_BUCKET: Record<string, StaffEthnicityBucket> = {
   southeast: "asian",
   华人: "asian",
   日系: "asian",
-  韩系: "asian",
   european: "western",
   australian: "western",
   western: "western",

@@ -284,7 +284,7 @@ export function HighlightsAdminClient({
           <input
             value={hookTitle}
             onChange={(event) => setHookTitle(event.target.value)}
-            placeholder="🔥 20s Korean Staff, Zero Inner-Disappointment, Special Course Available"
+            placeholder="Tonight's VIP lineup · book before peak hours"
           />
         </label>
         <label className="admin-field">

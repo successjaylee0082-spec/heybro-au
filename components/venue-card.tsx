@@ -15,6 +15,7 @@ import { ManagedBadge } from "@/components/heybro/ManagedBadge";
 import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
+import { trackVenueContact } from "@/lib/analytics";
 import { buildWhatsAppHref, resolveWeChatContact } from "@/lib/booking-links";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { resolveCardPoseCover } from "@/lib/directory-covers";
@@ -33,9 +34,9 @@ const TAG_PILL =
 const TAG_PILL_HOT =
   "inline-flex items-center px-2.5 py-1 text-xs rounded-md bg-rose-950/60 text-rose-200 border border-rose-700/50 whitespace-nowrap";
 const CTA_BASE =
-  "inline-flex items-center justify-center gap-1.5 min-h-9 px-3 text-xs font-semibold rounded-md border border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-rose-500/60";
+  "inline-flex items-center justify-center gap-1.5 min-h-11 w-full sm:w-auto px-3 text-xs font-semibold rounded-md border border-neutral-700 bg-neutral-900 text-neutral-200 hover:border-rose-500/60 touch-manipulation";
 const CTA_ELITE =
-  "inline-flex items-center justify-center gap-1.5 min-h-9 px-3 text-xs font-semibold rounded-md border border-rose-500/70 bg-rose-950/50 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.25)] hover:bg-rose-900/60";
+  "inline-flex items-center justify-center gap-1.5 min-h-11 w-full sm:w-auto px-3 text-xs font-semibold rounded-md border border-rose-500/70 bg-rose-950/50 text-rose-100 shadow-[0_0_18px_rgba(244,63,94,0.25)] hover:bg-rose-900/60 touch-manipulation";
 
 /**
  * Roster / directory card — VIP elite glow vs muted free listing.
@@ -280,11 +281,18 @@ export function VenueCard({ venue }: { venue: Venue }) {
             : description}
         </p>
 
-        <div className="venue-actions listing-cta-row mt-3 flex flex-row flex-wrap items-center gap-3">
+        <div className="venue-actions listing-cta-row mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
           {managed && phoneDigits ? (
             <a
               href={`tel:${phoneDigits}`}
               className={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-call`}
+              onClick={() =>
+                trackVenueContact({
+                  venue_id: venue.id,
+                  venue_name: venue.name,
+                  contact_type: "call",
+                })
+              }
             >
               <Phone className="h-3.5 w-3.5" />
               Call Now
@@ -296,16 +304,30 @@ export function VenueCard({ venue }: { venue: Venue }) {
               target="_blank"
               rel="noopener noreferrer"
               className={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-whatsapp`}
+              onClick={() =>
+                trackVenueContact({
+                  venue_id: venue.id,
+                  venue_name: venue.name,
+                  contact_type: "whatsapp",
+                })
+              }
             >
               <MessageCircle className="h-3.5 w-3.5" />
-              WhatsApp
+              WhatsApp Direct
             </a>
           ) : null}
           {managed ? (
             <WeChatQrDialog
               contact={wechat}
               triggerClassName={`${elite ? CTA_ELITE : CTA_BASE} listing-cta-wechat`}
-              label="WeChat"
+              label="WeChat QR"
+              onOpen={() =>
+                trackVenueContact({
+                  venue_id: venue.id,
+                  venue_name: venue.name,
+                  contact_type: "wechat",
+                })
+              }
             />
           ) : null}
           {!managed ? (
