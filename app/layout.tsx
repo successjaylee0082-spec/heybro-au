@@ -1,25 +1,11 @@
 import "./globals.css";
 import "./navigation.css";
 import type { Metadata, Viewport } from "next";
-import type { ReactNode } from "react";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import type { CSSProperties, ReactNode } from "react";
 import { AnalyticsBootstrap } from "@/components/analytics/AnalyticsBootstrap";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
 import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getRequestLocale } from "@/lib/i18n-server";
-
-const display = Cormorant_Garamond({
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700"],
-  variable: "--font-display",
-});
-
-const sans = Outfit({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -93,6 +79,11 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
 };
+
+/**
+ * Root layout — Google Fonts load via <link> (no next/font server fetch).
+ * Preserves --font-display / --font-sans CSS variables used across the theme.
+ */
 export default async function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
@@ -100,11 +91,29 @@ export default async function RootLayout({
   return (
     <html
       lang={locale === "zh" ? "zh-Hans" : "en-AU"}
-      className={`dark ${display.variable} ${sans.variable}`}
+      className="dark"
+      style={
+        {
+          ["--font-display"]:
+            '"Cormorant Garamond", Georgia, "Times New Roman", serif',
+          ["--font-sans"]:
+            '"Outfit", system-ui, -apple-system, "Segoe UI", sans-serif',
+        } as CSSProperties
+      }
     >
-      <body
-        className={`${sans.className} min-h-screen bg-background text-foreground antialiased luxury-shell`}
-      >
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="min-h-screen bg-background font-sans text-foreground antialiased luxury-shell">
         <AnalyticsBootstrap measurementId={GA_MEASUREMENT_ID} />
         <PwaRegistration />
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
