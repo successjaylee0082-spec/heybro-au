@@ -117,20 +117,65 @@ function facilityBadges(amenities: string[]): string[] {
   return out.slice(0, 4);
 }
 
+function mapLadyStatus(
+  status?: string,
+): StaffRosterMember["status"] {
+  const token = String(status || "")
+    .trim()
+    .toLowerCase();
+  if (token.includes("available")) return "active";
+  if (token.includes("shift") || token.includes("soon")) return "soon";
+  if (token.includes("off")) return "off";
+  return "active";
+}
+
 export function buildStaffRoster(options: {
   venueId: string;
   staffRows?: Array<{ id?: string; name?: string | null; image_url?: string | null }>;
   gallery?: string[];
   managed?: boolean;
+  /** Official English companion lineup from lib/data.ts (preferred). */
+  ladies?: Venue["ladies"];
 }): StaffRosterMember[] {
   const rows = options.staffRows ?? [];
   // Gallery interiors must never leak into ethnicity-matched staff portraits.
   void options.gallery;
+  const usedImages = new Set<string>();
+
+  // Prefer verified English ladies from the venue seed catalog.
+  if (Array.isArray(options.ladies) && options.ladies.length > 0) {
+    return options.ladies.map((lady, index) => {
+      const seed = `${options.venueId}:${lady.id || index}`;
+      const template =
+        STAFF_PROFILE_TEMPLATES[
+          (hashSeed(seed) + index) % STAFF_PROFILE_TEMPLATES.length
+        ];
+      const image = isTrustedStaffPortrait(lady.image)
+        ? lady.image
+        : nextMaskedStaffPortrait({
+            ethnicity: template.ethnicity,
+            seed,
+            offset: index,
+            used: usedImages,
+          });
+      usedImages.add(image);
+      return {
+        id: lady.id || `${options.venueId}-lady-${index + 1}`,
+        name: lady.name,
+        age: 21 + ((hashSeed(seed) >> 2) % 7),
+        ethnicity: template.ethnicity,
+        heightCm: template.heightCm,
+        cup: template.cup,
+        image,
+        styles: template.styles,
+        status: mapLadyStatus(lady.status),
+      };
+    });
+  }
 
   const target = Math.max(rows.length, options.managed ? 6 : 5);
   const count = Math.min(Math.max(target, 5), 8);
   const members: StaffRosterMember[] = [];
-  const usedImages = new Set<string>();
 
   for (let index = 0; index < count; index += 1) {
     const row = rows[index];
@@ -232,6 +277,7 @@ export function buildVenueConsumerView(options: {
     staffRows: options.staffRows,
     gallery: options.gallery,
     managed: venue.isManaged,
+    ladies: venue.ladies,
   });
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;

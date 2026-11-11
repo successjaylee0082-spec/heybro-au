@@ -93,6 +93,12 @@ export type SeedVenueRecord = {
   tier: "managed_vip" | "enterprise" | "standard" | string;
   isVerified: boolean;
   tags: string[];
+  ladies?: Array<{
+    id: string;
+    name: string;
+    status: "Available Now" | "In Shift" | "Off Shift";
+    image: string;
+  }>;
 };
 
 /**
@@ -129,6 +135,11 @@ export const sydneyVenues: Venue[] = [
     fictional: true,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "harbour-glow-lounge-lady-1", name: "Aria", status: "Available Now", image: "/images/staff/asian/04.jpg" },
+      { id: "harbour-glow-lounge-lady-2", name: "Ivy", status: "In Shift", image: "/images/staff/asian/05.jpg" },
+      { id: "harbour-glow-lounge-lady-3", name: "Sofia", status: "Available Now", image: "/images/staff/asian/06.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -165,6 +176,11 @@ export const sydneyVenues: Venue[] = [
     ],
     rateLine: "$150/30m · $200/45m · $250/60m",
     fictional: true,
+    ladies: [
+      { id: "surry-neon-room-lady-1", name: "Maya", status: "Available Now", image: "/images/staff/asian/07.jpg" },
+      { id: "surry-neon-room-lady-2", name: "Eliza", status: "In Shift", image: "/images/staff/asian/08.jpg" },
+      { id: "surry-neon-room-lady-3", name: "Nora", status: "Available Now", image: "/images/staff/latina/01.jpg" },
+    ],
     customHighlights: { tier: "free" },
     hours: "Wed–Sun 5pm–1am",
   },
@@ -195,6 +211,11 @@ export const sydneyVenues: Venue[] = [
       { label: "Standard", duration: "60 mins", price: "$250" },
     ],
     rateLine: "$150/30m · $200/45m · $250/60m",
+    ladies: [
+      { id: "cross-stage-club-lady-1", name: "Skye", status: "Available Now", image: "/images/staff/latina/02.jpg" },
+      { id: "cross-stage-club-lady-2", name: "Tessa", status: "In Shift", image: "/images/staff/latina/03.jpg" },
+      { id: "cross-stage-club-lady-3", name: "Quinn", status: "Available Now", image: "/images/staff/latina/04.jpg" },
+    ],
     customHighlights: { tier: "free" },
     hours: "Fri–Sat 9pm–3am",
   },
@@ -225,6 +246,14 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday - Sunday 10am ‐ 5am",
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "cleopatras-gentlemans-club-lady-1", name: "Chloe", status: "Available Now", image: "/images/staff/black/01.jpg" },
+      { id: "cleopatras-gentlemans-club-lady-2", name: "Sienna", status: "In Shift", image: "/images/staff/black/02.jpg" },
+      { id: "cleopatras-gentlemans-club-lady-3", name: "Jasmine", status: "Available Now", image: "/images/staff/black/03.jpg" },
+      { id: "cleopatras-gentlemans-club-lady-4", name: "Bella", status: "In Shift", image: "/images/staff/western/01.jpg" },
+      { id: "cleopatras-gentlemans-club-lady-5", name: "Mia", status: "Available Now", image: "/images/staff/western/02.jpg" },
+      { id: "cleopatras-gentlemans-club-lady-6", name: "Scarlett", status: "Off Shift", image: "/images/staff/western/03.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -259,6 +288,13 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday to Sunday 12am ‐ 12pm",
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "my-girls-sydney-lady-1", name: "Charlotte", status: "Available Now", image: "/images/staff/western/04.jpg" },
+      { id: "my-girls-sydney-lady-2", name: "Coco", status: "In Shift", image: "/images/staff/western/05.jpg" },
+      { id: "my-girls-sydney-lady-3", name: "Lily", status: "Available Now", image: "/images/staff/western/06.jpg" },
+      { id: "my-girls-sydney-lady-4", name: "Georgia", status: "In Shift", image: "/images/staff/asian/01.jpg" },
+      { id: "my-girls-sydney-lady-5", name: "Amber", status: "Available Now", image: "/images/staff/asian/02.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -293,6 +329,12 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "cuties-escorts-lady-1", name: "Rose", status: "Available Now", image: "/images/staff/asian/03.jpg" },
+      { id: "cuties-escorts-lady-2", name: "Nina", status: "In Shift", image: "/images/staff/asian/04.jpg" },
+      { id: "cuties-escorts-lady-3", name: "Kayla", status: "Available Now", image: "/images/staff/asian/05.jpg" },
+      { id: "cuties-escorts-lady-4", name: "Tina", status: "In Shift", image: "/images/staff/asian/06.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -328,6 +370,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday-Sunday 10AM ‐ 8PM; (last booking at 8pm) ‐",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "dream-girl-130-lady-1", name: "Lucy", status: "Available Now", image: "/images/staff/asian/07.jpg" },
+      { id: "dream-girl-130-lady-2", name: "Amy", status: "In Shift", image: "/images/staff/asian/08.jpg" },
+      { id: "dream-girl-130-lady-3", name: "Jenny", status: "Available Now", image: "/images/staff/latina/01.jpg" },
+      { id: "dream-girl-130-lady-4", name: "Kitty", status: "In Shift", image: "/images/staff/latina/02.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -359,6 +407,13 @@ export const sydneyVenues: Venue[] = [
     hours: "Every Day 10 am ‐ 8 pm",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "sydney-empress-69-lady-1", name: "Angela", status: "Available Now", image: "/images/staff/latina/03.jpg" },
+      { id: "sydney-empress-69-lady-2", name: "Candy", status: "In Shift", image: "/images/staff/latina/04.jpg" },
+      { id: "sydney-empress-69-lady-3", name: "Mila", status: "Available Now", image: "/images/staff/black/01.jpg" },
+      { id: "sydney-empress-69-lady-4", name: "Yuki", status: "In Shift", image: "/images/staff/black/02.jpg" },
+      { id: "sydney-empress-69-lady-5", name: "Sara", status: "Available Now", image: "/images/staff/black/03.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -390,6 +445,13 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "tiffanys-lady-1", name: "Hannah", status: "Available Now", image: "/images/staff/western/01.jpg" },
+      { id: "tiffanys-lady-2", name: "Brooke", status: "In Shift", image: "/images/staff/western/02.jpg" },
+      { id: "tiffanys-lady-3", name: "Paige", status: "Available Now", image: "/images/staff/western/03.jpg" },
+      { id: "tiffanys-lady-4", name: "Summer", status: "In Shift", image: "/images/staff/western/04.jpg" },
+      { id: "tiffanys-lady-5", name: "Eden", status: "Available Now", image: "/images/staff/western/05.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -424,6 +486,13 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "a-touch-more-class-formerly-a-touch-of-class-lady-1", name: "Cassie", status: "Available Now", image: "/images/staff/western/06.jpg" },
+      { id: "a-touch-more-class-formerly-a-touch-of-class-lady-2", name: "Evelyn", status: "In Shift", image: "/images/staff/asian/01.jpg" },
+      { id: "a-touch-more-class-formerly-a-touch-of-class-lady-3", name: "Freya", status: "Available Now", image: "/images/staff/asian/02.jpg" },
+      { id: "a-touch-more-class-formerly-a-touch-of-class-lady-4", name: "Imogen", status: "In Shift", image: "/images/staff/asian/03.jpg" },
+      { id: "a-touch-more-class-formerly-a-touch-of-class-lady-5", name: "Sloane", status: "Available Now", image: "/images/staff/asian/04.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -458,6 +527,13 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "ginza-club-lady-1", name: "Hana", status: "Available Now", image: "/images/staff/asian/05.jpg" },
+      { id: "ginza-club-lady-2", name: "Mei", status: "In Shift", image: "/images/staff/asian/06.jpg" },
+      { id: "ginza-club-lady-3", name: "Rina", status: "Available Now", image: "/images/staff/asian/07.jpg" },
+      { id: "ginza-club-lady-4", name: "Sakura", status: "In Shift", image: "/images/staff/asian/08.jpg" },
+      { id: "ginza-club-lady-5", name: "Aya", status: "Available Now", image: "/images/staff/latina/01.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -492,6 +568,13 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: true,
     managedBadge: "vip",
+    ladies: [
+      { id: "liaisons-lady-1", name: "Audrey", status: "Available Now", image: "/images/staff/latina/02.jpg" },
+      { id: "liaisons-lady-2", name: "Violet", status: "In Shift", image: "/images/staff/latina/03.jpg" },
+      { id: "liaisons-lady-3", name: "Penelope", status: "Available Now", image: "/images/staff/latina/04.jpg" },
+      { id: "liaisons-lady-4", name: "Colette", status: "In Shift", image: "/images/staff/black/01.jpg" },
+      { id: "liaisons-lady-5", name: "Iris", status: "Available Now", image: "/images/staff/black/02.jpg" },
+    ],
     customHighlights: {
       tier: "vip",
       managedBadge: "vip",
@@ -526,6 +609,13 @@ export const sydneyVenues: Venue[] = [
     hours: "Sunday 11am ‐ 2am; Monday 11am ‐ 3am; Tuesday 11am ‐ 3am; Wednesday 11am ‐ 3am; Thursday 11am ‐ 3am; Friday 11pm ‐ 5am; Saturday 11pm ‐ 5am",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "wives-only-lady-1", name: "Sarah", status: "Available Now", image: "/images/staff/black/03.jpg" },
+      { id: "wives-only-lady-2", name: "Michelle", status: "In Shift", image: "/images/staff/western/01.jpg" },
+      { id: "wives-only-lady-3", name: "Lauren", status: "Available Now", image: "/images/staff/western/02.jpg" },
+      { id: "wives-only-lady-4", name: "Kate", status: "In Shift", image: "/images/staff/western/03.jpg" },
+      { id: "wives-only-lady-5", name: "Danielle", status: "Available Now", image: "/images/staff/western/04.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -557,6 +647,13 @@ export const sydneyVenues: Venue[] = [
     hours: undefined,
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "sydney-asian-brothels-lady-1", name: "Ling", status: "Available Now", image: "/images/staff/western/05.jpg" },
+      { id: "sydney-asian-brothels-lady-2", name: "Wei", status: "In Shift", image: "/images/staff/western/06.jpg" },
+      { id: "sydney-asian-brothels-lady-3", name: "Nana", status: "Available Now", image: "/images/staff/asian/01.jpg" },
+      { id: "sydney-asian-brothels-lady-4", name: "Joy", status: "In Shift", image: "/images/staff/asian/02.jpg" },
+      { id: "sydney-asian-brothels-lady-5", name: "Tina", status: "Available Now", image: "/images/staff/asian/03.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -588,6 +685,14 @@ export const sydneyVenues: Venue[] = [
     hours: "Every Day 12.30 PM ‐ 6 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "maggies-girls-sydney-lady-1", name: "Jessica", status: "Available Now", image: "/images/staff/asian/04.jpg" },
+      { id: "maggies-girls-sydney-lady-2", name: "Alexandra", status: "In Shift", image: "/images/staff/asian/05.jpg" },
+      { id: "maggies-girls-sydney-lady-3", name: "Morgan", status: "Available Now", image: "/images/staff/asian/06.jpg" },
+      { id: "maggies-girls-sydney-lady-4", name: "Taylor", status: "In Shift", image: "/images/staff/asian/07.jpg" },
+      { id: "maggies-girls-sydney-lady-5", name: "Riley", status: "Available Now", image: "/images/staff/asian/08.jpg" },
+      { id: "maggies-girls-sydney-lady-6", name: "Jordan", status: "Off Shift", image: "/images/staff/latina/01.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -619,6 +724,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Open 7 Days 10 AM ‐ 2 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "pink-house-lady-1", name: "Gwen", status: "Available Now", image: "/images/staff/latina/02.jpg" },
+      { id: "pink-house-lady-2", name: "Syasya", status: "In Shift", image: "/images/staff/latina/03.jpg" },
+      { id: "pink-house-lady-3", name: "Linda", status: "Available Now", image: "/images/staff/latina/04.jpg" },
+      { id: "pink-house-lady-4", name: "Emma", status: "In Shift", image: "/images/staff/black/01.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -650,6 +761,13 @@ export const sydneyVenues: Venue[] = [
     hours: "Every Day 10 AM ‐ Til Late",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "the-nightshade-lady-1", name: "Patty", status: "Available Now", image: "/images/staff/black/02.jpg" },
+      { id: "the-nightshade-lady-2", name: "Nadia", status: "In Shift", image: "/images/staff/black/03.jpg" },
+      { id: "the-nightshade-lady-3", name: "Jolie", status: "Available Now", image: "/images/staff/western/01.jpg" },
+      { id: "the-nightshade-lady-4", name: "Lana", status: "In Shift", image: "/images/staff/western/02.jpg" },
+      { id: "the-nightshade-lady-5", name: "Serena", status: "Available Now", image: "/images/staff/western/03.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -681,6 +799,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday 10 AM ‐ 2 AM; Tuesday 10 AM ‐ 2 AM; Wednesday 10 AM ‐ 2 AM; Thursday 10 AM ‐ 2 AM; Friday 10 AM ‐ 5 AM; Saturday 10 AM ‐ 6 AM; Sunday 10 AM ‐ 2 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "sweet-babe-181-lady-1", name: "Babe", status: "Available Now", image: "/images/staff/western/04.jpg" },
+      { id: "sweet-babe-181-lady-2", name: "Mimi", status: "In Shift", image: "/images/staff/western/05.jpg" },
+      { id: "sweet-babe-181-lady-3", name: "Sandy", status: "Available Now", image: "/images/staff/western/06.jpg" },
+      { id: "sweet-babe-181-lady-4", name: "Lexi", status: "In Shift", image: "/images/staff/asian/01.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -712,6 +836,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday to Wednesday Noon ‐ 2am; Thursday Noon ‐ 3am; Friday to Saturday Noon ‐ 5am; Sunday 4pm ‐ 2am",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "casablanca-gentlemans-club-lady-1", name: "Destiny", status: "Available Now", image: "/images/staff/asian/02.jpg" },
+      { id: "casablanca-gentlemans-club-lady-2", name: "Crystal", status: "In Shift", image: "/images/staff/asian/03.jpg" },
+      { id: "casablanca-gentlemans-club-lady-3", name: "Phoenix", status: "Available Now", image: "/images/staff/asian/04.jpg" },
+      { id: "casablanca-gentlemans-club-lady-4", name: "Raven", status: "In Shift", image: "/images/staff/asian/05.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -744,6 +874,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Every Day 10 AM ‐ Til Late",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "mistiques-lady-1", name: "Stella", status: "Available Now", image: "/images/staff/asian/06.jpg" },
+      { id: "mistiques-lady-2", name: "Nova", status: "In Shift", image: "/images/staff/asian/07.jpg" },
+      { id: "mistiques-lady-3", name: "Luna", status: "Available Now", image: "/images/staff/asian/08.jpg" },
+      { id: "mistiques-lady-4", name: "Vera", status: "In Shift", image: "/images/staff/latina/01.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -775,6 +911,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Every Day 12 AM ‐ 12 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "five-star-moon-lady-1", name: "Moon", status: "Available Now", image: "/images/staff/latina/02.jpg" },
+      { id: "five-star-moon-lady-2", name: "Star", status: "In Shift", image: "/images/staff/latina/03.jpg" },
+      { id: "five-star-moon-lady-3", name: "Celeste", status: "Available Now", image: "/images/staff/latina/04.jpg" },
+      { id: "five-star-moon-lady-4", name: "Aurora", status: "In Shift", image: "/images/staff/black/01.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -806,6 +948,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday to Friday 10 AM ‐ 4 AM; Saturday 12 PM ‐ 4 AM; Sunday 10 AM ‐ 2 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "jk80-gentlemen-club-lady-1", name: "Blair", status: "Available Now", image: "/images/staff/black/02.jpg" },
+      { id: "jk80-gentlemen-club-lady-2", name: "Cameron", status: "In Shift", image: "/images/staff/black/03.jpg" },
+      { id: "jk80-gentlemen-club-lady-3", name: "Drew", status: "Available Now", image: "/images/staff/western/01.jpg" },
+      { id: "jk80-gentlemen-club-lady-4", name: "Ellis", status: "In Shift", image: "/images/staff/western/02.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -837,6 +985,12 @@ export const sydneyVenues: Venue[] = [
     hours: "Monday to Wednesday 10.30 AM ‐ 3 AM; Thursday 10.30 AM ‐ 3.30 AM; Friday to Saturday 10.30 AM ‐ 4 AM; Sunday 10.30 AM ‐ 3 AM",
     isManaged: false,
     managedBadge: undefined,
+    ladies: [
+      { id: "57-burwood-brothel-lady-1", name: "Annie", status: "Available Now", image: "/images/staff/western/03.jpg" },
+      { id: "57-burwood-brothel-lady-2", name: "Bella", status: "In Shift", image: "/images/staff/western/04.jpg" },
+      { id: "57-burwood-brothel-lady-3", name: "Cindy", status: "Available Now", image: "/images/staff/western/05.jpg" },
+      { id: "57-burwood-brothel-lady-4", name: "Daisy", status: "In Shift", image: "/images/staff/western/06.jpg" },
+    ],
     customHighlights: {
       tier: "free",
     },
@@ -868,6 +1022,14 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "enterprise",
     isVerified: true,
     tags: ["CBD First", "Cash OK", "EFTPOS", "24/7 Available"],
+    ladies: [
+      { id: "melb-1-lady-1", name: "Scarlett", status: "Available Now", image: "/images/staff/western/01.jpg" },
+      { id: "melb-1-lady-2", name: "Trinity", status: "In Shift", image: "/images/staff/western/02.jpg" },
+      { id: "melb-1-lady-3", name: "Anna", status: "Available Now", image: "/images/staff/western/03.jpg" },
+      { id: "melb-1-lady-4", name: "Pearl", status: "In Shift", image: "/images/staff/western/04.jpg" },
+      { id: "melb-1-lady-5", name: "Molly", status: "Available Now", image: "/images/staff/western/05.jpg" },
+      { id: "melb-1-lady-6", name: "Alessandra", status: "Off Shift", image: "/images/staff/western/06.jpg" },
+    ],
   },
   {
     id: "melb-2",
@@ -890,6 +1052,14 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "managed_vip",
     isVerified: true,
     tags: ["CBD First", "WeChat Pay", "Discrete Entrance", "Premium VIP"],
+    ladies: [
+      { id: "melb-2-lady-1", name: "Bella", status: "Available Now", image: "/images/staff/asian/01.jpg" },
+      { id: "melb-2-lady-2", name: "Mia", status: "In Shift", image: "/images/staff/asian/02.jpg" },
+      { id: "melb-2-lady-3", name: "Charlotte", status: "Available Now", image: "/images/staff/asian/03.jpg" },
+      { id: "melb-2-lady-4", name: "Sienna", status: "In Shift", image: "/images/staff/asian/04.jpg" },
+      { id: "melb-2-lady-5", name: "Coco", status: "Available Now", image: "/images/staff/asian/05.jpg" },
+      { id: "melb-2-lady-6", name: "Isabelle", status: "Off Shift", image: "/images/staff/asian/06.jpg" },
+    ],
   },
   {
     id: "melb-3",
@@ -912,6 +1082,14 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "standard",
     isVerified: true,
     tags: ["EFTPOS", "Private Shower", "Luxury Complex"],
+    ladies: [
+      { id: "melb-3-lady-1", name: "Jasmine", status: "Available Now", image: "/images/staff/latina/01.jpg" },
+      { id: "melb-3-lady-2", name: "Chloe", status: "In Shift", image: "/images/staff/latina/02.jpg" },
+      { id: "melb-3-lady-3", name: "Ruby", status: "Available Now", image: "/images/staff/latina/03.jpg" },
+      { id: "melb-3-lady-4", name: "Sophia", status: "In Shift", image: "/images/staff/black/01.jpg" },
+      { id: "melb-3-lady-5", name: "Amelia", status: "Available Now", image: "/images/staff/black/02.jpg" },
+      { id: "melb-3-lady-6", name: "Grace", status: "Off Shift", image: "/images/staff/western/01.jpg" },
+    ],
   },
   {
     id: "melb-4",
@@ -934,6 +1112,14 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "standard",
     isVerified: true,
     tags: ["Cash OK", "Female Operated", "Discreet"],
+    ladies: [
+      { id: "melb-4-lady-1", name: "Olivia", status: "Available Now", image: "/images/staff/western/02.jpg" },
+      { id: "melb-4-lady-2", name: "Emily", status: "In Shift", image: "/images/staff/western/03.jpg" },
+      { id: "melb-4-lady-3", name: "Lucy", status: "Available Now", image: "/images/staff/western/04.jpg" },
+      { id: "melb-4-lady-4", name: "Harper", status: "In Shift", image: "/images/staff/western/05.jpg" },
+      { id: "melb-4-lady-5", name: "Zoe", status: "Available Now", image: "/images/staff/western/06.jpg" },
+      { id: "melb-4-lady-6", name: "Ava", status: "Off Shift", image: "/images/staff/asian/01.jpg" },
+    ],
   },
   {
     id: "melb-5",
@@ -956,6 +1142,14 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "standard",
     isVerified: true,
     tags: ["EFTPOS", "VIP Lounge", "Six-Star"],
+    ladies: [
+      { id: "melb-5-lady-1", name: "Victoria", status: "Available Now", image: "/images/staff/asian/02.jpg" },
+      { id: "melb-5-lady-2", name: "Helena", status: "In Shift", image: "/images/staff/asian/03.jpg" },
+      { id: "melb-5-lady-3", name: "Diana", status: "Available Now", image: "/images/staff/asian/04.jpg" },
+      { id: "melb-5-lady-4", name: "Claire", status: "In Shift", image: "/images/staff/asian/05.jpg" },
+      { id: "melb-5-lady-5", name: "Natalie", status: "Available Now", image: "/images/staff/asian/06.jpg" },
+      { id: "melb-5-lady-6", name: "Rebecca", status: "Off Shift", image: "/images/staff/latina/01.jpg" },
+    ],
   },
 ];
 
@@ -1052,6 +1246,7 @@ export function seedVenueToDirectoryVenue(
     descriptionZh: undefined,
     suburbZh: undefined,
     tagsZh: undefined,
+    ladies: seed.ladies,
     phone: seed.phone,
     address: seed.address,
     lat: coords?.lat,

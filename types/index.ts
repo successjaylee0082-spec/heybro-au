@@ -21,6 +21,14 @@ export type VenuePriceRow = {
   price: string;
 };
 
+/** Verified companion / lineup entry for directory venue profiles. */
+export type VenueLady = {
+  id: string;
+  name: string;
+  status: "Available Now" | "In Shift" | "Off Shift";
+  image: string;
+};
+
 export interface Venue {
   id: string;
   name: string;
@@ -34,6 +42,8 @@ export interface Venue {
   image: string;
   tags: string[];
   tagsZh?: string[];
+  /** Official English companion names for tonight's lineup. */
+  ladies?: VenueLady[];
   phone?: string;
   address: string;
   lat?: number;
