@@ -10,7 +10,7 @@ import {
 import { useMemo } from "react";
 import { CategoryChips } from "@/components/CategoryChips";
 import { Hero } from "@/components/hero";
-import { CommunityDiscovery } from "@/components/heybro/CommunityDiscovery";
+import { RedditCommunityPanel } from "@/components/heybro/RedditCommunityPanel";
 import { VenueList } from "@/components/venue-list";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
@@ -127,7 +127,7 @@ export function HomeFeed({
               className={city === item.id ? "selected" : undefined}
               onClick={() => setCity(item.id)}
             >
-              {locale === "zh" ? item.labelZh : item.label}
+              {item.label}
             </button>
           ))}
         </div>
@@ -151,16 +151,13 @@ export function HomeFeed({
         </span>
       </div>
 
-      <CommunityDiscovery />
       <CategoryChips />
 
       <div className="section-heading">
         <div>
           <div className="eyebrow">{t("results")}</div>
           <h2>
-            {locale === "zh"
-              ? cities.find((item) => item.id === city)?.labelZh
-              : cities.find((item) => item.id === city)?.label}
+            {cities.find((item) => item.id === city)?.label}
           </h2>
           <p>
             {t("resultsHint")}{" "}
@@ -176,7 +173,7 @@ export function HomeFeed({
           >
             {VENUE_SORT_OPTIONS.map((option) => (
               <option key={option.id} value={option.id}>
-                {locale === "zh" ? option.labelZh : option.label}
+                {option.label}
               </option>
             ))}
           </select>
@@ -214,6 +211,9 @@ export function HomeFeed({
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Reddit / community — collapsed until the visitor opts in */}
+      <RedditCommunityPanel />
     </div>
   );
 }

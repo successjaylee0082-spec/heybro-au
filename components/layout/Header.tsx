@@ -41,9 +41,13 @@ export function Header() {
         </div>
       </div>
       <div className="mobile-community-row page-shell">
-        <Link href={communityHref} className="mobile-community-link">
+        <Link
+          href={communityHref}
+          className="mobile-community-link"
+          title="Community Discussions & Reddit Threads"
+        >
           <RedditLogo size={16} />
-          {t("community")}
+          Community Discussions
         </Link>
         <Link href={partnersHref} className="mobile-community-link">
           <Building2 className="h-3.5 w-3.5" />
