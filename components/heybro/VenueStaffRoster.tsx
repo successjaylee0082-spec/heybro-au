@@ -15,7 +15,7 @@ export function VenueStaffRoster({
 
   const safeStaff = staff.map((member) => ({
     ...member,
-    age: Math.max(20, Number(member.age) || 21, safeDisplayedAge(member.age)),
+    age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
   }));
 
   return (

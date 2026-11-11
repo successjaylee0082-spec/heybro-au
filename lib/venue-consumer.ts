@@ -297,7 +297,7 @@ export function buildVenueConsumerView(options: {
     ladies: venue.ladies,
   }).map((member) => ({
     ...member,
-    age: safeDisplayedAge(member.age),
+    age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
   }));
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;

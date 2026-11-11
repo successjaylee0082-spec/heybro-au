@@ -75,7 +75,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const safeLadies = Array.isArray(venue.ladies)
     ? venue.ladies.map((lady) => ({
         ...lady,
-        age: Math.max(20, Number(lady.age) || 21, safeDisplayedAge(lady.age)),
+        age: Math.max(21, Number(lady.age) || 21, safeDisplayedAge(lady.age)),
       }))
     : [];
   const transit = buildMapsUrl({
