@@ -2,7 +2,9 @@
  * Build consumer booking deep-links for Call / WhatsApp / WeChat.
  */
 
-export function normalizePhoneDigits(phone?: string | null): string | undefined {
+export function normalizePhoneDigits(
+  phone?: string | null,
+): string | undefined {
   if (!phone) return undefined;
   const digits = phone.replace(/[^\d+]/g, "");
   if (!digits) return undefined;

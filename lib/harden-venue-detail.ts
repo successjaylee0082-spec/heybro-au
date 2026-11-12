@@ -87,8 +87,9 @@ export function hardenVenueDetailPayload<T extends HardenableDetail>(
     return age >= 20 && !isBlockedCompanionName(member.name);
   });
 
-  const activeStaffCount = staff.filter((member) => member.status === "active")
-    .length;
+  const activeStaffCount = staff.filter(
+    (member) => member.status === "active",
+  ).length;
 
   const related = (detail.related || []).map((item) => hardenVenueLadies(item));
 

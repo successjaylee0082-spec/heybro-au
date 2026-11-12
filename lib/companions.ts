@@ -95,16 +95,17 @@ export function mapCompanionRowsToLadies(
         : [];
 
       const lady: VenueLady = {
-        id: String(row.id || `${venueId}-slot-${Number.isFinite(slot) ? slot : index}`),
+        id: String(
+          row.id || `${venueId}-slot-${Number.isFinite(slot) ? slot : index}`,
+        ),
         name,
         age,
-        heightCm:
-          Number(row.height) ||
-          seed?.heightCm ||
-          165,
+        heightCm: Number(row.height) || seed?.heightCm || 165,
         cup: String(row.cup || seed?.cup || "C").toUpperCase(),
         ethnicity: String(row.nationality || seed?.ethnicity || "European"),
-        styles: tags.length ? tags.slice(0, 3) : seed?.styles || ["GFE", "Elegant"],
+        styles: tags.length
+          ? tags.slice(0, 3)
+          : seed?.styles || ["GFE", "Elegant"],
         status: mapStatus(row.is_active),
         // Keep the curated local portrait for this slot — never break images.
         image: seed?.image || "/images/staff/western/01.jpg",

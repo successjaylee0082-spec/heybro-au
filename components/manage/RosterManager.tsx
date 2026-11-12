@@ -41,7 +41,8 @@ export function RosterManager({
 }: Props) {
   const [unlocked, setUnlocked] = useState(initiallyUnlocked);
   const [pin, setPin] = useState("");
-  const [companions, setCompanions] = useState<CompanionRow[]>(initialCompanions);
+  const [companions, setCompanions] =
+    useState<CompanionRow[]>(initialCompanions);
   const [toast, setToast] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -113,7 +114,10 @@ export function RosterManager({
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-rose-300/80">
             Venue Owner Access
           </p>
-          <h1 className="mt-2 text-3xl text-neutral-50" style={{ fontFamily: "var(--font-display)" }}>
+          <h1
+            className="mt-2 text-3xl text-neutral-50"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             {venueName}
           </h1>
           <p className="mt-2 text-sm text-neutral-400">
@@ -158,7 +162,10 @@ export function RosterManager({
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-300/80">
             Live Roster Manager
           </p>
-          <h1 className="mt-1 text-3xl text-neutral-50" style={{ fontFamily: "var(--font-display)" }}>
+          <h1
+            className="mt-1 text-3xl text-neutral-50"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             {venueName}
           </h1>
           <p className="mt-1 text-sm text-neutral-400">
@@ -404,7 +411,8 @@ function CompanionEditorCard({
           </div>
           {blockedName(name) ? (
             <p className="text-xs text-rose-300">
-              That stage name is blocked. Use Chloe, Bella, or another adult name.
+              That stage name is blocked. Use Chloe, Bella, or another adult
+              name.
             </p>
           ) : null}
         </div>

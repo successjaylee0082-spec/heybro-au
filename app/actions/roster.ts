@@ -111,7 +111,11 @@ export async function ensureCompanionsSeededAction(
   }
   const existing = await fetchCompanionsForVenue(id);
   if (existing.length > 0) {
-    return { ok: true, companions: existing, message: "Roster already loaded." };
+    return {
+      ok: true,
+      companions: existing,
+      message: "Roster already loaded.",
+    };
   }
 
   const client = createAdminSupabaseClient();

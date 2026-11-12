@@ -35,16 +35,10 @@ import { useNavigation } from "@/components/layout/NavigationProvider";
 import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { withLocale } from "@/lib/i18n";
-import {
-  buildStaffRoster,
-  type VenueConsumerView,
-} from "@/lib/venue-consumer";
+import { buildStaffRoster, type VenueConsumerView } from "@/lib/venue-consumer";
 import { trackVenueContact } from "@/lib/analytics";
 import { buildVenueInquiryWhatsAppHref } from "@/lib/booking-links";
-import {
-  forceSafeAge,
-  sanitizeCompanionList,
-} from "@/lib/companion-profile";
+import { forceSafeAge, sanitizeCompanionList } from "@/lib/companion-profile";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -162,8 +156,7 @@ export function VenueDetail({
     venue.badgeStatus === "managed_vip" ||
     venue.badgeStatus === "enterprise" ||
     isVipListing(venue);
-  const ultimate =
-    tier === "enterprise" || venue.badgeStatus === "enterprise";
+  const ultimate = tier === "enterprise" || venue.badgeStatus === "enterprise";
   const vipChrome = isPremium
     ? "rounded-[22px] border border-rose-500/80 shadow-[0_0_20px_rgba(244,63,94,0.35)] ring-1 ring-rose-400/40"
     : "rounded-[22px] border border-neutral-800/70 opacity-80 grayscale-[0.2]";
@@ -187,8 +180,7 @@ export function VenueDetail({
     liveConsumer.whatsappHref ||
     buildVenueInquiryWhatsAppHref({
       venueName: name,
-      whatsapp:
-        venue.customHighlights?.whatsapp || venue.messaging?.whatsapp,
+      whatsapp: venue.customHighlights?.whatsapp || venue.messaging?.whatsapp,
       phone: venue.phone,
     });
 
@@ -344,9 +336,9 @@ export function VenueDetail({
         </div>
       ) : (
         <div className="demo-note venue-photo-note">
-          Staff profiles use masquerade-masked, body-pose editorials.
-          Galleries use moody luxury lounge imagery — not club party plates.
-          Always confirm availability by phone.
+          Staff profiles use masquerade-masked, body-pose editorials. Galleries
+          use moody luxury lounge imagery — not club party plates. Always
+          confirm availability by phone.
         </div>
       )}
 

@@ -2,10 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { StaffCard } from "@/components/staff-card";
-import {
-  forceSafeAge,
-  sanitizeCompanionList,
-} from "@/lib/companion-profile";
+import { forceSafeAge, sanitizeCompanionList } from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 export function VenueStaffRoster({
