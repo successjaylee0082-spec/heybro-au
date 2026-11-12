@@ -1042,8 +1042,8 @@ export const melbourneVenues: SeedVenueRecord[] = [
       { id: "melb-1-lady-1", name: "Mia", status: "Available Now", image: "/images/staff/western/01.jpg", age: 21, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
       { id: "melb-1-lady-2", name: "Ella", status: "In Shift", image: "/images/staff/western/02.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
       { id: "melb-1-lady-3", name: "Audrey", status: "Available Now", image: "/images/staff/western/03.jpg", age: 21, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-4", name: "Chanel", status: "In Shift", image: "/images/staff/western/04.jpg", age: 21, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-5", name: "Sophie", status: "Available Now", image: "/images/staff/western/05.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-4", name: "Chloe", status: "In Shift", image: "/images/staff/western/04.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-5", name: "Bella", status: "Available Now", image: "/images/staff/western/05.jpg", age: 23, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
     ],
   },
   {
@@ -1294,10 +1294,23 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
     badgeStatus === "enterprise" ||
     Boolean(venue.isManaged);
   const ladies = Array.isArray(venue.ladies)
-    ? venue.ladies.map((lady) => {
-        const displayAge = Math.max(20, Number(lady.age) || 21);
-        return { ...lady, age: displayAge };
-      })
+    ? venue.ladies
+        .map((lady) => {
+          const key = String(lady.name || "").trim().toLowerCase();
+          const name =
+            key === "chanel" ? "Chloe" : key === "sophie" ? "Bella" : lady.name;
+          const wasBlocked = key === "chanel" || key === "sophie";
+          const displayAge = Math.max(
+            wasBlocked ? 22 : 20,
+            Number(lady.age) || (wasBlocked ? 22 : 21),
+          );
+          return { ...lady, name, age: displayAge };
+        })
+        .filter((lady) => {
+          const key = String(lady.name || "").trim().toLowerCase();
+          const age = Number(lady.age);
+          return age >= 20 && key !== "chanel" && key !== "sophie";
+        })
     : venue.ladies;
   return {
     ...venue,

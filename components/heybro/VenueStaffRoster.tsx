@@ -1,7 +1,10 @@
 "use client";
 
 import { StaffCard } from "@/components/staff-card";
-import { forceSafeAge } from "@/lib/companion-profile";
+import {
+  forceSafeAge,
+  sanitizeCompanionList,
+} from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 export function VenueStaffRoster({
@@ -13,13 +16,17 @@ export function VenueStaffRoster({
 }) {
   if (!staff.length) return null;
 
-  const safeStaff = staff.map((member) => {
-    const displayAge = Math.max(20, Number(member.age) || 21);
-    return {
-      ...member,
-      age: forceSafeAge(displayAge),
-    };
-  });
+  const safeStaff = sanitizeCompanionList(
+    staff.map((member) => {
+      const displayAge = Math.max(20, Number(member.age) || 21);
+      return {
+        ...member,
+        age: forceSafeAge(displayAge),
+      };
+    }),
+  );
+
+  if (!safeStaff.length) return null;
 
   return (
     <section className="staff-roster luxury-staff">

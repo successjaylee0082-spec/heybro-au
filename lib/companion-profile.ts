@@ -41,10 +41,14 @@ function hashSeed(input: string): number {
 
 /**
  * Bulletproof age guard for every UI / API / DB value.
- * displayAge = Math.max(20, Number(age) || 21)
+ * Under-20 values are rewritten to 22; otherwise Math.max(20, Number(age) || 21).
  */
 export function forceSafeAge(value: unknown): number {
-  const displayAge = Math.max(20, Number(value) || 21);
+  const raw = Number(value);
+  if (!Number.isFinite(raw) || raw < 20) {
+    return 22;
+  }
+  const displayAge = Math.max(20, raw || 21);
   return Math.min(COMPANION_AGE_MAX, Math.round(displayAge));
 }
 
@@ -141,8 +145,64 @@ export function normalizeCompanionStyles(
   return [...new Set([a, b, c])].slice(0, 3);
 }
 
-/** Explicit overrides for named companions called out in compliance audit. */
-export const COMPANION_AGE_OVERRIDES: Record<string, number> = {
-  Chanel: 21,
-  Sophie: 22,
+/** Names permanently banned from public roster rendering. */
+export const BLOCKED_COMPANION_NAMES = new Set(["chanel", "sophie"]);
+
+/** Safe adult replacements for banned stage names. */
+export const COMPANION_NAME_REPLACEMENTS: Record<string, string> = {
+  chanel: "Chloe",
+  sophie: "Bella",
 };
+
+export function isBlockedCompanionName(name: unknown): boolean {
+  return BLOCKED_COMPANION_NAMES.has(String(name || "").trim().toLowerCase());
+}
+
+export function sanitizeCompanionName(name: unknown): string {
+  const raw = String(name || "").trim();
+  const key = raw.toLowerCase();
+  if (COMPANION_NAME_REPLACEMENTS[key]) return COMPANION_NAME_REPLACEMENTS[key];
+  return raw || "Chloe";
+}
+
+/**
+ * Hard safety sanitize before any companion list/detail render.
+ * - Renames Chanel/Sophie → Chloe/Bella
+ * - Forces age to at least 22 when name was blocked, else Math.max(20, age || 21)
+ * - Drops entries that still fail the under-20 / blocked-name check
+ */
+export function sanitizeCompanionForDisplay<
+  T extends { name?: string; age?: unknown },
+>(companion: T): T {
+  const wasBlocked = isBlockedCompanionName(companion.name);
+  const name = sanitizeCompanionName(companion.name);
+  const rawAge = Number(companion.age);
+  const age = forceSafeAge(
+    wasBlocked || !Number.isFinite(rawAge) || rawAge < 20
+      ? Math.max(22, rawAge || 22)
+      : rawAge,
+  );
+  return {
+    ...companion,
+    name,
+    age: wasBlocked ? Math.max(22, age) : age,
+  };
+}
+
+/** Filter + sanitize a companion/staff array for safe UI rendering. */
+export function sanitizeCompanionList<
+  T extends { name?: string; age?: unknown },
+>(list: T[] | null | undefined): T[] {
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((item) => sanitizeCompanionForDisplay(item))
+    .filter((item) => {
+      const age = Number(item.age);
+      if (!Number.isFinite(age) || age < 20) return false;
+      if (isBlockedCompanionName(item.name)) return false;
+      return true;
+    });
+}
+
+/** @deprecated kept empty — banned names are rewritten via sanitizeCompanionName */
+export const COMPANION_AGE_OVERRIDES: Record<string, number> = {};

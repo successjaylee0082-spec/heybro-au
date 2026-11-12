@@ -16,7 +16,10 @@ import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { trackVenueContact } from "@/lib/analytics";
-import { forceSafeAge } from "@/lib/companion-profile";
+import {
+  forceSafeAge,
+  sanitizeCompanionList,
+} from "@/lib/companion-profile";
 import { buildWhatsAppHref, resolveWeChatContact } from "@/lib/booking-links";
 import { categoryLabel, cityLabel } from "@/lib/cities";
 import { resolveCardPoseCover } from "@/lib/directory-covers";
@@ -72,15 +75,17 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const elite = isPaidVipTier(venue, tier);
   const managed = isVipListing(venue) || elite;
   const ultimate = tier === "enterprise" || venue.badgeStatus === "enterprise";
-  const safeLadies = Array.isArray(venue.ladies)
-    ? venue.ladies.map((lady) => {
-        const displayAge = Math.max(20, Number(lady.age) || 21);
-        return {
-          ...lady,
-          age: forceSafeAge(displayAge),
-        };
-      })
-    : [];
+  const safeLadies = sanitizeCompanionList(
+    Array.isArray(venue.ladies)
+      ? venue.ladies.map((lady) => {
+          const displayAge = Math.max(20, Number(lady.age) || 21);
+          return {
+            ...lady,
+            age: forceSafeAge(displayAge),
+          };
+        })
+      : [],
+  );
   const transit = buildMapsUrl({
     lat: venue.lat,
     lng: venue.lng,

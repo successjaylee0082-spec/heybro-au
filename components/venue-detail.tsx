@@ -39,7 +39,10 @@ import {
   type VenueConsumerView,
 } from "@/lib/venue-consumer";
 import { trackVenueContact } from "@/lib/analytics";
-import { forceSafeAge } from "@/lib/companion-profile";
+import {
+  forceSafeAge,
+  sanitizeCompanionList,
+} from "@/lib/companion-profile";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -84,21 +87,22 @@ export function VenueDetail({
   const distanceKm = useApproxDistanceKm(venue.lat, venue.lng);
   const liveConsumer = useMemo(() => {
     // Prefer official English companion strings from venue.ladies — never placeholders.
-    const rosterFromLadies = (
-      Array.isArray(venue.ladies) && venue.ladies.length > 0
+    const rosterFromLadies = sanitizeCompanionList(
+      (Array.isArray(venue.ladies) && venue.ladies.length > 0
         ? buildStaffRoster({
             venueId: venue.id,
             ladies: venue.ladies,
             managed: venue.isManaged,
           })
         : consumer.staff
-    ).map((member) => {
-      const displayAge = Math.max(20, Number(member.age) || 21);
-      return {
-        ...member,
-        age: forceSafeAge(displayAge),
-      };
-    });
+      ).map((member) => {
+        const displayAge = Math.max(20, Number(member.age) || 21);
+        return {
+          ...member,
+          age: forceSafeAge(displayAge),
+        };
+      }),
+    );
     const activeStaffCount = rosterFromLadies.filter(
       (member) => member.status === "active",
     ).length;

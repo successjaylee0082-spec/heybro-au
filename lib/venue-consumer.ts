@@ -6,7 +6,6 @@ import {
   type WeChatContact,
 } from "@/lib/booking-links";
 import {
-  COMPANION_AGE_OVERRIDES,
   normalizeCompanionAge,
   normalizeCompanionCup,
   normalizeCompanionEthnicity,
@@ -14,6 +13,10 @@ import {
   normalizeCompanionStyles,
   forceSafeAge,
   safeDisplayedAge,
+  isBlockedCompanionName,
+  sanitizeCompanionForDisplay,
+  sanitizeCompanionList,
+  sanitizeCompanionName,
 } from "@/lib/companion-profile";
 import type { ParsedVenueContent } from "@/lib/venue-content";
 import type { CustomHighlights } from "@/lib/venue-highlights";
@@ -154,7 +157,7 @@ export function buildStaffRoster(options: {
 
   // Prefer verified English ladies from the venue seed catalog.
   if (Array.isArray(options.ladies) && options.ladies.length > 0) {
-    return options.ladies.map((lady, index) => {
+    const fromLadies = options.ladies.map((lady, index) => {
       const seed = `${options.venueId}:${lady.id || index}`;
       const template =
         STAFF_PROFILE_TEMPLATES[
@@ -169,14 +172,18 @@ export function buildStaffRoster(options: {
             used: usedImages,
           });
       usedImages.add(image);
-      const overrideAge = COMPANION_AGE_OVERRIDES[lady.name];
-      const displayAge = Math.max(
-        20,
-        Number(overrideAge ?? lady.age) || 21,
-      );
+      // Sanitize from the original name first so Chanel/Sophie are detected.
+      const wasBlocked = isBlockedCompanionName(lady.name);
+      const safeLady = sanitizeCompanionForDisplay({
+        name: lady.name,
+        age: lady.age,
+      });
+      const displayAge = wasBlocked
+        ? Math.max(22, Number(safeLady.age) || 22)
+        : Math.max(20, Number(safeLady.age) || 21);
       return {
         id: lady.id || `${options.venueId}-lady-${index + 1}`,
-        name: lady.name,
+        name: safeLady.name,
         age: forceSafeAge(normalizeCompanionAge(displayAge, seed)),
         ethnicity: normalizeCompanionEthnicity(
           lady.ethnicity ?? template.ethnicity,
@@ -192,6 +199,7 @@ export function buildStaffRoster(options: {
         status: mapLadyStatus(lady.status),
       };
     });
+    return sanitizeCompanionList(fromLadies);
   }
 
   const target = Math.max(rows.length, options.managed ? 6 : 5);
@@ -225,19 +233,21 @@ export function buildStaffRoster(options: {
         });
     if (isTrustedStaffPortrait(row?.image_url)) usedImages.add(image);
 
-    members.push({
-      id: row?.id || `${options.venueId}-staff-${index}`,
-      name: template.name,
-      age,
-      ethnicity: normalizeCompanionEthnicity(template.ethnicity, seed),
-      heightCm: normalizeCompanionHeight(template.heightCm, seed),
-      cup: normalizeCompanionCup(template.cup, seed),
-      image,
-      styles: normalizeCompanionStyles(template.styles, seed),
-      status,
-    });
+    members.push(
+      sanitizeCompanionForDisplay({
+        id: row?.id || `${options.venueId}-staff-${index}`,
+        name: sanitizeCompanionName(template.name),
+        age,
+        ethnicity: normalizeCompanionEthnicity(template.ethnicity, seed),
+        heightCm: normalizeCompanionHeight(template.heightCm, seed),
+        cup: normalizeCompanionCup(template.cup, seed),
+        image,
+        styles: normalizeCompanionStyles(template.styles, seed),
+        status,
+      }),
+    );
   }
-  return members;
+  return sanitizeCompanionList(members);
 }
 
 export function buildQualityScores(options: {
@@ -291,19 +301,21 @@ export function buildVenueConsumerView(options: {
 }): VenueConsumerView {
   const { venue, content } = options;
   const areaLabel = titleArea(venue.suburb, venue.city);
-  const staff = buildStaffRoster({
-    venueId: venue.id,
-    staffRows: options.staffRows,
-    gallery: options.gallery,
-    managed: venue.isManaged,
-    ladies: venue.ladies,
-  }).map((member) => ({
-    ...member,
-    age: (() => {
-      const displayAge = Math.max(20, Number(member.age) || 21);
-      return forceSafeAge(displayAge || safeDisplayedAge(member.age));
-    })(),
-  }));
+  const staff = sanitizeCompanionList(
+    buildStaffRoster({
+      venueId: venue.id,
+      staffRows: options.staffRows,
+      gallery: options.gallery,
+      managed: venue.isManaged,
+      ladies: venue.ladies,
+    }).map((member) => ({
+      ...member,
+      age: (() => {
+        const displayAge = Math.max(20, Number(member.age) || 21);
+        return forceSafeAge(displayAge || safeDisplayedAge(member.age));
+      })(),
+    })),
+  );
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;
   const payments =

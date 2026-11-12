@@ -1,6 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import {
+  isBlockedCompanionName,
+  sanitizeCompanionName,
+} from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 function statusLabel(status: StaffRosterMember["status"]) {
@@ -11,10 +15,13 @@ function statusLabel(status: StaffRosterMember["status"]) {
 
 /**
  * Staff roster card — masked / body-pose focused portraits only.
- * Age render: Math.max(20, Number(age) || 21) — never under 20.
+ * Hard reject Chanel/Sophie and ages under 20 at the leaf render.
  */
 export function StaffCard({ member }: { member: StaffRosterMember }) {
+  if (isBlockedCompanionName(member.name)) return null;
+  const name = sanitizeCompanionName(member.name);
   const displayAge = Math.max(20, Number(member.age) || 21);
+  if (displayAge < 20) return null;
 
   return (
     <article
@@ -27,7 +34,7 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
       <div className="staff-card-media">
         <Image
           src={member.image}
-          alt={`${member.name} · masked ${member.ethnicity} profile`}
+          alt={`${name} · masked ${member.ethnicity} profile`}
           fill
           quality={90}
           className="object-cover object-[center_22%] staff-portrait"
@@ -44,7 +51,7 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
         </span>
         <div className="staff-overlay">
           <div className="staff-overlay-name">
-            <h3>{member.name}</h3>
+            <h3>{name}</h3>
           </div>
           <div className="staff-overlay-badges">
             <span className="stat-pill">{displayAge} yrs</span>
