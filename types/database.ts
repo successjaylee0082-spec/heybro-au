@@ -1,3 +1,19 @@
+/** Live roster row from public.companions (images stay in app seed slots). */
+export type CompanionRow = {
+  id: string;
+  venue_id: string;
+  slot_index: number;
+  name: string;
+  age: number;
+  height: number | null;
+  cup: string | null;
+  nationality: string | null;
+  tags: string[] | null;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
 export type VenueRow = {
   id: string;
   slug: string;

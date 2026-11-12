@@ -180,7 +180,7 @@ export function buildStaffRoster(options: {
       });
       const displayAge = wasBlocked
         ? Math.max(22, Number(safeLady.age) || 22)
-        : Math.max(21, Number(safeLady.age) || 21);
+        : Math.max(20, Number(safeLady.age) || 20);
       return {
         id: lady.id || `${options.venueId}-lady-${index + 1}`,
         name: safeLady.name,
@@ -311,7 +311,7 @@ export function buildVenueConsumerView(options: {
     }).map((member) => ({
       ...member,
       age: (() => {
-        const displayAge = Math.max(21, Number(member.age) || 21);
+        const displayAge = Math.max(20, Number(member.age) || 20);
         return forceSafeAge(displayAge || safeDisplayedAge(member.age));
       })(),
     })),

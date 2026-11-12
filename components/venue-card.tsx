@@ -78,7 +78,7 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const safeLadies = sanitizeCompanionList(
     Array.isArray(venue.ladies)
       ? venue.ladies.map((lady) => {
-          const displayAge = Math.max(21, Number(lady.age) || 21);
+          const displayAge = Math.max(20, Number(lady.age) || 20);
           return {
             ...lady,
             age: forceSafeAge(displayAge),

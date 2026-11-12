@@ -4,7 +4,10 @@ import {
   getAdminPanelKey,
   isAdminAuthenticated,
 } from "@/lib/admin-auth";
-import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  createAdminSupabaseClient,
+  isSupabaseConfigured,
+} from "@/lib/supabase";
 import {
   parseCustomHighlights,
   type CustomHighlights,
@@ -32,7 +35,7 @@ export async function GET(request: NextRequest) {
   if (!(await requireAdmin(request))) return unauthorized();
   if (!isSupabaseConfigured()) return unavailable("Supabase is not configured");
 
-  const client = createSupabaseClient();
+  const client = createAdminSupabaseClient();
   if (!client) return unavailable("Supabase client unavailable");
 
   const slug = request.nextUrl.searchParams.get("slug")?.trim();
@@ -62,7 +65,7 @@ export async function PATCH(request: NextRequest) {
   if (!(await requireAdmin(request))) return unauthorized();
   if (!isSupabaseConfigured()) return unavailable("Supabase is not configured");
 
-  const client = createSupabaseClient();
+  const client = createAdminSupabaseClient();
   if (!client) return unavailable("Supabase client unavailable");
 
   let body: {

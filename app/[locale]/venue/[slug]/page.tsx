@@ -7,7 +7,7 @@ import { getVenueDetail } from "@/lib/venue-detail";
 
 export const dynamic = "force-dynamic";
 
-/** Mandatory runtime rewrite — Chanel/Sophie and under-21 ages cannot reach the UI. */
+/** Mandatory runtime rewrite — Chanel/Sophie scrub + Math.max(20, age || 20). */
 function scrubCompanions<
   T extends { name?: string; age?: unknown },
 >(list: T[] | null | undefined): T[] {
@@ -20,19 +20,19 @@ function scrubCompanions<
       return {
         ...companion,
         name: "Chloe",
-        age: Math.max(21, Number(22) || 21),
+        age: Math.max(20, Number(22) || 20),
       };
     }
     if (key === "sophie") {
       return {
         ...companion,
         name: "Bella",
-        age: Math.max(21, Number(23) || 21),
+        age: Math.max(20, Number(23) || 20),
       };
     }
     return {
       ...companion,
-      age: Math.max(21, Number(companion.age) || 21),
+      age: Math.max(20, Number(companion.age) || 20),
     };
   });
 }

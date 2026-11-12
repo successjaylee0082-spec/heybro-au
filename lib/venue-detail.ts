@@ -18,8 +18,10 @@ import {
   type VenueVisibility,
 } from "@/lib/venue-highlights";
 import { enrichVisibilityForTemplate } from "@/lib/venue-template";
+import { resolveVenueLadies } from "@/lib/companions";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { hardenVenueDetailPayload, hardenVenueLadies } from "@/lib/harden-venue-detail";
+import { getSeedDirectoryVenues } from "@/lib/data";
 import { getVenueById } from "@/lib/feed";
 import {
   getDirectoryVenues,
@@ -30,7 +32,7 @@ import {
 import type { Venue } from "@/types";
 import type { VenueRow } from "@/types/database";
 
-/** Seed catalog ladies always win — DB/API ladies cannot poison the roster. */
+/** Scrub / seed-fill ladies when companions table has no rows yet. */
 function withSeedLadies(venue: Venue): Venue {
   return hardenVenueLadies(venue);
 }
@@ -109,6 +111,24 @@ function pickRelated(current: Venue, all: Venue[]): Venue[] {
   return [...prioritized, ...sameCity, ...sameCategory].slice(0, 3);
 }
 
+function seedLadiesFor(venueId: string) {
+  return (
+    getSeedDirectoryVenues().find((item) => item.id === venueId)?.ladies || []
+  );
+}
+
+async function attachLiveCompanions(
+  venue: Venue,
+  aliases: string[] = [],
+): Promise<Venue> {
+  const { ladies } = await resolveVenueLadies({
+    venueId: venue.id,
+    venueIdAliases: aliases,
+    seedLadies: seedLadiesFor(venue.id),
+  });
+  return { ...venue, ladies };
+}
+
 function composeDetail(options: {
   venue: Venue;
   staffRows?: VenueStaffRow[];
@@ -178,8 +198,7 @@ function composeDetail(options: {
       content,
     }),
   });
-  // Ignore DB venue_staff identity rows when seed ladies exist — blocks name/age poisoning.
-  const hasSeedLadies = Array.isArray(venue.ladies) && venue.ladies.length > 0;
+  const hasLadies = Array.isArray(venue.ladies) && venue.ladies.length > 0;
   const consumer = buildVenueConsumerView({
     venue: {
       ...venue,
@@ -187,7 +206,7 @@ function composeDetail(options: {
       managedBadge: visibility.managedBadge,
     },
     content,
-    staffRows: hasSeedLadies ? [] : staffRows,
+    staffRows: hasLadies ? [] : staffRows,
   });
   // Gallery after roster so thumbs are masked staff + lounge highlights only.
   const gallery = buildVenueGallery({
@@ -233,8 +252,10 @@ export async function getVenueDetail(
 
       if (!error && data) {
         const row = data as VenueRow;
-        const venue = mapVenueRow(row);
+        const mapped = mapVenueRow(row);
         const staffRows = await getStaffRows(row.id);
+        // Live companions table (venue_id = slug or uuid) mapped onto seed images.
+        const venue = await attachLiveCompanions(mapped, [slug, row.id, mapped.id]);
         const { venues } = await getDirectoryVenues();
         return composeDetail({
           venue,
@@ -252,13 +273,15 @@ export async function getVenueDetail(
 
   const demo = getVenueById(slug);
   if (!demo) return null;
+  // Even on seed venues, prefer live companions rows when the table is populated.
+  const venue = await attachLiveCompanions(demo, [slug, demo.id]);
   const { venues } = await getDirectoryVenues();
   const relatedPool = venues.length ? venues : [];
   return composeDetail({
-    venue: demo,
+    venue,
     related: pickRelated(
-      demo,
-      relatedPool.length ? relatedPool : [demo].filter(Boolean),
+      venue,
+      relatedPool.length ? relatedPool : [venue].filter(Boolean),
     ),
   });
 }

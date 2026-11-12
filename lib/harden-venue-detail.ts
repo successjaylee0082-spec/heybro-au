@@ -1,10 +1,9 @@
 /**
- * Runtime intercept — blocks DB / API companion poisoning before UI render.
- * Seed catalog ladies win over Supabase venue_staff and any remote ladies payload.
+ * Runtime intercept — secondary safety net for companion names/ages.
+ * Prefers live venue.ladies (companions table) when present; seed is fallback.
  */
 
 import {
-  forceSafeAge,
   isBlockedCompanionName,
   sanitizeCompanionForDisplay,
   sanitizeCompanionList,
@@ -26,25 +25,42 @@ function hardenLady<T extends { name?: string; age?: unknown; id?: string }>(
       : key === "sophie"
         ? { ...lady, name: "Bella", age: 23 }
         : lady;
-  const age = Math.max(21, Number(replaced.age) || 21);
+  // Secondary safety net: strict 20+ floor.
+  const age = Math.max(20, Number(replaced.age) || 20);
   return sanitizeCompanionForDisplay({
     ...replaced,
     name: sanitizeCompanionName(replaced.name),
-    age: forceSafeAge(age),
+    age,
   }) as T;
 }
 
-/** Always prefer local seed ladies for known venue ids — never trust DB roster. */
+/**
+ * Scrub ladies already attached to the venue.
+ * Falls back to seed catalog only when the venue has no roster rows yet.
+ */
 export function hardenVenueLadies(venue: Venue): Venue {
   const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
   const source =
-    seed?.ladies && seed.ladies.length > 0
-      ? seed.ladies
-      : Array.isArray(venue.ladies)
-        ? venue.ladies
+    Array.isArray(venue.ladies) && venue.ladies.length > 0
+      ? venue.ladies
+      : seed?.ladies && seed.ladies.length > 0
+        ? seed.ladies
         : [];
 
-  const ladies = sanitizeCompanionList(source.map((lady) => hardenLady(lady)));
+  const ladies = sanitizeCompanionList(
+    source.map((lady) => {
+      const scrubbed = hardenLady(lady);
+      return {
+        ...scrubbed,
+        // Preserve seed slot images whenever ids/slots align.
+        image:
+          lady.image ||
+          seed?.ladies?.find((item) => item.id === lady.id)?.image ||
+          scrubbed.image,
+        age: Math.max(20, Number(scrubbed.age) || 20),
+      };
+    }),
+  );
   return { ...venue, ladies };
 }
 
@@ -58,7 +74,7 @@ type HardenableDetail = {
 
 /**
  * Final gate applied in the venue page + getVenueDetail.
- * Replaces Chanel/Sophie, clamps ages with Math.max(21, …), drops under-21 leftovers.
+ * Scrubs Chanel/Sophie and enforces Math.max(20, age || 20).
  */
 export function hardenVenueDetailPayload<T extends HardenableDetail>(
   detail: T,
@@ -67,8 +83,8 @@ export function hardenVenueDetailPayload<T extends HardenableDetail>(
   const staff = sanitizeCompanionList(
     (detail.consumer?.staff || []).map((member) => hardenLady(member)),
   ).filter((member) => {
-    const age = Math.max(21, Number(member.age) || 21);
-    return age >= 21 && !isBlockedCompanionName(member.name);
+    const age = Math.max(20, Number(member.age) || 20);
+    return age >= 20 && !isBlockedCompanionName(member.name);
   });
 
   const activeStaffCount = staff.filter((member) => member.status === "active")
@@ -80,7 +96,6 @@ export function hardenVenueDetailPayload<T extends HardenableDetail>(
     ...detail,
     venue,
     related,
-    // Never forward raw DB staff identity rows into the UI tree.
     staffRows: [],
     consumer: {
       ...detail.consumer,
