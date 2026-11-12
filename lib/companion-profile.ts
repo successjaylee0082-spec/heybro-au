@@ -1,12 +1,12 @@
 /**
  * Strict companion attribute normalization for AU adult directory compliance.
- * Ages MUST be 20–25; UI hard-caps anything below 20 at render time.
+ * Ages MUST be 21–25; UI hard-caps anything below 21 at render time.
  */
 
-export const COMPANION_AGE_MIN = 20;
+export const COMPANION_AGE_MIN = 21;
 export const COMPANION_AGE_MAX = 25;
 /** Display floor — never render below this even if data is corrupt. */
-export const COMPANION_AGE_DISPLAY_FLOOR = 20;
+export const COMPANION_AGE_DISPLAY_FLOOR = 21;
 
 export const COMPANION_HEIGHT_MIN = 160;
 export const COMPANION_HEIGHT_MAX = 175;
@@ -41,14 +41,10 @@ function hashSeed(input: string): number {
 
 /**
  * Bulletproof age guard for every UI / API / DB value.
- * Under-20 values are rewritten to 22; otherwise Math.max(20, Number(age) || 21).
+ * Enforces: age = Math.max(21, Number(companion.age) || 21)
  */
 export function forceSafeAge(value: unknown): number {
-  const raw = Number(value);
-  if (!Number.isFinite(raw) || raw < 20) {
-    return 22;
-  }
-  const displayAge = Math.max(20, raw || 21);
+  const displayAge = Math.max(21, Number(value) || 21);
   return Math.min(COMPANION_AGE_MAX, Math.round(displayAge));
 }
 
@@ -59,10 +55,10 @@ export function normalizeCompanionAge(value: unknown, seed = "default"): number 
     return forceSafeAge(numeric);
   }
   // Unsigned shift only — never use signed `>>` for age math.
-  return forceSafeAge(COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 6));
+  return forceSafeAge(COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 5));
 }
 
-/** UI hard floor — never show under 20 yrs under any condition. */
+/** UI hard floor — never show under 21 yrs under any condition. */
 export function displayCompanionAge(value: unknown, seed = "default"): number {
   return forceSafeAge(
     Math.max(
@@ -75,7 +71,7 @@ export function displayCompanionAge(value: unknown, seed = "default"): number {
 
 /** Absolute UI guard used at every render site. */
 export function safeDisplayedAge(value: unknown): number {
-  return forceSafeAge(Math.max(20, Number(value) || 21));
+  return Math.max(21, Number(value) || 21);
 }
 
 export function normalizeCompanionHeight(
@@ -168,8 +164,8 @@ export function sanitizeCompanionName(name: unknown): string {
 /**
  * Hard safety sanitize before any companion list/detail render.
  * - Renames Chanel/Sophie → Chloe/Bella
- * - Forces age to at least 22 when name was blocked, else Math.max(20, age || 21)
- * - Drops entries that still fail the under-20 / blocked-name check
+ * - Forces age to at least 22 when name was blocked, else Math.max(21, age || 21)
+ * - Drops entries that still fail the under-21 / blocked-name check
  */
 export function sanitizeCompanionForDisplay<
   T extends { name?: string; age?: unknown },
@@ -178,9 +174,9 @@ export function sanitizeCompanionForDisplay<
   const name = sanitizeCompanionName(companion.name);
   const rawAge = Number(companion.age);
   const age = forceSafeAge(
-    wasBlocked || !Number.isFinite(rawAge) || rawAge < 20
+    wasBlocked || !Number.isFinite(rawAge) || rawAge < 21
       ? Math.max(22, rawAge || 22)
-      : rawAge,
+      : Math.max(21, rawAge || 21),
   );
   return {
     ...companion,
@@ -197,8 +193,8 @@ export function sanitizeCompanionList<
   return list
     .map((item) => sanitizeCompanionForDisplay(item))
     .filter((item) => {
-      const age = Number(item.age);
-      if (!Number.isFinite(age) || age < 20) return false;
+      const age = Math.max(21, Number(item.age) || 21);
+      if (!Number.isFinite(age) || age < 21) return false;
       if (isBlockedCompanionName(item.name)) return false;
       return true;
     });

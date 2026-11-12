@@ -19,7 +19,7 @@ import {
 } from "@/lib/venue-highlights";
 import { enrichVisibilityForTemplate } from "@/lib/venue-template";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
-import { getSeedDirectoryVenues } from "@/lib/data";
+import { hardenVenueDetailPayload, hardenVenueLadies } from "@/lib/harden-venue-detail";
 import { getVenueById } from "@/lib/feed";
 import {
   getDirectoryVenues,
@@ -30,38 +30,9 @@ import {
 import type { Venue } from "@/types";
 import type { VenueRow } from "@/types/database";
 
-/** Prefer seed catalog ladies so Supabase rows still get compliant rosters. */
+/** Seed catalog ladies always win — DB/API ladies cannot poison the roster. */
 function withSeedLadies(venue: Venue): Venue {
-  const clampLadies = <T extends { name?: string; age?: number }>(
-    ladies: T[],
-  ): T[] =>
-    ladies
-      .map((lady) => {
-        const key = String(lady.name || "").trim().toLowerCase();
-        const name =
-          key === "chanel"
-            ? "Chloe"
-            : key === "sophie"
-              ? "Bella"
-              : lady.name;
-        const wasBlocked = key === "chanel" || key === "sophie";
-        const displayAge = Math.max(
-          wasBlocked ? 22 : 20,
-          Number(lady.age) || (wasBlocked ? 22 : 21),
-        );
-        return { ...lady, name, age: displayAge };
-      })
-      .filter((lady) => {
-        const key = String(lady.name || "").trim().toLowerCase();
-        return Number(lady.age) >= 20 && key !== "chanel" && key !== "sophie";
-      });
-
-  if (Array.isArray(venue.ladies) && venue.ladies.length > 0) {
-    return { ...venue, ladies: clampLadies(venue.ladies) };
-  }
-  const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
-  if (!seed?.ladies?.length) return venue;
-  return { ...venue, ladies: clampLadies(seed.ladies) };
+  return hardenVenueLadies(venue);
 }
 
 export type VenueStaffRow = {
@@ -207,6 +178,8 @@ function composeDetail(options: {
       content,
     }),
   });
+  // Ignore DB venue_staff identity rows when seed ladies exist — blocks name/age poisoning.
+  const hasSeedLadies = Array.isArray(venue.ladies) && venue.ladies.length > 0;
   const consumer = buildVenueConsumerView({
     venue: {
       ...venue,
@@ -214,7 +187,7 @@ function composeDetail(options: {
       managedBadge: visibility.managedBadge,
     },
     content,
-    staffRows,
+    staffRows: hasSeedLadies ? [] : staffRows,
   });
   // Gallery after roster so thumbs are masked staff + lounge highlights only.
   const gallery = buildVenueGallery({
@@ -223,7 +196,7 @@ function composeDetail(options: {
     fallbackCount: 8,
     staffImages: consumer.staff.map((member) => member.image),
   });
-  return {
+  return hardenVenueDetailPayload({
     venue: {
       ...venue,
       isManaged: visibility.isManaged,
@@ -236,12 +209,12 @@ function composeDetail(options: {
       },
     },
     gallery,
-    related: options.related,
+    related: options.related.map((item) => withSeedLadies(item)),
     content,
     visibility,
     consumer,
-    staffRows,
-  };
+    staffRows: [],
+  });
 }
 
 export async function getVenueDetail(

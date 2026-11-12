@@ -96,7 +96,7 @@ export function VenueDetail({
           })
         : consumer.staff
       ).map((member) => {
-        const displayAge = Math.max(20, Number(member.age) || 21);
+        const displayAge = Math.max(21, Number(member.age) || 21);
         return {
           ...member,
           age: forceSafeAge(displayAge),

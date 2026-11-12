@@ -20,8 +20,8 @@ function statusLabel(status: StaffRosterMember["status"]) {
 export function StaffCard({ member }: { member: StaffRosterMember }) {
   if (isBlockedCompanionName(member.name)) return null;
   const name = sanitizeCompanionName(member.name);
-  const displayAge = Math.max(20, Number(member.age) || 21);
-  if (displayAge < 20) return null;
+  const displayAge = Math.max(21, Number(member.age) || 21);
+  if (displayAge < 21) return null;
 
   return (
     <article

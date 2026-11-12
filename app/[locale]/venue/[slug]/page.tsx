@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { VenueDetail } from "@/components/venue-detail";
+import { hardenVenueDetailPayload } from "@/lib/harden-venue-detail";
 import { isLocale } from "@/lib/i18n";
 import { getVenueDetail } from "@/lib/venue-detail";
 
@@ -13,8 +14,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return { robots: { index: false } };
-  const detail = await getVenueDetail(slug);
-  if (!detail) return { robots: { index: false } };
+  const raw = await getVenueDetail(slug);
+  if (!raw) return { robots: { index: false } };
+  const detail = hardenVenueDetailPayload(raw);
   const { venue } = detail;
   const title =
     locale === "zh" && venue.nameZh
@@ -34,8 +36,12 @@ export default async function VenuePage({
 }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
-  const detail = await getVenueDetail(slug);
-  if (!detail) notFound();
+  const raw = await getVenueDetail(slug);
+  if (!raw) notFound();
+
+  // Runtime intercept: seed ladies + age/name guards beat any DB/API poison.
+  const detail = hardenVenueDetailPayload(raw);
+
   return (
     <VenueDetail
       venue={detail.venue}
