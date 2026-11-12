@@ -14,11 +14,10 @@ export function VenueStaffRoster({
   if (!staff.length) return null;
 
   const safeStaff = staff.map((member) => {
-    const rawAge = Number(member.age);
-    const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+    const displayAge = Math.max(20, Number(member.age) || 21);
     return {
       ...member,
-      age: forceSafeAge(safeAge),
+      age: forceSafeAge(displayAge),
     };
   });
 

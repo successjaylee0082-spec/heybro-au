@@ -1,12 +1,12 @@
 /**
  * Strict companion attribute normalization for AU adult directory compliance.
- * Ages MUST be 21–25; UI hard-caps anything below 21 at render time.
+ * Ages MUST be 20–25; UI hard-caps anything below 20 at render time.
  */
 
-export const COMPANION_AGE_MIN = 21;
+export const COMPANION_AGE_MIN = 20;
 export const COMPANION_AGE_MAX = 25;
 /** Display floor — never render below this even if data is corrupt. */
-export const COMPANION_AGE_DISPLAY_FLOOR = 21;
+export const COMPANION_AGE_DISPLAY_FLOOR = 20;
 
 export const COMPANION_HEIGHT_MIN = 160;
 export const COMPANION_HEIGHT_MAX = 175;
@@ -40,34 +40,30 @@ function hashSeed(input: string): number {
 }
 
 /**
- * Aggressive strict parse + math guard for every UI / API / DB age.
- * Matches: rawAge = Number(x); safeAge = (!rawAge || rawAge < 21) ? 21 : rawAge
+ * Bulletproof age guard for every UI / API / DB value.
+ * displayAge = Math.max(20, Number(age) || 21)
  */
 export function forceSafeAge(value: unknown): number {
-  const rawAge = Number(value);
-  const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
-  return Math.min(
-    COMPANION_AGE_MAX,
-    Math.max(COMPANION_AGE_DISPLAY_FLOOR, Math.round(safeAge)),
-  );
+  const displayAge = Math.max(20, Number(value) || 21);
+  return Math.min(COMPANION_AGE_MAX, Math.round(displayAge));
 }
 
-/** Clamp any age into the legal 21–25 band. */
+/** Clamp any age into the legal 20–25 band. */
 export function normalizeCompanionAge(value: unknown, seed = "default"): number {
   const numeric = Number(value);
   if (Number.isFinite(numeric)) {
     return forceSafeAge(numeric);
   }
   // Unsigned shift only — never use signed `>>` for age math.
-  return forceSafeAge(COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 5));
+  return forceSafeAge(COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 6));
 }
 
-/** UI hard floor — never show under 21 yrs under any condition. */
+/** UI hard floor — never show under 20 yrs under any condition. */
 export function displayCompanionAge(value: unknown, seed = "default"): number {
   return forceSafeAge(
     Math.max(
       COMPANION_AGE_DISPLAY_FLOOR,
-      Number(value) || COMPANION_AGE_DISPLAY_FLOOR,
+      Number(value) || 21,
       normalizeCompanionAge(value, seed),
     ),
   );
@@ -75,7 +71,7 @@ export function displayCompanionAge(value: unknown, seed = "default"): number {
 
 /** Absolute UI guard used at every render site. */
 export function safeDisplayedAge(value: unknown): number {
-  return forceSafeAge(value);
+  return forceSafeAge(Math.max(20, Number(value) || 21));
 }
 
 export function normalizeCompanionHeight(

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { forceSafeAge } from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 function statusLabel(status: StaffRosterMember["status"]) {
@@ -12,12 +11,10 @@ function statusLabel(status: StaffRosterMember["status"]) {
 
 /**
  * Staff roster card — masked / body-pose focused portraits only.
- * Age render uses aggressive local parse + floor (never under 21).
+ * Age render: Math.max(20, Number(age) || 21) — never under 20.
  */
 export function StaffCard({ member }: { member: StaffRosterMember }) {
-  const rawAge = Number(member.age);
-  const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
-  const displayAge = forceSafeAge(safeAge);
+  const displayAge = Math.max(20, Number(member.age) || 21);
 
   return (
     <article

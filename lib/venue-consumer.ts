@@ -170,14 +170,14 @@ export function buildStaffRoster(options: {
           });
       usedImages.add(image);
       const overrideAge = COMPANION_AGE_OVERRIDES[lady.name];
-      const rawAge = Number(overrideAge ?? lady.age);
-      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+      const displayAge = Math.max(
+        20,
+        Number(overrideAge ?? lady.age) || 21,
+      );
       return {
         id: lady.id || `${options.venueId}-lady-${index + 1}`,
         name: lady.name,
-        age: forceSafeAge(
-          normalizeCompanionAge(safeAge, seed),
-        ),
+        age: forceSafeAge(normalizeCompanionAge(displayAge, seed)),
         ethnicity: normalizeCompanionEthnicity(
           lady.ethnicity ?? template.ethnicity,
           seed,
@@ -300,9 +300,8 @@ export function buildVenueConsumerView(options: {
   }).map((member) => ({
     ...member,
     age: (() => {
-      const rawAge = Number(member.age);
-      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
-      return forceSafeAge(safeAge || safeDisplayedAge(member.age));
+      const displayAge = Math.max(20, Number(member.age) || 21);
+      return forceSafeAge(displayAge || safeDisplayedAge(member.age));
     })(),
   }));
   const activeStaffCount = staff.filter((member) => member.status === "active")

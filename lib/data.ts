@@ -1295,9 +1295,8 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
     Boolean(venue.isManaged);
   const ladies = Array.isArray(venue.ladies)
     ? venue.ladies.map((lady) => {
-        const rawAge = Number(lady.age);
-        const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
-        return { ...lady, age: safeAge };
+        const displayAge = Math.max(20, Number(lady.age) || 21);
+        return { ...lady, age: displayAge };
       })
     : venue.ladies;
   return {

@@ -34,9 +34,8 @@ import type { VenueRow } from "@/types/database";
 function withSeedLadies(venue: Venue): Venue {
   const clampLadies = <T extends { age?: number }>(ladies: T[]): T[] =>
     ladies.map((lady) => {
-      const rawAge = Number(lady.age);
-      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
-      return { ...lady, age: safeAge };
+      const displayAge = Math.max(20, Number(lady.age) || 21);
+      return { ...lady, age: displayAge };
     });
 
   if (Array.isArray(venue.ladies) && venue.ladies.length > 0) {

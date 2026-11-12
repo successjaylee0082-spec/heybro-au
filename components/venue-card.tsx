@@ -74,11 +74,10 @@ export function VenueCard({ venue }: { venue: Venue }) {
   const ultimate = tier === "enterprise" || venue.badgeStatus === "enterprise";
   const safeLadies = Array.isArray(venue.ladies)
     ? venue.ladies.map((lady) => {
-        const rawAge = Number(lady.age);
-        const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+        const displayAge = Math.max(20, Number(lady.age) || 21);
         return {
           ...lady,
-          age: forceSafeAge(safeAge),
+          age: forceSafeAge(displayAge),
         };
       })
     : [];
