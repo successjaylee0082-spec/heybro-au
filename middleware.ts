@@ -18,6 +18,15 @@ export function middleware(request: NextRequest) {
   if (path === "/" || path === "") return NextResponse.next();
   const segment = path.split("/")[1];
   if (!isLocale(segment)) {
+    // Locale-prefix redirects for owner tools / venue pages when Host is proxy-safe.
+    if (segment === "manage") {
+      const venueId = path.split("/")[2];
+      if (venueId && !path.split("/")[3]) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/en/manage/${encodeURIComponent(venueId)}`;
+        return NextResponse.redirect(url);
+      }
+    }
     if (/^[a-z]{2}$/i.test(segment)) return missingLocalePage();
     // Existing pages have relative redirects in next.config.ts, before middleware.
     // Unmatched unprefixed paths cannot choose or forge a locale request header.

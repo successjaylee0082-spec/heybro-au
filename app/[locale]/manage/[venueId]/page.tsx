@@ -14,6 +14,14 @@ import {
   venuePinCookieName,
 } from "@/lib/venue-pins";
 
+/**
+ * Venue owner live roster manager.
+ * Route: /en/manage/[venueId]  (also /manage/[venueId] → redirects here)
+ *
+ * Features: 4-digit PIN gate, Supabase companions CRUD via app/actions/roster.ts,
+ * Working Today toggle, inline edits, + Add Staff, WhatsApp admin support.
+ */
+
 export const dynamic = "force-dynamic";
 
 function resolveManageVenue(venueId: string) {
@@ -30,11 +38,9 @@ export async function generateMetadata({
   params: Promise<{ locale: string; venueId: string }>;
 }): Promise<Metadata> {
   const { venueId } = await params;
-  const venue = resolveManageVenue(venueId);
+  const venue = resolveManageVenue(decodeURIComponent(venueId));
   return {
-    title: venue
-      ? `Manage ${venue.name} roster`
-      : "Manage venue roster",
+    title: venue ? `Manage ${venue.name} roster` : "Manage venue roster",
     robots: { index: false, follow: false },
   };
 }
@@ -51,16 +57,14 @@ export default async function ManageVenueRosterPage({
   const pin = getVenuePin(venueId);
   const venue = resolveManageVenue(venueId);
 
-  // Require a configured PIN + a known venue (seed or feed catalog).
+  // melb-1 → PIN 8899 (see lib/venue-pins.ts). Unknown venues stay 404.
   if (!venue || !pin) notFound();
 
   const jar = await cookies();
   const savedPin = jar.get(venuePinCookieName(venueId))?.value;
   const unlocked = assertVenuePin(venueId, savedPin);
 
-  const companions = unlocked
-    ? await fetchCompanionsForVenue(venueId)
-    : [];
+  const companions = unlocked ? await fetchCompanionsForVenue(venueId) : [];
 
   const slotImages = (venue.ladies || []).map(
     (lady) => lady.image || "/images/staff/western/01.jpg",
@@ -89,9 +93,7 @@ export default async function ManageVenueRosterPage({
         initiallyUnlocked={unlocked}
         initialCompanions={companions}
         slotImages={
-          slotImages.length
-            ? slotImages
-            : ["/images/staff/western/01.jpg"]
+          slotImages.length ? slotImages : ["/images/staff/western/01.jpg"]
         }
         supportWhatsAppHref={supportHref}
       />
