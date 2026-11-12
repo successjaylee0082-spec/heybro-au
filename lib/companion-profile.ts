@@ -39,35 +39,43 @@ function hashSeed(input: string): number {
   return hash >>> 0;
 }
 
-/** Clamp any age into the legal 20–25 band. */
+/**
+ * Aggressive strict parse + math guard for every UI / API / DB age.
+ * Matches: rawAge = Number(x); safeAge = (!rawAge || rawAge < 21) ? 21 : rawAge
+ */
+export function forceSafeAge(value: unknown): number {
+  const rawAge = Number(value);
+  const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+  return Math.min(
+    COMPANION_AGE_MAX,
+    Math.max(COMPANION_AGE_DISPLAY_FLOOR, Math.round(safeAge)),
+  );
+}
+
+/** Clamp any age into the legal 21–25 band. */
 export function normalizeCompanionAge(value: unknown, seed = "default"): number {
   const numeric = Number(value);
   if (Number.isFinite(numeric)) {
-    // Explicit purge of illegal under-20 values (including historic bad hashes).
-    if (numeric < COMPANION_AGE_MIN) {
-      return COMPANION_AGE_DISPLAY_FLOOR;
-    }
-    return Math.min(
-      COMPANION_AGE_MAX,
-      Math.max(COMPANION_AGE_MIN, Math.round(numeric)),
-    );
+    return forceSafeAge(numeric);
   }
   // Unsigned shift only — never use signed `>>` for age math.
-  return COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 5);
+  return forceSafeAge(COMPANION_AGE_MIN + ((hashSeed(seed) >>> 2) % 5));
 }
 
 /** UI hard floor — never show under 21 yrs under any condition. */
 export function displayCompanionAge(value: unknown, seed = "default"): number {
-  return Math.max(
-    COMPANION_AGE_DISPLAY_FLOOR,
-    Number(value) || COMPANION_AGE_DISPLAY_FLOOR,
-    normalizeCompanionAge(value, seed),
+  return forceSafeAge(
+    Math.max(
+      COMPANION_AGE_DISPLAY_FLOOR,
+      Number(value) || COMPANION_AGE_DISPLAY_FLOOR,
+      normalizeCompanionAge(value, seed),
+    ),
   );
 }
 
 /** Absolute UI guard used at every render site. */
 export function safeDisplayedAge(value: unknown): number {
-  return Math.max(21, Number(value) || 21);
+  return forceSafeAge(value);
 }
 
 export function normalizeCompanionHeight(

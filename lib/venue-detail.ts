@@ -32,10 +32,19 @@ import type { VenueRow } from "@/types/database";
 
 /** Prefer seed catalog ladies so Supabase rows still get compliant rosters. */
 function withSeedLadies(venue: Venue): Venue {
-  if (Array.isArray(venue.ladies) && venue.ladies.length > 0) return venue;
+  const clampLadies = <T extends { age?: number }>(ladies: T[]): T[] =>
+    ladies.map((lady) => {
+      const rawAge = Number(lady.age);
+      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+      return { ...lady, age: safeAge };
+    });
+
+  if (Array.isArray(venue.ladies) && venue.ladies.length > 0) {
+    return { ...venue, ladies: clampLadies(venue.ladies) };
+  }
   const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
   if (!seed?.ladies?.length) return venue;
-  return { ...venue, ladies: seed.ladies };
+  return { ...venue, ladies: clampLadies(seed.ladies) };
 }
 
 export type VenueStaffRow = {

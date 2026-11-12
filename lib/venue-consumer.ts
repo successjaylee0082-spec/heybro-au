@@ -12,6 +12,7 @@ import {
   normalizeCompanionEthnicity,
   normalizeCompanionHeight,
   normalizeCompanionStyles,
+  forceSafeAge,
   safeDisplayedAge,
 } from "@/lib/companion-profile";
 import type { ParsedVenueContent } from "@/lib/venue-content";
@@ -169,12 +170,13 @@ export function buildStaffRoster(options: {
           });
       usedImages.add(image);
       const overrideAge = COMPANION_AGE_OVERRIDES[lady.name];
+      const rawAge = Number(overrideAge ?? lady.age);
+      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
       return {
         id: lady.id || `${options.venueId}-lady-${index + 1}`,
         name: lady.name,
-        age: normalizeCompanionAge(
-          overrideAge ?? lady.age,
-          seed,
+        age: forceSafeAge(
+          normalizeCompanionAge(safeAge, seed),
         ),
         ethnicity: normalizeCompanionEthnicity(
           lady.ethnicity ?? template.ethnicity,
@@ -203,7 +205,7 @@ export function buildStaffRoster(options: {
       STAFF_PROFILE_TEMPLATES[
         (hashSeed(seed) + index) % STAFF_PROFILE_TEMPLATES.length
       ];
-    const age = normalizeCompanionAge(undefined, seed);
+    const age = forceSafeAge(normalizeCompanionAge(undefined, seed));
     const status: StaffRosterMember["status"] =
       index < Math.ceil(count * 0.65)
         ? "active"
@@ -297,7 +299,11 @@ export function buildVenueConsumerView(options: {
     ladies: venue.ladies,
   }).map((member) => ({
     ...member,
-    age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
+    age: (() => {
+      const rawAge = Number(member.age);
+      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+      return forceSafeAge(safeAge || safeDisplayedAge(member.age));
+    })(),
   }));
   const activeStaffCount = staff.filter((member) => member.status === "active")
     .length;

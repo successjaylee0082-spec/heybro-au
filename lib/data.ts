@@ -1293,8 +1293,16 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
     badgeStatus === "managed_vip" ||
     badgeStatus === "enterprise" ||
     Boolean(venue.isManaged);
+  const ladies = Array.isArray(venue.ladies)
+    ? venue.ladies.map((lady) => {
+        const rawAge = Number(lady.age);
+        const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+        return { ...lady, age: safeAge };
+      })
+    : venue.ladies;
   return {
     ...venue,
+    ladies,
     badgeStatus,
     activeRosterCount,
     messaging,

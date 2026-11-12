@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { safeDisplayedAge } from "@/lib/companion-profile";
+import { forceSafeAge } from "@/lib/companion-profile";
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 function statusLabel(status: StaffRosterMember["status"]) {
@@ -12,9 +12,13 @@ function statusLabel(status: StaffRosterMember["status"]) {
 
 /**
  * Staff roster card — masked / body-pose focused portraits only.
- * Age render is absolute: Math.max(21, Number(age) || 21).
+ * Age render uses aggressive local parse + floor (never under 21).
  */
 export function StaffCard({ member }: { member: StaffRosterMember }) {
+  const rawAge = Number(member.age);
+  const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+  const displayAge = forceSafeAge(safeAge);
+
   return (
     <article
       className={
@@ -46,14 +50,7 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
             <h3>{member.name}</h3>
           </div>
           <div className="staff-overlay-badges">
-            <span className="stat-pill">
-              {Math.max(
-                21,
-                Number(member.age) || 21,
-                safeDisplayedAge(member.age),
-              )}{" "}
-              yrs
-            </span>
+            <span className="stat-pill">{displayAge} yrs</span>
             <span className="stat-pill">{member.heightCm}cm</span>
             <span className="stat-pill">{member.cup} cup</span>
             <span className="stat-pill ethnicity">{member.ethnicity}</span>

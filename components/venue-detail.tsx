@@ -39,7 +39,7 @@ import {
   type VenueConsumerView,
 } from "@/lib/venue-consumer";
 import { trackVenueContact } from "@/lib/analytics";
-import { safeDisplayedAge } from "@/lib/companion-profile";
+import { forceSafeAge } from "@/lib/companion-profile";
 import {
   formatPricingRateLine,
   minimumCoursePrice,
@@ -92,11 +92,14 @@ export function VenueDetail({
             managed: venue.isManaged,
           })
         : consumer.staff
-    ).map((member) => ({
-      ...member,
-      // Absolute UI floor — under-21 ages can never render.
-      age: Math.max(21, Number(member.age) || 21, safeDisplayedAge(member.age)),
-    }));
+    ).map((member) => {
+      const rawAge = Number(member.age);
+      const safeAge = !rawAge || rawAge < 21 ? 21 : rawAge;
+      return {
+        ...member,
+        age: forceSafeAge(safeAge),
+      };
+    });
     const activeStaffCount = rosterFromLadies.filter(
       (member) => member.status === "active",
     ).length;
