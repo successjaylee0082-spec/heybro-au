@@ -8,9 +8,9 @@ import {
 import type { StaffRosterMember } from "@/lib/venue-consumer";
 
 function statusLabel(status: StaffRosterMember["status"]) {
-  if (status === "active") return "Active Now";
+  if (status === "active") return "ACTIVE NOW";
   if (status === "soon") return "Soon";
-  return "Off";
+  return "Off Duty / By Appointment";
 }
 
 /**
@@ -28,7 +28,7 @@ export function StaffCard({ member }: { member: StaffRosterMember }) {
       className={
         member.status === "active"
           ? "staff-card portfolio-card is-active"
-          : "staff-card portfolio-card"
+          : "staff-card portfolio-card opacity-70 grayscale-[0.25]"
       }
     >
       <div className="staff-card-media">

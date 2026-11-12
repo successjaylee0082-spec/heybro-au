@@ -17,6 +17,7 @@ export type CompanionRow = {
   nationality?: string | null;
   tags?: string[] | null;
   is_active?: boolean | null;
+  updated_at?: string | null;
 };
 
 function scrubCompanionName(name: unknown): string {
@@ -159,7 +160,14 @@ export async function resolveVenueLadies(options: {
   for (const id of ids) {
     const rows = await fetchCompanionsForVenue(id);
     if (rows.length > 0) {
-      const ladies = mapCompanionRowsToLadies(rows, seed, options.venueId);
+      // Active (Working Today) companions first for the public roster.
+      const ordered = [...rows].sort((a, b) => {
+        const aActive = a.is_active === false ? 1 : 0;
+        const bActive = b.is_active === false ? 1 : 0;
+        if (aActive !== bActive) return aActive - bActive;
+        return Number(a.slot_index || 0) - Number(b.slot_index || 0);
+      });
+      const ladies = mapCompanionRowsToLadies(ordered, seed, options.venueId);
       if (ladies.length > 0) {
         return { ladies, source: "companions" };
       }
