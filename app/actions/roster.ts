@@ -9,11 +9,7 @@ import {
 } from "@/lib/companions";
 import { getSeedDirectoryVenues } from "@/lib/data";
 import { createAdminSupabaseClient } from "@/lib/supabase";
-import {
-  assertVenuePin,
-  getVenuePin,
-  venuePinCookieName,
-} from "@/lib/venue-pins";
+import { assertVenuePin, venuePinCookieName } from "@/lib/venue-pins";
 import { isBlockedCompanionName } from "@/lib/companion-profile";
 import { sanitizePhotoUrl } from "@/lib/photo-url";
 
@@ -50,10 +46,10 @@ function parseTags(input: unknown): string[] {
 }
 
 async function requireVenueOwner(venueId: string): Promise<boolean> {
-  if (!getVenuePin(venueId)) return false;
   const jar = await cookies();
   const saved = jar.get(venuePinCookieName(venueId))?.value;
-  return assertVenuePin(venueId, saved);
+  // Master admin (8899) or the venue's unique manager_pin unlocks mutations.
+  return await assertVenuePin(venueId, saved);
 }
 
 function revalidateVenuePaths(venueId: string) {
@@ -69,11 +65,12 @@ export async function verifyVenuePinAction(
 ): Promise<RosterActionResult> {
   const id = String(venueId || "").trim();
   if (!id) return { ok: false, error: "Missing venue id." };
-  if (!assertVenuePin(id, String(pin || "").trim())) {
+  const candidate = String(pin || "").trim();
+  if (!(await assertVenuePin(id, candidate))) {
     return { ok: false, error: "Incorrect PIN." };
   }
   const jar = await cookies();
-  jar.set(venuePinCookieName(id), String(pin).trim(), {
+  jar.set(venuePinCookieName(id), candidate, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

@@ -40,6 +40,8 @@ export type VenueRow = {
   is_managed?: boolean | null;
   listing_tier?: "free" | "managed" | "vip" | "enterprise" | null;
   custom_highlights?: Record<string, unknown> | null;
+  /** Owner manage-desk PIN. Never select this from public/anon clients. */
+  manager_pin?: string | null;
   created_at?: string;
   updated_at?: string;
 };

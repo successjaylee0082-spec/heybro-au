@@ -10,7 +10,7 @@ import { getVenueById } from "@/lib/feed";
 import { isLocale } from "@/lib/i18n";
 import {
   assertVenuePin,
-  getVenuePin,
+  isManageableVenue,
   venuePinCookieName,
 } from "@/lib/venue-pins";
 
@@ -18,8 +18,7 @@ import {
  * Venue owner live roster manager.
  * Route: /en/manage/[venueId]  (also /manage/[venueId] → redirects here)
  *
- * Features: 4-digit PIN gate, Supabase companions CRUD via app/actions/roster.ts,
- * Working Today toggle, inline edits, + Add Staff, WhatsApp admin support.
+ * Auth: unique venues.manager_pin per venue, plus master admin PIN 8899.
  */
 
 export const dynamic = "force-dynamic";
@@ -54,15 +53,14 @@ export default async function ManageVenueRosterPage({
   if (!isLocale(locale)) notFound();
 
   const venueId = decodeURIComponent(String(rawVenueId || "").trim());
-  const pin = getVenuePin(venueId);
   const venue = resolveManageVenue(venueId);
-
-  // melb-1 → PIN 8899 (see lib/venue-pins.ts). Unknown venues stay 404.
-  if (!venue || !pin) notFound();
+  // Manageable = seed/env pin or Supabase manager_pin.
+  // Master admin PIN 8899 can unlock any manageable venue.
+  if (!venue || !(await isManageableVenue(venueId))) notFound();
 
   const jar = await cookies();
   const savedPin = jar.get(venuePinCookieName(venueId))?.value;
-  const unlocked = assertVenuePin(venueId, savedPin);
+  const unlocked = await assertVenuePin(venueId, savedPin);
 
   const companions = unlocked ? await fetchCompanionsForVenue(venueId) : [];
 

@@ -149,8 +149,8 @@ export function RosterManager({
             {venueName}
           </h1>
           <p className="mt-2 text-sm text-neutral-400">
-            Enter the 4-digit venue PIN to manage tonight&apos;s live roster and
-            staff photos.
+            Enter this venue&apos;s unique 4-digit PIN to manage tonight&apos;s
+            live roster and staff photos.
           </p>
           <label className="mt-6 block text-xs font-semibold uppercase tracking-wider text-neutral-500">
             PIN
