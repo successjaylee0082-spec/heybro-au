@@ -52,5 +52,10 @@ export function assertVenuePin(
 export const VENUE_PIN_COOKIE_PREFIX = "heybro-venue-pin";
 
 export function venuePinCookieName(venueId: string): string {
-  return `${VENUE_PIN_COOKIE_PREFIX}:${venueId}`;
+  // Cookie names cannot safely include ":"; use a hyphenated slug.
+  const safeId = String(venueId || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, "-");
+  return `${VENUE_PIN_COOKIE_PREFIX}-${safeId}`;
 }

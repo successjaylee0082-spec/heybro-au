@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/manage/:venueId",
+        destination: "/en/manage/:venueId",
+        permanent: false,
+      },
+      {
         source: "/admin/:path*",
         destination: "/en/admin/:path*",
         permanent: true,
@@ -77,6 +82,9 @@ const nextConfig: NextConfig = {
       { source: "/admin/:path*", headers: privateHeaders },
       { source: "/en/admin/:path*", headers: privateHeaders },
       { source: "/zh/admin/:path*", headers: privateHeaders },
+      { source: "/manage/:path*", headers: privateHeaders },
+      { source: "/en/manage/:path*", headers: privateHeaders },
+      { source: "/zh/manage/:path*", headers: privateHeaders },
       { source: "/api/admin/:path*", headers: privateHeaders },
       { source: "/en/community", headers: communityHeaders },
       { source: "/zh/community", headers: communityHeaders },

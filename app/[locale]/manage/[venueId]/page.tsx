@@ -6,6 +6,7 @@ import { WhatsAppContactButton } from "@/components/heybro/WhatsAppContactButton
 import { buildAdminSupportWhatsAppHref } from "@/lib/booking-links";
 import { fetchCompanionsForVenue } from "@/lib/companions";
 import { getSeedDirectoryVenues } from "@/lib/data";
+import { getVenueById } from "@/lib/feed";
 import { isLocale } from "@/lib/i18n";
 import {
   assertVenuePin,
@@ -15,13 +16,21 @@ import {
 
 export const dynamic = "force-dynamic";
 
+function resolveManageVenue(venueId: string) {
+  const seed = getSeedDirectoryVenues().find((item) => item.id === venueId);
+  if (seed) return seed;
+  const feed = getVenueById(venueId);
+  if (feed) return feed;
+  return null;
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string; venueId: string }>;
 }): Promise<Metadata> {
   const { venueId } = await params;
-  const venue = getSeedDirectoryVenues().find((item) => item.id === venueId);
+  const venue = resolveManageVenue(venueId);
   return {
     title: venue
       ? `Manage ${venue.name} roster`
@@ -35,11 +44,15 @@ export default async function ManageVenueRosterPage({
 }: {
   params: Promise<{ locale: string; venueId: string }>;
 }) {
-  const { locale, venueId } = await params;
+  const { locale, venueId: rawVenueId } = await params;
   if (!isLocale(locale)) notFound();
 
-  const venue = getSeedDirectoryVenues().find((item) => item.id === venueId);
-  if (!venue || !getVenuePin(venueId)) notFound();
+  const venueId = decodeURIComponent(String(rawVenueId || "").trim());
+  const pin = getVenuePin(venueId);
+  const venue = resolveManageVenue(venueId);
+
+  // Require a configured PIN + a known venue (seed or feed catalog).
+  if (!venue || !pin) notFound();
 
   const jar = await cookies();
   const savedPin = jar.get(venuePinCookieName(venueId))?.value;

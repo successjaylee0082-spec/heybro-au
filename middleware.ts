@@ -54,7 +54,13 @@ export function middleware(request: NextRequest) {
     "Content-Language",
     segment === "zh" ? "zh-Hans" : "en-AU",
   );
-  if (clean === "/admin" || clean.startsWith("/admin/") || clean === "/saved") {
+  if (
+    clean === "/admin" ||
+    clean.startsWith("/admin/") ||
+    clean === "/saved" ||
+    clean === "/manage" ||
+    clean.startsWith("/manage/")
+  ) {
     response.headers.set("Cache-Control", "private, no-store, max-age=0");
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
