@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState, useTransition, type ReactNode } from "react";
 import {
   addCompanion,
@@ -15,10 +16,12 @@ import {
 import { WhatsAppContactButton } from "@/components/heybro/WhatsAppContactButton";
 import { Button } from "@/components/ui/button";
 import type { CompanionRow } from "@/lib/companions";
+import { resolveCompanionPhoto } from "@/lib/photo-url";
 
 type Props = {
   venueId: string;
   venueName: string;
+  locale?: string;
   initiallyUnlocked: boolean;
   initialCompanions: CompanionRow[];
   /** Local seed portrait URLs ordered by slot_index. */
@@ -31,9 +34,19 @@ function blockedName(name: string): boolean {
   return key === "chanel" || key === "sophie";
 }
 
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Could not read that image."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function RosterManager({
   venueId,
   venueName,
+  locale = "en",
   initiallyUnlocked,
   initialCompanions,
   slotImages,
@@ -71,12 +84,19 @@ export function RosterManager({
     }, 3200);
   }
 
-  function imageForSlot(slotIndex: number | null | undefined): string {
+  function imageForSlot(
+    row: CompanionRow,
+    slotIndex: number | null | undefined,
+  ): string {
     const slot = Number(slotIndex);
-    if (Number.isFinite(slot) && slot >= 0 && slot < slotImages.length) {
-      return slotImages[slot];
-    }
-    return slotImages[0] || "/images/staff/western/01.jpg";
+    const fallback =
+      Number.isFinite(slot) && slot >= 0 && slot < slotImages.length
+        ? slotImages[slot]
+        : slotImages[0] || "/images/staff/western/01.jpg";
+    return resolveCompanionPhoto({
+      photoUrl: row.photo_url,
+      slotFallback: fallback,
+    });
   }
 
   function unlock() {
@@ -110,6 +130,14 @@ export function RosterManager({
   if (!unlocked) {
     return (
       <section className="mx-auto w-full max-w-md px-4 py-10">
+        <div className="mb-4">
+          <Link
+            href={`/${locale}/manage`}
+            className="text-sm text-neutral-400 underline-offset-4 hover:text-neutral-200 hover:underline"
+          >
+            ← All venues
+          </Link>
+        </div>
         <div className="rounded-2xl border border-neutral-800 bg-neutral-950/80 p-6 shadow-[0_0_40px_rgba(0,0,0,0.45)]">
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-rose-300/80">
             Venue Owner Access
@@ -121,8 +149,8 @@ export function RosterManager({
             {venueName}
           </h1>
           <p className="mt-2 text-sm text-neutral-400">
-            Enter the 4-digit venue PIN to manage tonight&apos;s live roster.
-            Photos stay automatic — no uploads required.
+            Enter the 4-digit venue PIN to manage tonight&apos;s live roster and
+            staff photos.
           </p>
           <label className="mt-6 block text-xs font-semibold uppercase tracking-wider text-neutral-500">
             PIN
@@ -157,6 +185,14 @@ export function RosterManager({
 
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-8">
+      <div className="mb-4">
+        <Link
+          href={`/${locale}/manage`}
+          className="text-sm text-neutral-400 underline-offset-4 hover:text-neutral-200 hover:underline"
+        >
+          ← All venues
+        </Link>
+      </div>
       <header className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-300/80">
@@ -169,8 +205,8 @@ export function RosterManager({
             {venueName}
           </h1>
           <p className="mt-1 text-sm text-neutral-400">
-            Toggle who is working today. Edits publish to the public venue page
-            immediately.
+            Toggle who is working today. Update photos with a URL or upload.
+            Edits publish to the public venue page immediately.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -214,17 +250,25 @@ export function RosterManager({
       )}
 
       <div className="space-y-4">
-        {sorted.map((row) => (
-          <CompanionEditorCard
-            key={`${row.id}-${row.is_active}-${row.name}-${row.age}-${row.updated_at || ""}`}
-            venueId={venueId}
-            row={row}
-            image={imageForSlot(row.slot_index)}
-            pending={pending}
-            onResult={flash}
-            startTransition={startTransition}
-          />
-        ))}
+        {sorted.map((row) => {
+          const slot = Number(row.slot_index);
+          const slotFallback =
+            Number.isFinite(slot) && slot >= 0 && slot < slotImages.length
+              ? slotImages[slot]
+              : slotImages[0] || "/images/staff/western/01.jpg";
+          return (
+            <CompanionEditorCard
+              key={`${row.id}-${row.is_active}-${row.name}-${row.age}-${row.photo_url || ""}-${row.updated_at || ""}`}
+              venueId={venueId}
+              row={row}
+              image={imageForSlot(row, row.slot_index)}
+              slotFallback={slotFallback}
+              pending={pending}
+              onResult={flash}
+              startTransition={startTransition}
+            />
+          );
+        })}
         {!sorted.length ? (
           <div className="rounded-xl border border-dashed border-neutral-700 bg-neutral-950/60 p-8 text-center text-neutral-400">
             No companions yet. Tap{" "}
@@ -241,6 +285,7 @@ function CompanionEditorCard({
   venueId,
   row,
   image,
+  slotFallback,
   pending,
   onResult,
   startTransition,
@@ -248,6 +293,7 @@ function CompanionEditorCard({
   venueId: string;
   row: CompanionRow;
   image: string;
+  slotFallback: string;
   pending: boolean;
   onResult: (result: RosterActionResult) => void;
   startTransition: (cb: () => void) => void;
@@ -262,7 +308,34 @@ function CompanionEditorCard({
   const [tags, setTags] = useState(
     Array.isArray(row.tags) ? row.tags.join(", ") : "",
   );
+  const [photoUrl, setPhotoUrl] = useState(String(row.photo_url || ""));
+  const [preview, setPreview] = useState(image);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const active = row.is_active !== false;
+  const isRemotePreview =
+    preview.startsWith("http://") ||
+    preview.startsWith("https://") ||
+    preview.startsWith("data:");
+
+  async function onPickFile(file: File | null) {
+    setPhotoError(null);
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Choose a JPG, PNG, WebP, or GIF image.");
+      return;
+    }
+    if (file.size > 700_000) {
+      setPhotoError("Keep uploads under 700KB, or paste an image URL instead.");
+      return;
+    }
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      setPhotoUrl(dataUrl);
+      setPreview(dataUrl);
+    } catch {
+      setPhotoError("Could not read that image file.");
+    }
+  }
 
   return (
     <article
@@ -273,14 +346,40 @@ function CompanionEditorCard({
       }`}
     >
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="relative h-28 w-24 shrink-0 overflow-hidden rounded-xl border border-neutral-800">
-          <Image
-            src={image}
-            alt=""
-            fill
-            className="object-cover object-[center_22%]"
-            sizes="96px"
-          />
+        <div className="space-y-2">
+          <div className="relative h-36 w-28 shrink-0 overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900">
+            {isRemotePreview ? (
+              // Custom https / data URLs are not in next/image remotePatterns.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview}
+                alt=""
+                className="h-full w-full object-cover object-[center_22%]"
+              />
+            ) : (
+              <Image
+                src={preview}
+                alt=""
+                fill
+                className="object-cover object-[center_22%]"
+                sizes="112px"
+              />
+            )}
+          </div>
+          <label className="block cursor-pointer rounded-lg border border-neutral-700 bg-neutral-900 px-2 py-1.5 text-center text-[10px] font-bold uppercase tracking-wider text-neutral-300 hover:border-rose-400/60">
+            Upload photo
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="sr-only"
+              disabled={pending}
+              onChange={(event) => {
+                const file = event.target.files?.[0] || null;
+                void onPickFile(file);
+                event.target.value = "";
+              }}
+            />
+          </label>
         </div>
         <div className="min-w-0 flex-1 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -377,6 +476,48 @@ function CompanionEditorCard({
             </Field>
           </div>
 
+          <Field label="Photo URL">
+            <input
+              value={
+                photoUrl.startsWith("data:image/")
+                  ? "(uploaded image ready to save)"
+                  : photoUrl
+              }
+              onChange={(event) => {
+                const next = event.target.value;
+                if (next === "(uploaded image ready to save)") return;
+                setPhotoUrl(next);
+                setPreview(next.trim() || slotFallback);
+                setPhotoError(null);
+              }}
+              placeholder="https://… or /images/staff/…"
+              className="mt-1 h-9 w-full rounded-lg border border-neutral-700 bg-neutral-900 px-2.5 text-sm text-neutral-50 outline-none focus:border-rose-400"
+            />
+          </Field>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={pending || !photoUrl}
+              onClick={() => {
+                setPhotoUrl("");
+                setPreview(slotFallback);
+                setPhotoError(null);
+              }}
+            >
+              Clear photo
+            </Button>
+            <p className="self-center text-[11px] text-neutral-500">
+              Paste a link or upload a small image, then Save.
+            </p>
+          </div>
+          {photoError ? (
+            <p className="text-xs text-rose-300" role="alert">
+              {photoError}
+            </p>
+          ) : null}
+
           <div className="flex justify-end">
             <Button
               size="sm"
@@ -401,6 +542,7 @@ function CompanionEditorCard({
                       cup,
                       height: Number(height) || 165,
                       tags,
+                      photoUrl,
                     }),
                   );
                 })

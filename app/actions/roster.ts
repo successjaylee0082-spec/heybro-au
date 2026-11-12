@@ -15,6 +15,7 @@ import {
   venuePinCookieName,
 } from "@/lib/venue-pins";
 import { isBlockedCompanionName } from "@/lib/companion-profile";
+import { sanitizePhotoUrl } from "@/lib/photo-url";
 
 export type RosterActionResult =
   | { ok: true; message?: string; companions?: CompanionRow[] }
@@ -139,11 +140,20 @@ export async function ensureCompanionsSeededAction(
     nationality: lady.ethnicity || "European",
     tags: lady.styles || ["GFE"],
     is_active: lady.status === "Available Now",
+    photo_url: sanitizePhotoUrl(lady.image),
     updated_at: new Date().toISOString(),
   }));
 
   const { error } = await client.from("companions").insert(rows);
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    if (/photo_url/i.test(error.message)) {
+      const withoutPhotos = rows.map(({ photo_url: _photo, ...rest }) => rest);
+      const retry = await client.from("companions").insert(withoutPhotos);
+      if (retry.error) return { ok: false, error: retry.error.message };
+    } else {
+      return { ok: false, error: error.message };
+    }
+  }
 
   const companions = await fetchCompanionsForVenue(id);
   revalidateVenuePaths(id);
@@ -191,6 +201,8 @@ export async function updateCompanion(input: {
   cup?: string;
   height?: number;
   tags?: string | string[];
+  /** Custom portrait URL, local /images path, data URL, or empty to clear. */
+  photoUrl?: string | null;
 }): Promise<RosterActionResult> {
   const venueId = String(input.venueId || "").trim();
   if (!(await requireVenueOwner(venueId))) {
@@ -207,27 +219,68 @@ export async function updateCompanion(input: {
   const age = Math.max(20, Number(input.age) || 20);
   if (age < 20) return { ok: false, error: "Age must be 20 or older." };
 
+  let photoUrl: string | null | undefined;
+  if (input.photoUrl !== undefined) {
+    const raw = String(input.photoUrl || "").trim();
+    if (!raw) {
+      photoUrl = null;
+    } else {
+      const safe = sanitizePhotoUrl(raw);
+      if (!safe) {
+        return {
+          ok: false,
+          error:
+            "Photo must be an https image URL, /images/... path, or a small image upload.",
+        };
+      }
+      photoUrl = safe;
+    }
+  }
+
   const client = createAdminSupabaseClient();
   if (!client) return { ok: false, error: "Supabase is not configured." };
 
+  const patch: Record<string, unknown> = {
+    name,
+    age,
+    nationality: String(input.nationality || "European").trim() || "European",
+    cup: String(input.cup || "C")
+      .trim()
+      .toUpperCase()
+      .slice(0, 4),
+    height: Math.max(150, Math.min(190, Number(input.height) || 165)),
+    tags: parseTags(input.tags),
+    updated_at: new Date().toISOString(),
+  };
+  if (photoUrl !== undefined) patch.photo_url = photoUrl;
+
   const { error } = await client
     .from("companions")
-    .update({
-      name,
-      age,
-      nationality: String(input.nationality || "European").trim() || "European",
-      cup: String(input.cup || "C")
-        .trim()
-        .toUpperCase()
-        .slice(0, 4),
-      height: Math.max(150, Math.min(190, Number(input.height) || 165)),
-      tags: parseTags(input.tags),
-      updated_at: new Date().toISOString(),
-    })
+    .update(patch)
     .eq("id", input.id)
     .eq("venue_id", venueId);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    // Older DBs without photo_url still accept profile edits.
+    if (photoUrl !== undefined && /photo_url/i.test(error.message)) {
+      delete patch.photo_url;
+      const retry = await client
+        .from("companions")
+        .update(patch)
+        .eq("id", input.id)
+        .eq("venue_id", venueId);
+      if (retry.error) return { ok: false, error: retry.error.message };
+      revalidateVenuePaths(venueId);
+      const companions = await fetchCompanionsForVenue(venueId);
+      return {
+        ok: true,
+        companions,
+        message:
+          "Companion saved. Apply the photo_url migration to persist custom photos.",
+      };
+    }
+    return { ok: false, error: error.message };
+  }
 
   revalidateVenuePaths(venueId);
   const companions = await fetchCompanionsForVenue(venueId);

@@ -3,6 +3,7 @@ import {
   isBlockedCompanionName,
 } from "@/lib/companion-profile";
 import { getSeedDirectoryVenues } from "@/lib/data";
+import { resolveCompanionPhoto } from "@/lib/photo-url";
 import { createPublicSupabaseClient } from "@/lib/supabase";
 import type { VenueLady } from "@/types";
 
@@ -17,6 +18,8 @@ export type CompanionRow = {
   nationality?: string | null;
   tags?: string[] | null;
   is_active?: boolean | null;
+  /** Optional custom portrait (https, /images/..., or small data URL). */
+  photo_url?: string | null;
   updated_at?: string | null;
 };
 
@@ -63,8 +66,8 @@ function mapStatus(isActive: boolean | null | undefined): VenueLady["status"] {
 }
 
 /**
- * Map Supabase companion rows onto the local seed image pool by slot_index.
- * Existing image URLs are preserved — DB never supplies portrait paths.
+ * Map Supabase companion rows onto portraits.
+ * Prefer a saved photo_url; otherwise keep the curated seed slot image.
  */
 export function mapCompanionRowsToLadies(
   rows: CompanionRow[],
@@ -107,8 +110,10 @@ export function mapCompanionRowsToLadies(
           ? tags.slice(0, 3)
           : seed?.styles || ["GFE", "Elegant"],
         status: mapStatus(row.is_active),
-        // Keep the curated local portrait for this slot — never break images.
-        image: seed?.image || "/images/staff/western/01.jpg",
+        image: resolveCompanionPhoto({
+          photoUrl: row.photo_url,
+          slotFallback: seed?.image || "/images/staff/western/01.jpg",
+        }),
       };
       return lady;
     })

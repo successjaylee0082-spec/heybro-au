@@ -21,8 +21,12 @@ export function middleware(request: NextRequest) {
     // Locale-prefix redirects for owner tools / venue pages when Host is proxy-safe.
     if (segment === "manage") {
       const venueId = path.split("/")[2];
-      if (venueId && !path.split("/")[3]) {
-        const url = request.nextUrl.clone();
+      const url = request.nextUrl.clone();
+      if (!venueId) {
+        url.pathname = "/en/manage";
+        return NextResponse.redirect(url);
+      }
+      if (!path.split("/")[3]) {
         url.pathname = `/en/manage/${encodeURIComponent(venueId)}`;
         return NextResponse.redirect(url);
       }

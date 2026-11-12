@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/manage",
+        destination: "/en/manage",
+        permanent: false,
+      },
+      {
         source: "/manage/:venueId",
         destination: "/en/manage/:venueId",
         permanent: false,

@@ -34,11 +34,19 @@ function envPinOverrides(): Record<string, string> {
   return out;
 }
 
+function allVenuePins(): Record<string, string> {
+  return { ...DEFAULT_VENUE_PINS, ...envPinOverrides() };
+}
+
 export function getVenuePin(venueId: string): string | null {
   const id = String(venueId || "").trim();
   if (!id) return null;
-  const pins = { ...DEFAULT_VENUE_PINS, ...envPinOverrides() };
-  return pins[id] || null;
+  return allVenuePins()[id] || null;
+}
+
+/** Venue ids that have an owner PIN configured (dashboard picker). */
+export function listManageableVenueIds(): string[] {
+  return Object.keys(allVenuePins()).sort((a, b) => a.localeCompare(b));
 }
 
 export function assertVenuePin(

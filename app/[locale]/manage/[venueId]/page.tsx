@@ -90,6 +90,7 @@ export default async function ManageVenueRosterPage({
       <RosterManager
         venueId={venueId}
         venueName={venue.name}
+        locale={locale}
         initiallyUnlocked={unlocked}
         initialCompanions={companions}
         slotImages={
