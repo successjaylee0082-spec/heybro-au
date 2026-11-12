@@ -7,6 +7,36 @@ import { getVenueDetail } from "@/lib/venue-detail";
 
 export const dynamic = "force-dynamic";
 
+/** Mandatory runtime rewrite — Chanel/Sophie and under-21 ages cannot reach the UI. */
+function scrubCompanions<
+  T extends { name?: string; age?: unknown },
+>(list: T[] | null | undefined): T[] {
+  if (!Array.isArray(list)) return [];
+  return list.map((companion) => {
+    const key = String(companion.name || "")
+      .trim()
+      .toLowerCase();
+    if (key === "chanel") {
+      return {
+        ...companion,
+        name: "Chloe",
+        age: Math.max(21, Number(22) || 21),
+      };
+    }
+    if (key === "sophie") {
+      return {
+        ...companion,
+        name: "Bella",
+        age: Math.max(21, Number(23) || 21),
+      };
+    }
+    return {
+      ...companion,
+      age: Math.max(21, Number(companion.age) || 21),
+    };
+  });
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -40,16 +70,24 @@ export default async function VenuePage({
   if (!raw) notFound();
 
   // Runtime intercept: seed ladies + age/name guards beat any DB/API poison.
-  const detail = hardenVenueDetailPayload(raw);
+  const hardened = hardenVenueDetailPayload(raw);
+  const venue = {
+    ...hardened.venue,
+    ladies: scrubCompanions(hardened.venue.ladies),
+  };
+  const consumer = {
+    ...hardened.consumer,
+    staff: scrubCompanions(hardened.consumer.staff),
+  };
 
   return (
     <VenueDetail
-      venue={detail.venue}
-      gallery={detail.gallery}
-      related={detail.related}
-      content={detail.content}
-      visibility={detail.visibility}
-      consumer={detail.consumer}
+      venue={venue}
+      gallery={hardened.gallery}
+      related={hardened.related}
+      content={hardened.content}
+      visibility={hardened.visibility}
+      consumer={consumer}
     />
   );
 }

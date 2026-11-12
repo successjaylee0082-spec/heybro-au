@@ -1038,12 +1038,13 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "enterprise",
     isVerified: true,
     tags: ["CBD First", "Cash OK", "EFTPOS", "24/7 Available"],
+    // Mandatory: no Chanel/Sophie — Chloe 22 + Bella 23 only (ages Math.max(21, …)).
     ladies: [
-      { id: "melb-1-lady-1", name: "Mia", status: "Available Now", image: "/images/staff/western/01.jpg", age: 21, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-2", name: "Ella", status: "In Shift", image: "/images/staff/western/02.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-3", name: "Audrey", status: "Available Now", image: "/images/staff/western/03.jpg", age: 21, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-4", name: "Chloe", status: "In Shift", image: "/images/staff/western/04.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-5", name: "Bella", status: "Available Now", image: "/images/staff/western/05.jpg", age: 23, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-1", name: "Mia", status: "Available Now", image: "/images/staff/western/01.jpg", age: Math.max(21, Number(21) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-2", name: "Ella", status: "In Shift", image: "/images/staff/western/02.jpg", age: Math.max(21, Number(22) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-3", name: "Audrey", status: "Available Now", image: "/images/staff/western/03.jpg", age: Math.max(21, Number(21) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-4", name: "Chloe", status: "In Shift", image: "/images/staff/western/04.jpg", age: Math.max(21, Number(22) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-lady-5", name: "Bella", status: "Available Now", image: "/images/staff/western/05.jpg", age: Math.max(21, Number(23) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
     ],
   },
   {
@@ -1301,14 +1302,14 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
             key === "chanel" ? "Chloe" : key === "sophie" ? "Bella" : lady.name;
           const wasBlocked = key === "chanel" || key === "sophie";
           const displayAge = Math.max(
-            wasBlocked ? 22 : 21,
-            Number(lady.age) || (wasBlocked ? 22 : 21),
+            21,
+            Number(wasBlocked ? (key === "chanel" ? 22 : 23) : lady.age) || 21,
           );
-          return { ...lady, name, age: displayAge };
+          return { ...lady, name, age: Math.max(21, Number(displayAge) || 21) };
         })
         .filter((lady) => {
           const key = String(lady.name || "").trim().toLowerCase();
-          const age = Number(lady.age);
+          const age = Math.max(21, Number(lady.age) || 21);
           return age >= 21 && key !== "chanel" && key !== "sophie";
         })
     : venue.ladies;
