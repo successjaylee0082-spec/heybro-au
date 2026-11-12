@@ -29,6 +29,7 @@ import { VenueQuickInfoBar } from "@/components/heybro/VenueQuickInfoBar";
 import { VenueStaffRoster } from "@/components/heybro/VenueStaffRoster";
 import { VenueStickyCtaBar } from "@/components/heybro/VenueStickyCtaBar";
 import { VenueStructuredContent } from "@/components/heybro/VenueStructuredContent";
+import { WhatsAppContactButton } from "@/components/heybro/WhatsAppContactButton";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
 import { useApproxDistanceKm } from "@/hooks/useApproxDistanceKm";
@@ -39,6 +40,7 @@ import {
   type VenueConsumerView,
 } from "@/lib/venue-consumer";
 import { trackVenueContact } from "@/lib/analytics";
+import { buildVenueInquiryWhatsAppHref } from "@/lib/booking-links";
 import {
   forceSafeAge,
   sanitizeCompanionList,
@@ -181,6 +183,14 @@ export function VenueDetail({
   const syncedRateLine = formatPricingRateLine(sharedPricing);
   const startingFrom = minimumCoursePrice(sharedPricing);
   const vipListing = isVipListing(venue) || isPremium;
+  const whatsappHref =
+    liveConsumer.whatsappHref ||
+    buildVenueInquiryWhatsAppHref({
+      venueName: name,
+      whatsapp:
+        venue.customHighlights?.whatsapp || venue.messaging?.whatsapp,
+      phone: venue.phone,
+    });
 
   return (
     <article
@@ -231,6 +241,20 @@ export function VenueDetail({
           showToast(nowSaved ? t("savedToast") : t("removedToast"));
         }}
       />
+      {whatsappHref ? (
+        <div className="mb-4 mt-3 flex flex-wrap items-center gap-3 px-1">
+          <WhatsAppContactButton
+            href={whatsappHref}
+            label="Contact via WhatsApp"
+            variant="header"
+            venueId={venue.id}
+            venueName={venue.name}
+          />
+          <span className="text-xs text-neutral-500">
+            Direct chat · availability inquiry pre-filled
+          </span>
+        </div>
+      ) : null}
       {startingFrom ? (
         <p className="sr-only" data-pricing-min={startingFrom}>
           Minimum course rate {startingFrom}
@@ -354,6 +378,16 @@ export function VenueDetail({
             Call Now
           </a>
         ) : null}
+        {whatsappHref ? (
+          <WhatsAppContactButton
+            href={whatsappHref}
+            label="Contact via WhatsApp"
+            variant="inline"
+            venueId={venue.id}
+            venueName={venue.name}
+            className="min-h-11"
+          />
+        ) : null}
       </div>
 
       <div data-slot="related" className="template-slot">
@@ -378,13 +412,23 @@ export function VenueDetail({
       {/* Day-5 sticky conversion bar — messaging unlocks on Managed VIP Elite+ */}
       <VenueStickyCtaBar
         phoneHref={phoneHref}
-        whatsappHref={vipListing ? liveConsumer.whatsappHref : undefined}
+        whatsappHref={vipListing ? whatsappHref : undefined}
         wechat={vipListing ? liveConsumer.wechat : undefined}
         isVip={vipListing}
         upgradeHref={withLocale(locale, "/partners#vip-upgrade")}
         venueId={venue.id}
         venueName={venue.name}
       />
+
+      {whatsappHref ? (
+        <WhatsAppContactButton
+          href={whatsappHref}
+          label="Contact via WhatsApp"
+          variant="floating"
+          venueId={venue.id}
+          venueName={venue.name}
+        />
+      ) : null}
     </article>
   );
 }

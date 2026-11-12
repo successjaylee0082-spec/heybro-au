@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { RosterManager } from "@/components/manage/RosterManager";
+import { WhatsAppContactButton } from "@/components/heybro/WhatsAppContactButton";
+import { buildAdminSupportWhatsAppHref } from "@/lib/booking-links";
 import { fetchCompanionsForVenue } from "@/lib/companions";
 import { getSeedDirectoryVenues } from "@/lib/data";
 import { isLocale } from "@/lib/i18n";
@@ -50,9 +52,24 @@ export default async function ManageVenueRosterPage({
   const slotImages = (venue.ladies || []).map(
     (lady) => lady.image || "/images/staff/western/01.jpg",
   );
+  const supportHref = buildAdminSupportWhatsAppHref({
+    venueName: venue.name,
+    venueId,
+  });
 
   return (
     <main className="min-h-[70vh] bg-transparent pb-16 pt-6">
+      {supportHref ? (
+        <div className="mx-auto mb-2 w-full max-w-3xl px-4">
+          <WhatsAppContactButton
+            href={supportHref}
+            label="Support / Chat with Admin via WhatsApp"
+            variant="support"
+            venueId={venueId}
+            venueName={venue.name}
+          />
+        </div>
+      ) : null}
       <RosterManager
         venueId={venueId}
         venueName={venue.name}
@@ -63,6 +80,7 @@ export default async function ManageVenueRosterPage({
             ? slotImages
             : ["/images/staff/western/01.jpg"]
         }
+        supportWhatsAppHref={supportHref}
       />
     </main>
   );

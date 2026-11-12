@@ -384,8 +384,8 @@ export function buildVenueConsumerView(options: {
   });
   const whatsappHref =
     buildWhatsAppHref(
-      extras.whatsapp || venue.phone,
-      `Hi, I found ${venue.name} on Hey Bro — are you available tonight?`,
+      extras.whatsapp || venue.messaging?.whatsapp || venue.phone,
+      `Hello, I would like to inquire about availability at ${venue.name}.`,
     ) || undefined;
 
   return {

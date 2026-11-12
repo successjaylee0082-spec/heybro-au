@@ -21,13 +21,58 @@ export function toWhatsAppNumber(phone?: string | null): string | undefined {
   return digits;
 }
 
-export function buildWhatsAppHref(phone?: string | null, preset?: string): string | undefined {
-  const number = toWhatsAppNumber(phone);
+/** Platform admin / support WhatsApp (public env preferred). */
+export function getPlatformWhatsAppNumber(): string | undefined {
+  return toWhatsAppNumber(
+    process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER ||
+      process.env.WHATSAPP_SUPPORT_NUMBER ||
+      process.env.NEXT_PUBLIC_PLATFORM_WHATSAPP ||
+      undefined,
+  );
+}
+
+/**
+ * Prefer a venue-specific WhatsApp / phone, then fall back to platform support.
+ */
+export function resolveWhatsAppNumber(
+  venueNumber?: string | null,
+): string | undefined {
+  return toWhatsAppNumber(venueNumber) || getPlatformWhatsAppNumber();
+}
+
+export function buildWhatsAppHref(
+  phone?: string | null,
+  preset?: string,
+): string | undefined {
+  const number = resolveWhatsAppNumber(phone);
   if (!number) return undefined;
-  const text = preset
-    ? `?text=${encodeURIComponent(preset)}`
-    : "";
+  const text = preset ? `?text=${encodeURIComponent(preset)}` : "";
   return `https://wa.me/${number}${text}`;
+}
+
+export function buildVenueInquiryWhatsAppHref(options: {
+  venueName: string;
+  whatsapp?: string | null;
+  phone?: string | null;
+}): string | undefined {
+  return buildWhatsAppHref(
+    options.whatsapp || options.phone,
+    `Hello, I would like to inquire about availability at ${options.venueName}.`,
+  );
+}
+
+export function buildAdminSupportWhatsAppHref(options?: {
+  venueName?: string;
+  venueId?: string;
+}): string | undefined {
+  const number = getPlatformWhatsAppNumber();
+  if (!number) return undefined;
+  const venueBit = options?.venueName
+    ? ` for ${options.venueName}${options.venueId ? ` (${options.venueId})` : ""}`
+    : "";
+  return `https://wa.me/${number}?text=${encodeURIComponent(
+    `Hello Hey Bro admin — I need support${venueBit}.`,
+  )}`;
 }
 
 export function buildTelHref(phone?: string | null): string | undefined {

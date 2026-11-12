@@ -1,7 +1,8 @@
 "use client";
 
-import { MessageCircle, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { WeChatQrDialog } from "@/components/heybro/WeChatQrDialog";
+import { WhatsAppIcon } from "@/components/heybro/WhatsAppIcon";
 import { trackVenueContact } from "@/lib/analytics";
 import type { WeChatContact } from "@/lib/booking-links";
 import { VIP_MONTHLY_PRICE } from "@/lib/listing-tier";
@@ -103,7 +104,7 @@ export function VenueStickyCtaBar({
           className="sticky-cta sticky-cta-whatsapp min-h-12 touch-manipulation"
           onClick={() => track("whatsapp")}
         >
-          <MessageCircle className="h-4 w-4" aria-hidden />
+          <WhatsAppIcon size={16} />
           <span>WhatsApp Direct</span>
         </a>
       ) : (

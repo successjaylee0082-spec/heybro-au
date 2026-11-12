@@ -12,6 +12,7 @@ import {
   verifyVenuePinAction,
   type RosterActionResult,
 } from "@/app/actions/roster";
+import { WhatsAppContactButton } from "@/components/heybro/WhatsAppContactButton";
 import { Button } from "@/components/ui/button";
 import type { CompanionRow } from "@/lib/companions";
 
@@ -22,6 +23,7 @@ type Props = {
   initialCompanions: CompanionRow[];
   /** Local seed portrait URLs ordered by slot_index. */
   slotImages: string[];
+  supportWhatsAppHref?: string;
 };
 
 function blockedName(name: string): boolean {
@@ -35,6 +37,7 @@ export function RosterManager({
   initiallyUnlocked,
   initialCompanions,
   slotImages,
+  supportWhatsAppHref,
 }: Props) {
   const [unlocked, setUnlocked] = useState(initiallyUnlocked);
   const [pin, setPin] = useState("");
@@ -163,7 +166,16 @@ export function RosterManager({
             immediately.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {supportWhatsAppHref ? (
+            <WhatsAppContactButton
+              href={supportWhatsAppHref}
+              label="Support / Chat with Admin via WhatsApp"
+              variant="support"
+              venueId={venueId}
+              venueName={venueName}
+            />
+          ) : null}
           <Button
             variant="outline"
             disabled={pending}
