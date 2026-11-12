@@ -1038,13 +1038,12 @@ export const melbourneVenues: SeedVenueRecord[] = [
     tier: "enterprise",
     isVerified: true,
     tags: ["CBD First", "Cash OK", "EFTPOS", "24/7 Available"],
-    // Mandatory: no Chanel/Sophie — Chloe 22 + Bella 23 only (ages Math.max(21, …)).
     ladies: [
-      { id: "melb-1-lady-1", name: "Mia", status: "Available Now", image: "/images/staff/western/01.jpg", age: Math.max(21, Number(21) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-2", name: "Ella", status: "In Shift", image: "/images/staff/western/02.jpg", age: Math.max(21, Number(22) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-3", name: "Audrey", status: "Available Now", image: "/images/staff/western/03.jpg", age: Math.max(21, Number(21) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-4", name: "Chloe", status: "In Shift", image: "/images/staff/western/04.jpg", age: Math.max(21, Number(22) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
-      { id: "melb-1-lady-5", name: "Bella", status: "Available Now", image: "/images/staff/western/05.jpg", age: Math.max(21, Number(23) || 21), heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-mia", name: "Mia", status: "Available Now", image: "/images/staff/western/01.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-ella", name: "Ella", status: "In Shift", image: "/images/staff/western/02.jpg", age: 23, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-audrey", name: "Audrey", status: "Available Now", image: "/images/staff/western/03.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-chloe", name: "Chloe", status: "In Shift", image: "/images/staff/western/04.jpg", age: 22, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
+      { id: "melb-1-bella", name: "Bella", status: "Available Now", image: "/images/staff/western/05.jpg", age: 23, heightCm: 173, cup: "D", ethnicity: "European", styles: ["GFE","Slim","Elegant"] },
     ],
   },
   {
