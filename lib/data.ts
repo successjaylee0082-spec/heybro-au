@@ -1301,7 +1301,7 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
             key === "chanel" ? "Chloe" : key === "sophie" ? "Bella" : lady.name;
           const wasBlocked = key === "chanel" || key === "sophie";
           const displayAge = Math.max(
-            wasBlocked ? 22 : 20,
+            wasBlocked ? 22 : 21,
             Number(lady.age) || (wasBlocked ? 22 : 21),
           );
           return { ...lady, name, age: displayAge };
@@ -1309,7 +1309,7 @@ export function withDirectorySchema<T extends Venue>(venue: T): T {
         .filter((lady) => {
           const key = String(lady.name || "").trim().toLowerCase();
           const age = Number(lady.age);
-          return age >= 20 && key !== "chanel" && key !== "sophie";
+          return age >= 21 && key !== "chanel" && key !== "sophie";
         })
     : venue.ladies;
   return {
