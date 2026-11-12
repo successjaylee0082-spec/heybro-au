@@ -2,6 +2,9 @@
  * Build consumer booking deep-links for Call / WhatsApp / WeChat.
  */
 
+/** Official Business Sales / Partners WhatsApp QR deep link. */
+export const BUSINESS_WHATSAPP_HREF = "https://wa.me/qr/UT73CCOMEKMSI1";
+
 export function normalizePhoneDigits(
   phone?: string | null,
 ): string | undefined {

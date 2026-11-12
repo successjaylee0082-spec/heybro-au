@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import { AnalyticsBootstrap } from "@/components/analytics/AnalyticsBootstrap";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
-import { LocaleProvider } from "@/components/i18n/LocaleProvider";
 import { getRequestLocale } from "@/lib/i18n-server";
 
 const SITE_URL =
@@ -116,7 +115,7 @@ export default async function RootLayout({
       <body className="min-h-screen bg-background font-sans text-foreground antialiased luxury-shell">
         <AnalyticsBootstrap measurementId={GA_MEASUREMENT_ID} />
         <PwaRegistration />
-        <LocaleProvider locale={locale}>{children}</LocaleProvider>
+        {children}
       </body>
     </html>
   );

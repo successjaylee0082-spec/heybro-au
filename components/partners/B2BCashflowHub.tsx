@@ -17,10 +17,10 @@ import {
   ENTERPRISE_MONTHLY_PRICE,
   VIP_MONTHLY_PRICE,
 } from "@/lib/listing-tier";
-import { buildWhatsAppHref } from "@/lib/booking-links";
+import { BUSINESS_WHATSAPP_HREF } from "@/lib/booking-links";
 
-const PARTNER_WHATSAPP =
-  process.env.NEXT_PUBLIC_PARTNER_WHATSAPP || "61400000000";
+const PARTNER_WHATSAPP_HREF =
+  process.env.NEXT_PUBLIC_PARTNER_WHATSAPP_HREF || BUSINESS_WHATSAPP_HREF;
 const PARTNER_TELEGRAM =
   process.env.NEXT_PUBLIC_PARTNER_TELEGRAM || "heybro_partners";
 
@@ -83,24 +83,6 @@ const CHANNELS: Array<{
   },
 ];
 
-function buildLeadMessage(options: {
-  channel: ChannelId;
-  name: string;
-  business: string;
-  contact: string;
-  note: string;
-}) {
-  return [
-    `Hey Bro B2B lead · ${options.channel.toUpperCase()}`,
-    `Name: ${options.name || "—"}`,
-    `Business: ${options.business || "—"}`,
-    `Contact: ${options.contact || "—"}`,
-    options.note ? `Note: ${options.note}` : null,
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 export function B2BCashflowHub({ locale }: { locale: "en" | "zh" }) {
   const [active, setActive] = useState<ChannelId>("basic");
   const [name, setName] = useState("");
@@ -114,39 +96,16 @@ export function B2BCashflowHub({ locale }: { locale: "en" | "zh" }) {
     [active],
   );
 
-  const whatsappHref = buildWhatsAppHref(
-    PARTNER_WHATSAPP,
-    buildLeadMessage({ channel: active, name, business, contact, note }),
-  );
+  const whatsappHref = PARTNER_WHATSAPP_HREF;
   const telegramHref = `https://t.me/${PARTNER_TELEGRAM.replace(/^@/, "")}`;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const message = buildLeadMessage({
-      channel: active,
-      name,
-      business,
-      contact,
-      note,
-    });
-    if (whatsappHref) {
-      window.open(whatsappHref, "_blank", "noopener,noreferrer");
-      setSentHint(
-        locale === "zh"
-          ? "已打开 WhatsApp 销售对话。"
-          : "Opened WhatsApp sales chat with your lead details.",
-      );
-      return;
-    }
-    window.open(
-      `${telegramHref}?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    window.open(whatsappHref, "_blank", "noopener,noreferrer");
     setSentHint(
       locale === "zh"
-        ? "已打开 Telegram 合作咨询。"
-        : "Opened Telegram partner desk with your lead details.",
+        ? "已打开 WhatsApp 商务对话。"
+        : "Opened WhatsApp sales chat with your lead details.",
     );
   }
 
@@ -222,17 +181,15 @@ export function B2BCashflowHub({ locale }: { locale: "en" | "zh" }) {
               : "Share your details — we’ll follow up on WhatsApp or Telegram."}
           </p>
           <div className="b2b-direct-ctas">
-            {whatsappHref ? (
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="b2b-direct whatsapp"
-              >
-                <MessageCircle className="h-4 w-4" />
-                WhatsApp sales
-              </a>
-            ) : null}
+            <a
+              href={whatsappHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="b2b-direct whatsapp"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {locale === "zh" ? "WhatsApp 商务" : "Business Sales WhatsApp"}
+            </a>
             <a
               href={telegramHref}
               target="_blank"

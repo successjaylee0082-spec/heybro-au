@@ -16,7 +16,10 @@ export function Header() {
   const other = locale === "en" ? "zh" : "en";
   const communityHref = withLocale(locale, "/community");
   const partnersHref = withLocale(locale, "/partners");
-  const languageHref = swapLocalePath(pathname || withLocale(locale, "/"), other);
+  const languageHref = swapLocalePath(
+    pathname || withLocale(locale, "/"),
+    other,
+  );
 
   return (
     <header className="site-header">
@@ -29,13 +32,15 @@ export function Header() {
             href={languageHref}
             className="nav-link"
             hrefLang={other === "zh" ? "zh-Hans" : "en-AU"}
+            prefetch
+            scroll={false}
           >
             {t("language")}
           </Link>
           <Button asChild variant="outline" className="business-button">
             <Link href={partnersHref}>
               <Building2 className="h-3.5 w-3.5" />
-              Business
+              {locale === "zh" ? "商家合作" : "Business"}
             </Link>
           </Button>
         </div>
@@ -47,13 +52,19 @@ export function Header() {
           title="Community Discussions & Reddit Threads"
         >
           <RedditLogo size={16} />
-          Community Discussions
+          {locale === "zh" ? "社区讨论" : "Community Discussions"}
         </Link>
         <Link href={partnersHref} className="mobile-community-link">
           <Building2 className="h-3.5 w-3.5" />
           {t("partners")}
         </Link>
-        <Link href={languageHref} className="mobile-community-link">
+        <Link
+          href={languageHref}
+          className="mobile-community-link"
+          hrefLang={other === "zh" ? "zh-Hans" : "en-AU"}
+          prefetch
+          scroll={false}
+        >
           {t("language")}
         </Link>
         <span className="mobile-search-hint">
