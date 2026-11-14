@@ -4,12 +4,13 @@ import {
   clearAgeAccepted,
   writeAgeAccepted,
 } from "@/utils/age-agreement";
-import { useCopy } from "@/components/i18n/LocaleProvider";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Full-screen 18+ age verification gate.
+ * Shows when localStorage key `age_verified_18` is missing.
+ */
 export function AgeGateModal() {
-  const { t } = useCopy();
-
   return (
     <div
       className="age-gate"
@@ -18,27 +19,34 @@ export function AgeGateModal() {
       aria-labelledby="age-gate-title"
     >
       <div className="age-gate-panel">
-        <p className="age-gate-brand">Hey Bro</p>
-        <h2 id="age-gate-title">{t("confirmAge")}</h2>
-        <p className="age-gate-note">{t("ageNote")}</p>
+        <p className="age-gate-brand">HeyBro · heybro-au.com</p>
+        <h2 id="age-gate-title">18+ Adults Only / Age Verification</h2>
+        <p className="age-gate-note">
+          This website contains adult-oriented nightlife directory listings
+          intended strictly for individuals aged 18 years or older (or the age
+          of majority in your jurisdiction). By entering, you confirm that you
+          are at least 18 years old and agree to our Terms of Service.
+        </p>
         <div className="age-gate-actions">
           <Button
             type="button"
+            className="age-gate-enter"
             onClick={() => {
               writeAgeAccepted();
             }}
           >
-            {t("yes18")}
+            I am 18 or older — Enter
           </Button>
           <Button
             type="button"
             variant="secondary"
+            className="age-gate-exit"
             onClick={() => {
               clearAgeAccepted();
-              window.location.href = "https://www.google.com.au";
+              window.location.href = "https://www.google.com";
             }}
           >
-            {t("exit")}
+            Exit
           </Button>
         </div>
       </div>

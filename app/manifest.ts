@@ -1,14 +1,18 @@
 import type { MetadataRoute } from "next";
+import { SITE_ORIGIN } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Hey Bro Australia",
-    short_name: "Hey Bro",
-    description: "Your Ultimate Aussie Nightlife Guide",
+    name: "HeyBro Directory",
+    short_name: "HeyBro",
+    description:
+      "Independent Aussie nightlife directory for Sydney & Melbourne — 18+ only.",
     start_url: "/en",
+    id: SITE_ORIGIN,
     display: "standalone",
-    background_color: "#09090b",
-    theme_color: "#09090b",
+    background_color: "#060709",
+    theme_color: "#060709",
+    lang: "en-AU",
     icons: [
       {
         src: "/icons/icon-192.png",

@@ -5,10 +5,9 @@ import type { CSSProperties, ReactNode } from "react";
 import { AnalyticsBootstrap } from "@/components/analytics/AnalyticsBootstrap";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
 import { getRequestLocale } from "@/lib/i18n-server";
+import { getSiteUrl } from "@/lib/site";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://heybro.au";
+const SITE_URL = getSiteUrl();
 
 const GA_MEASUREMENT_ID =
   process.env.GA_MEASUREMENT_ID ||
@@ -18,15 +17,15 @@ const GA_MEASUREMENT_ID =
 export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale();
-  const title = "Hey Bro — Verified Aussie Nightlife Directory";
+  const title = "HeyBro Directory — Verified Aussie Nightlife";
   const description =
-    "Dark luxury nightlife directory for Sydney and Melbourne — verified venues, live companion lineups, and discreet direct booking.";
+    "Independent nightlife directory for Sydney and Melbourne (heybro-au.com) — verified venues, live companion lineups, and discreet direct booking. 18+ only.";
   const ogImage = `${SITE_URL}/images/hero/studio-silhouette.jpg`;
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: title, template: "%s · Hey Bro" },
+    title: { default: title, template: "%s · HeyBro" },
     description,
-    applicationName: "Hey Bro",
+    applicationName: "HeyBro Directory",
     robots: { index: false, follow: true },
     manifest: "/manifest.webmanifest",
     keywords: [
@@ -34,14 +33,15 @@ export async function generateMetadata(): Promise<Metadata> {
       "Sydney brothels",
       "Melbourne escorts",
       "verified venues",
-      "Hey Bro",
+      "HeyBro",
+      "heybro-au.com",
       "Reddit nightlife",
     ],
     openGraph: {
       title,
       description,
       url: SITE_URL,
-      siteName: "Hey Bro",
+      siteName: "HeyBro Directory",
       locale: locale === "zh" ? "zh_CN" : "en_AU",
       type: "website",
       images: [
@@ -49,7 +49,7 @@ export async function generateMetadata(): Promise<Metadata> {
           url: ogImage,
           width: 1200,
           height: 630,
-          alt: "Hey Bro — dark luxury Australian nightlife directory",
+          alt: "HeyBro Directory — dark luxury Australian nightlife directory",
           type: "image/jpeg",
         },
       ],
@@ -63,11 +63,16 @@ export async function generateMetadata(): Promise<Metadata> {
     other: {
       "theme-color": "#060709",
       "color-scheme": "dark",
+      "application-name": "HeyBro Directory",
+      "og:site_name": "HeyBro Directory",
     },
     appleWebApp: {
       capable: true,
       statusBarStyle: "black-translucent",
-      title: "Hey Bro",
+      title: "HeyBro",
+    },
+    alternates: {
+      canonical: SITE_URL,
     },
   };
 }

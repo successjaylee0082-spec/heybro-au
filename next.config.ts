@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
         destination: "/en/manage/:venueId",
         permanent: false,
       },
+      { source: "/terms", destination: "/en/terms", permanent: false },
+      { source: "/privacy", destination: "/en/privacy", permanent: false },
+      { source: "/report", destination: "/en/report", permanent: false },
       {
         source: "/admin/:path*",
         destination: "/en/admin/:path*",

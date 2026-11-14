@@ -31,6 +31,16 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
       }
     }
+    // Legal / compliance pages — locale-prefix to English by default.
+    if (
+      segment === "terms" ||
+      segment === "privacy" ||
+      segment === "report"
+    ) {
+      const url = request.nextUrl.clone();
+      url.pathname = `/en/${segment}`;
+      return NextResponse.redirect(url);
+    }
     if (/^[a-z]{2}$/i.test(segment)) return missingLocalePage();
     // Existing pages have relative redirects in next.config.ts, before middleware.
     // Unmatched unprefixed paths cannot choose or forge a locale request header.

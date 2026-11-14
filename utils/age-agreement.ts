@@ -1,6 +1,9 @@
-export const AGE_STORAGE_KEY = "heybro-age-agreement";
+/** localStorage key required for 18+ age verification compliance. */
+export const AGE_STORAGE_KEY = "age_verified_18";
+/** Previous key — still recognised so returning visitors are not re-prompted. */
+export const LEGACY_AGE_STORAGE_KEY = "heybro-age-agreement";
 export const AGE_VERSION = 1;
-export const AGE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+export const AGE_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 
 export type AgeRecord = {
   version: number;
@@ -22,8 +25,15 @@ export function createAgeRecord(now = Date.now()): AgeRecord {
   };
 }
 
-export function parseAgeRecord(raw: string | null, now = Date.now()): AgeRecord | null {
+export function parseAgeRecord(
+  raw: string | null,
+  now = Date.now(),
+): AgeRecord | null {
   if (!raw) return null;
+  // Simple compliance flag: "1" / "true" / "yes"
+  if (raw === "1" || raw === "true" || raw === "yes") {
+    return createAgeRecord(now);
+  }
   try {
     const parsed = JSON.parse(raw) as Partial<AgeRecord>;
     if (
@@ -43,7 +53,10 @@ export function parseAgeRecord(raw: string | null, now = Date.now()): AgeRecord 
 export function readAgeAccepted(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return Boolean(parseAgeRecord(window.localStorage.getItem(AGE_STORAGE_KEY)));
+    const primary = window.localStorage.getItem(AGE_STORAGE_KEY);
+    if (parseAgeRecord(primary)) return true;
+    const legacy = window.localStorage.getItem(LEGACY_AGE_STORAGE_KEY);
+    return Boolean(parseAgeRecord(legacy));
   } catch {
     return false;
   }
@@ -52,7 +65,13 @@ export function readAgeAccepted(): boolean {
 export function subscribeAgeAccepted(onStoreChange: () => void): () => void {
   listeners.add(onStoreChange);
   const onStorage = (event: StorageEvent) => {
-    if (event.key === AGE_STORAGE_KEY || event.key === null) onStoreChange();
+    if (
+      event.key === AGE_STORAGE_KEY ||
+      event.key === LEGACY_AGE_STORAGE_KEY ||
+      event.key === null
+    ) {
+      onStoreChange();
+    }
   };
   window.addEventListener("storage", onStorage);
   return () => {
@@ -72,10 +91,8 @@ export function getAgeAcceptedServerSnapshot(): boolean {
 export function writeAgeAccepted(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    window.localStorage.setItem(
-      AGE_STORAGE_KEY,
-      JSON.stringify(createAgeRecord()),
-    );
+    window.localStorage.setItem(AGE_STORAGE_KEY, "1");
+    window.localStorage.removeItem(LEGACY_AGE_STORAGE_KEY);
     notifyAgeListeners();
     return true;
   } catch {
@@ -87,6 +104,7 @@ export function clearAgeAccepted(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(AGE_STORAGE_KEY);
+    window.localStorage.removeItem(LEGACY_AGE_STORAGE_KEY);
     notifyAgeListeners();
   } catch {
     // ignore

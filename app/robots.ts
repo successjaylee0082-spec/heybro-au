@@ -1,21 +1,25 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
-  const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (!origin) {
-    return {
-      rules: {
-        userAgent: "*",
-        disallow: "/",
-      },
-    };
-  }
+  const origin = getSiteUrl();
   return {
     rules: [
       {
         userAgent: "*",
         allow: ["/", "/api/og"],
-        disallow: ["/api/", "/admin", "/en/admin", "/zh/admin", "/saved"],
+        disallow: [
+          "/api/",
+          "/admin",
+          "/en/admin",
+          "/zh/admin",
+          "/saved",
+          "/en/saved",
+          "/zh/saved",
+          "/manage",
+          "/en/manage",
+          "/zh/manage",
+        ],
       },
       {
         userAgent: "Googlebot",

@@ -4,46 +4,58 @@
   z-index: 100;
   display: grid;
   place-items: center;
-  padding: 24px;
-  background: rgba(6, 7, 9, 0.55);
-  backdrop-filter: blur(6px);
+  padding: 16px;
+  background: rgba(6, 7, 9, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .age-gate-panel {
-  width: min(100%, 420px);
-  border: 1px solid #f43f5e55;
-  border-radius: 16px;
-  background: linear-gradient(180deg, #0f172a, #060709);
-  padding: 28px 24px;
-  box-shadow: 0 24px 80px #000a;
+  width: min(100%, 440px);
+  border: 1px solid rgba(244, 63, 94, 0.45);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #12151c 0%, #060709 100%);
+  padding: 24px 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.72);
+  color: #f4f4f5;
 }
 
 .age-gate-brand {
-  color: #f43f5e;
-  font-size: 12px;
+  color: #fb7185;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .age-gate-panel h2 {
-  margin: 14px 0 10px;
-  font-size: 26px;
+  margin: 14px 0 12px;
+  font-size: clamp(1.35rem, 4.5vw, 1.7rem);
   line-height: 1.25;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
+  color: #fafafa;
   font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
 }
 
 .age-gate-note {
-  color: #92929c;
-  font-size: 12px;
-  line-height: 1.7;
+  color: #d4d4d8;
+  font-size: 13px;
+  line-height: 1.65;
 }
 
 .age-gate-actions {
   display: grid;
   gap: 10px;
   margin-top: 22px;
+}
+
+.age-gate-enter {
+  min-height: 48px;
+  font-weight: 600;
+}
+
+.age-gate-exit {
+  min-height: 44px;
 }
 
 .app-shell {
