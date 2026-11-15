@@ -16,6 +16,7 @@
     "start": "node scripts/prepare-standalone.mjs && HOSTNAME=0.0.0.0 PORT=${PORT:-3000} node .next/standalone/server.js",
     "scrape": "tsx scripts/scrape-brothels.ts",
     "scrape:seed": "tsx scripts/seed-scraped-data.ts",
+    "db:upsert-melbourne": "node scripts/upsert-melbourne-directory.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx --max-warnings 0",
     "check": "tsc --noEmit",
     "test:db": "node supabase/tests/schema.test.mjs && node supabase/tests/seed.test.mjs",
