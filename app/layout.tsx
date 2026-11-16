@@ -2,6 +2,7 @@ import "./globals.css";
 import "./navigation.css";
 import type { Metadata, Viewport } from "next";
 import type { CSSProperties, ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { AnalyticsBootstrap } from "@/components/analytics/AnalyticsBootstrap";
 import { PwaRegistration } from "@/components/layout/PwaRegistration";
 import { getRequestLocale } from "@/lib/i18n-server";
@@ -121,6 +122,7 @@ export default async function RootLayout({
         <AnalyticsBootstrap measurementId={GA_MEASUREMENT_ID} />
         <PwaRegistration />
         {children}
+        <Analytics />
       </body>
     </html>
   );
