@@ -30,18 +30,19 @@ const PIN_MAP = {
 };
 
 const COORDS = {
-  "melb-2": { lat: -37.8136, lng: 144.9631 },
-  "melb-3": { lat: -37.8325, lng: 144.9605 },
+  // 516-518 Flinders St — not Melbourne GPO / Bourke St
+  "melb-2": { lat: -37.8208, lng: 144.9555 },
+  "melb-3": { lat: -37.8348, lng: 144.9612 },
   "melb-4": { lat: -37.8045, lng: 144.992 },
   "melb-5": { lat: -37.8865, lng: 145.0245 },
   "melb-6": { lat: -37.7302, lng: 144.9718 },
   "melb-7": { lat: -37.8677, lng: 144.9809 },
-  "melb-8": { lat: -37.8325, lng: 144.9605 },
+  "melb-8": { lat: -37.8312, lng: 144.9568 },
   "melb-9": { lat: -37.7942, lng: 144.9285 },
   "melb-10": { lat: -37.9871, lng: 145.2148 },
-  "melb-11": { lat: -37.8325, lng: 144.9605 },
+  "melb-11": { lat: -37.8338, lng: 144.9601 },
   "melb-12": { lat: -37.7991, lng: 144.9464 },
-  "melb-13": { lat: -37.8325, lng: 144.9605 },
+  "melb-13": { lat: -37.8375, lng: 144.9602 },
   "melb-14": { lat: -37.8084, lng: 144.8772 },
   "melb-15": { lat: -38.0164, lng: 145.2701 },
   "melb-16": { lat: -37.7834, lng: 144.9842 },

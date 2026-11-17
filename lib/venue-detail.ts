@@ -23,6 +23,7 @@ import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { hardenVenueDetailPayload, hardenVenueLadies } from "@/lib/harden-venue-detail";
 import { getSeedDirectoryVenues } from "@/lib/data";
 import { getVenueById } from "@/lib/feed";
+import { parseCoord } from "@/lib/geo";
 import {
   getDirectoryVenues,
   getVenueBySlug,
@@ -65,7 +66,6 @@ const SUBURB_COORDS: Record<string, { lat: number; lng: number }> = {
   "potts point": { lat: -33.868, lng: 151.224 },
   "wetherill park": { lat: -33.849, lng: 150.911 },
   campbelltown: { lat: -34.063, lng: 150.814 },
-  sydney: { lat: -33.8688, lng: 151.2093 },
 };
 
 async function getStaffRows(venueUuid: string): Promise<VenueStaffRow[]> {
@@ -80,14 +80,56 @@ async function getStaffRows(venueUuid: string): Promise<VenueStaffRow[]> {
   return data as VenueStaffRow[];
 }
 
+/**
+ * Ensure detail pages always carry the venue's own address + coords.
+ * Seed catalog wins over missing/generic DB values and the old Melbourne GPO pin.
+ */
 function withCoords(venue: Venue): Venue {
-  if (typeof venue.lat === "number" && typeof venue.lng === "number") return venue;
-  const key = venue.suburb.trim().toLowerCase();
-  const hit =
-    SUBURB_COORDS[key] ||
-    Object.entries(SUBURB_COORDS).find(([name]) => key.includes(name))?.[1];
-  if (!hit) return venue;
-  return { ...venue, lat: hit.lat, lng: hit.lng };
+  const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
+  const address = venue.address?.trim();
+  const addressLooksGeneric =
+    !address ||
+    address.toLowerCase() === venue.city ||
+    address.toLowerCase() === venue.suburb.trim().toLowerCase();
+
+  let lat = parseCoord(venue.lat);
+  let lng = parseCoord(venue.lng);
+  const seedLat = parseCoord(seed?.lat);
+  const seedLng = parseCoord(seed?.lng);
+
+  const looksLikeMelbourneGpo =
+    lat != null &&
+    lng != null &&
+    venue.city === "melbourne" &&
+    Math.abs(lat - -37.8136) < 0.0008 &&
+    Math.abs(lng - 144.9631) < 0.0008 &&
+    seedLat != null &&
+    seedLng != null &&
+    (Math.abs(seedLat - lat) > 0.001 || Math.abs(seedLng - lng) > 0.001);
+
+  if (looksLikeMelbourneGpo || lat == null || lng == null) {
+    lat = seedLat ?? lat;
+    lng = seedLng ?? lng;
+  }
+
+  if (lat == null || lng == null) {
+    const key = venue.suburb.trim().toLowerCase();
+    const hit =
+      SUBURB_COORDS[key] ||
+      Object.entries(SUBURB_COORDS).find(([name]) => key.includes(name))?.[1];
+    if (hit) {
+      lat = hit.lat;
+      lng = hit.lng;
+    }
+  }
+
+  return {
+    ...venue,
+    address:
+      addressLooksGeneric && seed?.address ? seed.address : venue.address,
+    lat,
+    lng,
+  };
 }
 
 function pickRelated(current: Venue, all: Venue[]): Venue[] {

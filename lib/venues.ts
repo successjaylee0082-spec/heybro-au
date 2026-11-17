@@ -1,6 +1,6 @@
 import "server-only";
 
-import { enrichVenueDistance } from "@/lib/geo";
+import { enrichVenueDistance, parseCoord } from "@/lib/geo";
 import { attachPricingToVenues, getSeedDirectoryVenues } from "@/lib/data";
 import {
   assignDirectoryPoseCovers,
@@ -106,8 +106,8 @@ export function mapVenueRow(row: VenueRow): Venue {
       row.address?.trim() ||
       [row.suburb, row.state, row.postcode].filter(Boolean).join(" ") ||
       row.city,
-    lat: typeof row.lat === "number" && Number.isFinite(row.lat) ? row.lat : undefined,
-    lng: typeof row.lng === "number" && Number.isFinite(row.lng) ? row.lng : undefined,
+    lat: parseCoord(row.lat),
+    lng: parseCoord(row.lng),
     verified: !row.is_fictional,
     fictional: Boolean(row.is_fictional),
     hours: row.hours || undefined,
@@ -127,12 +127,52 @@ export function mapVenueRow(row: VenueRow): Venue {
       telegram: highlights.telegram,
     },
   };
-  const ranked = enrichVenueDistance(base);
+  const withSeedLocation = overlaySeedLocation(base);
+  const ranked = enrichVenueDistance(withSeedLocation);
   return {
     ...ranked,
+    address: withSeedLocation.address,
     isCbd: ranked.isCbd,
     distanceFromCbdKm: ranked.distanceFromCbdKm,
     distanceBadge: ranked.distanceBadge,
+  };
+}
+
+/**
+ * When Supabase rows omit address/coords (or still carry the old CBD/GPO pin),
+ * prefer the seed catalog street address + geocode for that slug.
+ */
+function overlaySeedLocation(venue: Venue): Venue {
+  const seed = getSeedDirectoryVenues().find((item) => item.id === venue.id);
+  if (!seed) return venue;
+
+  const address = venue.address?.trim();
+  const addressLooksGeneric =
+    !address ||
+    address.toLowerCase() === venue.city ||
+    address.toLowerCase() === venue.suburb.trim().toLowerCase();
+
+  const lat = parseCoord(venue.lat);
+  const lng = parseCoord(venue.lng);
+  const seedLat = parseCoord(seed.lat);
+  const seedLng = parseCoord(seed.lng);
+
+  // Melbourne CBD / GPO benchmark that was incorrectly reused as a venue pin.
+  const looksLikeMelbourneGpo =
+    lat != null &&
+    lng != null &&
+    Math.abs(lat - -37.8136) < 0.0008 &&
+    Math.abs(lng - 144.9631) < 0.0008 &&
+    venue.city === "melbourne" &&
+    seedLat != null &&
+    seedLng != null &&
+    (Math.abs(seedLat - lat) > 0.001 || Math.abs(seedLng - lng) > 0.001);
+
+  return {
+    ...venue,
+    address: addressLooksGeneric && seed.address ? seed.address : venue.address,
+    lat: looksLikeMelbourneGpo || lat == null ? seedLat ?? lat : lat,
+    lng: looksLikeMelbourneGpo || lng == null ? seedLng ?? lng : lng,
   };
 }
 

@@ -95,22 +95,33 @@ export function haversineKm(a: LatLng, b: LatLng): number {
   return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
 
-export function resolveVenueCoords(venue: Pick<Venue, "lat" | "lng" | "suburb" | "city">): LatLng | null {
-  if (
-    typeof venue.lat === "number" &&
-    typeof venue.lng === "number" &&
-    Number.isFinite(venue.lat) &&
-    Number.isFinite(venue.lng)
-  ) {
-    return { lat: venue.lat, lng: venue.lng };
+/** Coerce DB / JSON numeric strings into finite coordinates. */
+export function parseCoord(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return undefined;
+}
+
+export function resolveVenueCoords(
+  venue: Pick<Venue, "lat" | "lng" | "suburb" | "city">,
+): LatLng | null {
+  const lat = parseCoord(venue.lat);
+  const lng = parseCoord(venue.lng);
+  if (lat != null && lng != null) {
+    return { lat, lng };
   }
   const key = venue.suburb.trim().toLowerCase();
+  // Suburb pins are approximate. Never fall back to the city CBD center —
+  // that made every missing-coord listing look like Melbourne GPO / Town Hall.
   if (SUBURB_COORDS[key]) return SUBURB_COORDS[key];
   const partial = Object.entries(SUBURB_COORDS).find(([name]) =>
     key.includes(name),
   );
   if (partial) return partial[1];
-  return CITY_CBD_CENTERS[venue.city] || null;
+  return null;
 }
 
 export function isCbdVenue(

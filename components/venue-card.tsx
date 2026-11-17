@@ -87,9 +87,9 @@ export function VenueCard({ venue }: { venue: Venue }) {
       : [],
   );
   const transit = buildMapsUrl({
+    address: venue.address,
     lat: venue.lat,
     lng: venue.lng,
-    address: venue.address,
     mode: "transit",
   });
   const phoneDigits = venue.phone?.replace(/[^\d+]/g, "") || "";

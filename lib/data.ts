@@ -42,13 +42,16 @@ const MELBOURNE_PAYMENTS: Array<
   VenuePaymentChip | "WeChat Pay" | "Alipay"
 > = ["Cash OK", "EFTPOS", "WeChat Pay", "Alipay"];
 
+/** Approximate geocodes keyed by venue id — never reuse Melbourne GPO/CBD pin. */
 const SEED_COORDS: Record<string, { lat: number; lng: number }> = {
-  "melb-11": { lat: -37.8325, lng: 144.9605 },
+  // 516-518 Flinders St (near King St) — not GPO / Bourke St
+  "melb-2": { lat: -37.8208, lng: 144.9555 },
+  // Unique South Melbourne street pins (were incorrectly shared)
+  "melb-3": { lat: -37.8348, lng: 144.9612 }, // 70-74 Clarke St
+  "melb-8": { lat: -37.8312, lng: 144.9568 }, // 53 Market Street
+  "melb-11": { lat: -37.8338, lng: 144.9601 }, // 43 Tope Street
+  "melb-13": { lat: -37.8375, lng: 144.9602 }, // 55 Park Street
   "melb-7": { lat: -37.8677, lng: 144.9809 },
-  "melb-3": { lat: -37.8325, lng: 144.9605 },
-  "melb-8": { lat: -37.8325, lng: 144.9605 },
-  "melb-13": { lat: -37.8325, lng: 144.9605 },
-  "melb-2": { lat: -37.8136, lng: 144.9631 },
   "melb-6": { lat: -37.7302, lng: 144.9718 },
   "melb-5": { lat: -37.8865, lng: 145.0245 },
   "melb-9": { lat: -37.7942, lng: 144.9285 },

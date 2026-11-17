@@ -133,15 +133,15 @@ export function VenueDetail({
   }, [consumer, distanceKm, venue.id, venue.isManaged, venue.ladies]);
 
   const transit = buildMapsUrl({
+    address: venue.address,
     lat: venue.lat,
     lng: venue.lng,
-    address: venue.address,
     mode: "transit",
   });
   const walking = buildMapsUrl({
+    address: venue.address,
     lat: venue.lat,
     lng: venue.lng,
-    address: venue.address,
     mode: "walking",
   });
   const phoneHref = liveConsumer.phoneHref;
