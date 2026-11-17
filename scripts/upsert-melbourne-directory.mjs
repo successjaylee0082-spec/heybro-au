@@ -120,12 +120,12 @@ const VENUES = [
   },
   {
     slug: "melb-9",
-    name: "Club 122",
+    name: "Supernova 122",
     suburb: "Kensington",
     address: "122 Dynon Road, Kensington VIC 3031",
     phone: "(03) 9376 2666",
     description:
-      "Verified Melbourne nightlife listing in Kensington. 18+ adults only · call to confirm tonight's roster and booking.",
+      "Supernova 122 (formerly Club 122) — verified Kensington nightlife listing. 18+ adults only · call to confirm tonight's roster and booking.",
   },
   {
     slug: "melb-10",

@@ -1259,7 +1259,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
   },
   {
     id: "melb-9",
-    name: "Club 122",
+    name: "Supernova 122",
     city: "Melbourne",
     citySlug: "melbourne",
     category: "brothels",
@@ -1269,7 +1269,7 @@ export const melbourneVenues: SeedVenueRecord[] = [
     phone: "(03) 9376 2666",
     website: "",
     description:
-      "Verified Melbourne nightlife listing in Kensington. 18+ adults only · call to confirm tonight's roster and booking.",
+      "Supernova 122 (formerly Club 122) — verified Kensington nightlife listing. 18+ adults only · call to confirm tonight's roster and booking.",
     pricing: [
       { duration: "30m", price: 250 },
       { duration: "45m", price: 300 },
