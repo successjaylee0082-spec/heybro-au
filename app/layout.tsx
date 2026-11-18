@@ -72,6 +72,9 @@ export async function generateMetadata(): Promise<Metadata> {
       statusBarStyle: "black-translucent",
       title: "HeyBro",
     },
+    verification: {
+      google: "W7nzClIPKMeVEhm8-BIxMp6IPytijNCrtxH3KgLY0fo",
+    },
     alternates: {
       canonical: SITE_URL,
     },
