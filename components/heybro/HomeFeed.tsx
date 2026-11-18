@@ -11,6 +11,7 @@ import { useMemo } from "react";
 import { CategoryChips } from "@/components/CategoryChips";
 import { Hero } from "@/components/hero";
 import { RedditCommunityPanel } from "@/components/heybro/RedditCommunityPanel";
+import { SuburbNavPills } from "@/components/seo/SuburbNavPills";
 import { VenueList } from "@/components/venue-list";
 import { useCopy } from "@/components/i18n/LocaleProvider";
 import { useNavigation } from "@/components/layout/NavigationProvider";
@@ -25,6 +26,10 @@ import {
 } from "@/lib/data";
 import { filterVenues } from "@/lib/feed";
 import { VENUE_SORT_OPTIONS, type VenueSortMode } from "@/lib/geo";
+import {
+  isCityId,
+  pairsFromVenues,
+} from "@/lib/local-seo-shared";
 import type { Venue } from "@/types";
 
 function normalizeToken(value: string | null | undefined): string {
@@ -114,6 +119,12 @@ export function HomeFeed({
 
   const cbdCount = (venues || []).filter((venue) => venue.isCbd).length;
   const seedCount = safeArray(SEED_CATALOG).length;
+  const suburbLinks = useMemo(() => {
+    const selected = isCityId(city) ? city : "melbourne";
+    return pairsFromVenues(safeArray(SEED_CATALOG)).filter(
+      (pair) => pair.city === selected,
+    );
+  }, [city]);
 
   return (
     <div className="home-feed home-feed-nightlife">
@@ -152,6 +163,14 @@ export function HomeFeed({
       </div>
 
       <CategoryChips />
+
+      <div className="mb-6">
+        <SuburbNavPills
+          city={isCityId(city) ? city : "melbourne"}
+          suburbs={suburbLinks}
+          title={`${cities.find((item) => item.id === city)?.label || "City"} suburb guides`}
+        />
+      </div>
 
       <div className="section-heading">
         <div>

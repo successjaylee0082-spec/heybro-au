@@ -52,6 +52,8 @@ const nextConfig: NextConfig = {
         destination: "/en/:city/:suburb/:category",
         permanent: true,
       },
+      // Note: bare `/:city/:suburb` local SEO paths are rewritten (not redirected)
+      // in middleware so the clean URL stays in the address bar for Google.
     ].map((redirect) => ({
       ...redirect,
       // The trusted middleware request header marks an already-localized rewrite.

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { cities } from "@/lib/cities";
 import { feedVenues } from "@/lib/feed";
 import { isLocale, isSystemPath, stripLocalePath } from "@/lib/i18n";
+
+const CITY_ROOTS = new Set<string>(cities.map((city) => city.id));
 
 function missingLocalePage() {
   return new NextResponse("Not found", {
@@ -40,6 +43,24 @@ export function middleware(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = `/en/${segment}`;
       return NextResponse.redirect(url);
+    }
+    // Programmatic local SEO — keep clean `/melbourne/south-melbourne` URLs in
+    // the address bar while serving the locale App Router tree.
+    if (segment && CITY_ROOTS.has(segment.toLowerCase())) {
+      const parts = path.split("/").filter(Boolean);
+      if (parts.length >= 2 && parts.length <= 3) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/en/${parts.join("/")}`;
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set("x-heybro-locale", "en");
+        requestHeaders.set(
+          "x-heybro-page-path",
+          `/${parts.slice(1).join("/")}`,
+        );
+        return NextResponse.rewrite(url, {
+          request: { headers: requestHeaders },
+        });
+      }
     }
     if (/^[a-z]{2}$/i.test(segment)) return missingLocalePage();
     // Existing pages have relative redirects in next.config.ts, before middleware.
