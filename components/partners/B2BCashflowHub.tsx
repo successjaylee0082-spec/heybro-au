@@ -19,8 +19,7 @@ import {
 } from "@/lib/listing-tier";
 import { BUSINESS_WHATSAPP_HREF } from "@/lib/booking-links";
 
-const PARTNER_WHATSAPP_HREF =
-  process.env.NEXT_PUBLIC_PARTNER_WHATSAPP_HREF || BUSINESS_WHATSAPP_HREF;
+const PARTNER_WHATSAPP_HREF = BUSINESS_WHATSAPP_HREF;
 const PARTNER_TELEGRAM =
   process.env.NEXT_PUBLIC_PARTNER_TELEGRAM || "heybro_partners";
 

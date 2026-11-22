@@ -72,16 +72,14 @@ export default function SponsoredSpotlight({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {sponsor.whatsapp ? (
-            <a
-              href={`https://wa.me/${sponsor.whatsapp.replace(/[^\d]/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-emerald-400"
-            >
-              WhatsApp Direct
-            </a>
-          ) : null}
+          <a
+            href={CLAIM_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-lg bg-emerald-500 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-emerald-400"
+          >
+            WhatsApp Direct
+          </a>
           {sponsor.phone ? (
             <a
               href={`tel:${sponsor.phone}`}

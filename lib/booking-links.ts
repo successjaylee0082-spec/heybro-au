@@ -2,8 +2,11 @@
  * Build consumer booking deep-links for Call / WhatsApp / WeChat.
  */
 
-/** Official Business Sales / Partners WhatsApp QR deep link. */
-export const BUSINESS_WHATSAPP_HREF = "https://wa.me/qr/UT73CCOMEKMSI1";
+/** Canonical Hey Bro inquiry WhatsApp (AU international, no +). */
+export const HEYBRO_WHATSAPP_NUMBER = "61435901095";
+
+/** Official Business Sales / Partners / venue inquiry WhatsApp deep link. */
+export const BUSINESS_WHATSAPP_HREF = `https://wa.me/${HEYBRO_WHATSAPP_NUMBER}`;
 
 export function normalizePhoneDigits(
   phone?: string | null,
@@ -26,40 +29,34 @@ export function toWhatsAppNumber(phone?: string | null): string | undefined {
   return digits;
 }
 
-/** Platform admin / support WhatsApp (public env preferred). */
-export function getPlatformWhatsAppNumber(): string | undefined {
-  return toWhatsAppNumber(
-    process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER ||
-      process.env.WHATSAPP_SUPPORT_NUMBER ||
-      process.env.NEXT_PUBLIC_PLATFORM_WHATSAPP ||
-      undefined,
-  );
+/** Platform admin / support WhatsApp — always Hey Bro inquiry number. */
+export function getPlatformWhatsAppNumber(): string {
+  return HEYBRO_WHATSAPP_NUMBER;
 }
 
 /**
- * Prefer a venue-specific WhatsApp / phone, then fall back to platform support.
+ * All site WhatsApp inquiry links route to the unified Hey Bro number.
+ * Venue phones remain for Call / SMS only.
  */
 export function resolveWhatsAppNumber(
-  venueNumber?: string | null,
-): string | undefined {
-  return toWhatsAppNumber(venueNumber) || getPlatformWhatsAppNumber();
+  _venueNumber?: string | null,
+): string {
+  return HEYBRO_WHATSAPP_NUMBER;
 }
 
 export function buildWhatsAppHref(
-  phone?: string | null,
+  _phone?: string | null,
   preset?: string,
-): string | undefined {
-  const number = resolveWhatsAppNumber(phone);
-  if (!number) return undefined;
+): string {
   const text = preset ? `?text=${encodeURIComponent(preset)}` : "";
-  return `https://wa.me/${number}${text}`;
+  return `https://wa.me/${HEYBRO_WHATSAPP_NUMBER}${text}`;
 }
 
 export function buildVenueInquiryWhatsAppHref(options: {
   venueName: string;
   whatsapp?: string | null;
   phone?: string | null;
-}): string | undefined {
+}): string {
   return buildWhatsAppHref(
     options.whatsapp || options.phone,
     `Hello, I would like to inquire about availability at ${options.venueName}.`,
@@ -69,13 +66,11 @@ export function buildVenueInquiryWhatsAppHref(options: {
 export function buildAdminSupportWhatsAppHref(options?: {
   venueName?: string;
   venueId?: string;
-}): string | undefined {
-  const number = getPlatformWhatsAppNumber();
-  if (!number) return undefined;
+}): string {
   const venueBit = options?.venueName
     ? ` for ${options.venueName}${options.venueId ? ` (${options.venueId})` : ""}`
     : "";
-  return `https://wa.me/${number}?text=${encodeURIComponent(
+  return `https://wa.me/${HEYBRO_WHATSAPP_NUMBER}?text=${encodeURIComponent(
     `Hello Hey Bro admin — I need support${venueBit}.`,
   )}`;
 }

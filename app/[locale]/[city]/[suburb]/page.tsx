@@ -158,6 +158,11 @@ export default async function SuburbDirectoryPage({
         </p>
       </header>
 
+      <SponsoredSpotlight
+        suburbName={data.suburbLabel}
+        sponsor={getSuburbSponsor(data.city, data.suburbSlug)}
+      />
+
       <div className="mb-8">
         <SuburbNavPills
           city={data.city}
@@ -166,11 +171,6 @@ export default async function SuburbDirectoryPage({
           title={`${data.cityLabelText} suburbs`}
         />
       </div>
-
-      <SponsoredSpotlight
-        suburbName={data.suburbLabel}
-        sponsor={getSuburbSponsor(data.city, data.suburbSlug)}
-      />
 
       {data.venues.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
