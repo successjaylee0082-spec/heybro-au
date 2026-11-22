@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
+import SponsoredSpotlight from "@/components/SponsoredSpotlight";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SuburbNavPills } from "@/components/seo/SuburbNavPills";
 import { SuburbSeoBlock } from "@/components/seo/SuburbSeoBlock";
@@ -18,6 +19,7 @@ import {
   resolveSuburbPageData,
   suburbCanonicalUrl,
 } from "@/lib/local-seo";
+import { getSuburbSponsor } from "@/lib/suburb-sponsors";
 
 /** ISR — rebuild suburb pages hourly; unknown params fall back dynamically. */
 export const revalidate = 3600;
@@ -164,6 +166,11 @@ export default async function SuburbDirectoryPage({
           title={`${data.cityLabelText} suburbs`}
         />
       </div>
+
+      <SponsoredSpotlight
+        suburbName={data.suburbLabel}
+        sponsor={getSuburbSponsor(data.city, data.suburbSlug)}
+      />
 
       {data.venues.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
