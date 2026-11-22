@@ -1,8 +1,7 @@
 "use client";
 
 /**
- * Primary navigation model for Hey Bro — Explore / Community / B2B Partners / Saved.
- * Journal/blog is intentionally replaced by the monetized partners hub.
+ * Primary navigation — Explore / Community / Partners / VIP Pass / Saved.
  */
 
 import Link from "next/link";
@@ -12,6 +11,7 @@ import {
   BriefcaseBusiness,
   Compass,
   MessagesSquare,
+  Ticket,
 } from "lucide-react";
 import { RedditLogo } from "@/components/RedditLogo";
 import { useCopy } from "@/components/i18n/LocaleProvider";
@@ -20,19 +20,24 @@ import { withLocale } from "@/lib/i18n";
 import type { Locale } from "@/types";
 
 export type NavItem = {
-  id: "explore" | "community" | "partners" | "saved";
+  id: "explore" | "community" | "partners" | "vip-pass" | "saved";
   href: string;
   label: string;
   icon: typeof Compass;
   match: (pathname: string | null) => boolean;
+  badge?: string;
 };
 
-export function getPrimaryNavItems(locale: Locale, labels: {
-  explore: string;
-  community: string;
-  partners: string;
-  saved: string;
-}): NavItem[] {
+export function getPrimaryNavItems(
+  locale: Locale,
+  labels: {
+    explore: string;
+    community: string;
+    partners: string;
+    vipPass: string;
+    saved: string;
+  },
+): NavItem[] {
   return [
     {
       id: "explore",
@@ -41,7 +46,13 @@ export function getPrimaryNavItems(locale: Locale, labels: {
       icon: Compass,
       match: (pathname) =>
         pathname === withLocale(locale, "/") ||
-        Boolean(pathname?.match(new RegExp(`^/${locale}/(sydney|melbourne|brisbane|perth|gold-coast|adelaide)`))),
+        Boolean(
+          pathname?.match(
+            new RegExp(
+              `^/${locale}/(sydney|melbourne|brisbane|perth|gold-coast|adelaide)`,
+            ),
+          ),
+        ),
     },
     {
       id: "community",
@@ -59,6 +70,14 @@ export function getPrimaryNavItems(locale: Locale, labels: {
         Boolean(pathname?.includes("/partners") || pathname?.includes("/blog")),
     },
     {
+      id: "vip-pass",
+      href: withLocale(locale, "/vip-pass"),
+      label: labels.vipPass,
+      icon: Ticket,
+      badge: "50% OFF",
+      match: (pathname) => Boolean(pathname?.includes("/vip-pass")),
+    },
+    {
       id: "saved",
       href: withLocale(locale, "/saved"),
       label: labels.saved,
@@ -66,6 +85,18 @@ export function getPrimaryNavItems(locale: Locale, labels: {
       match: (pathname) => Boolean(pathname?.includes("/saved")),
     },
   ];
+}
+
+function VipPassBadge({ compact = false }: { compact?: boolean }) {
+  return (
+    <span
+      className={compact ? "nav-vip-badge nav-vip-badge-compact" : "nav-vip-badge"}
+      aria-hidden
+    >
+      <Ticket className="h-3 w-3" />
+      <span>50% OFF</span>
+    </span>
+  );
 }
 
 export function PrimaryNav({
@@ -80,6 +111,7 @@ export function PrimaryNav({
     explore: t("list"),
     community: t("community"),
     partners: t("partners"),
+    vipPass: t("vipPass"),
     saved: t("saved"),
   });
 
@@ -93,14 +125,29 @@ export function PrimaryNav({
             <Link
               key={item.id}
               href={item.href}
-              className={active ? "mobile-nav-item active" : "mobile-nav-item"}
+              className={
+                active
+                  ? item.id === "vip-pass"
+                    ? "mobile-nav-item active mobile-nav-item-vip"
+                    : "mobile-nav-item active"
+                  : item.id === "vip-pass"
+                    ? "mobile-nav-item mobile-nav-item-vip"
+                    : "mobile-nav-item"
+              }
             >
               {item.id === "community" ? (
                 <RedditLogo size={16} />
               ) : Icon ? (
-                <Icon className="h-4 w-4" />
+                <Icon
+                  className={
+                    item.id === "vip-pass"
+                      ? "h-4 w-4 text-amber-400"
+                      : "h-4 w-4"
+                  }
+                />
               ) : null}
               <span>{item.label}</span>
+              {item.id === "vip-pass" ? <VipPassBadge compact /> : null}
               {item.id === "saved" && savedIds.length > 0 ? (
                 <em className="saved-count">{savedIds.length}</em>
               ) : null}
@@ -119,13 +166,25 @@ export function PrimaryNav({
           <Link
             key={item.id}
             href={item.href}
-            className={active ? "nav-link active" : "nav-link"}
+            className={
+              active
+                ? item.id === "vip-pass"
+                  ? "nav-link active nav-link-vip"
+                  : "nav-link active"
+                : item.id === "vip-pass"
+                  ? "nav-link nav-link-vip"
+                  : "nav-link"
+            }
           >
             {item.id === "community" ? <RedditLogo size={14} /> : null}
             {item.id === "partners" ? (
               <BriefcaseBusiness className="h-3.5 w-3.5" />
             ) : null}
+            {item.id === "vip-pass" ? (
+              <Ticket className="h-3.5 w-3.5 text-amber-400" />
+            ) : null}
             {item.label}
+            {item.id === "vip-pass" ? <VipPassBadge /> : null}
             {item.id === "saved" && savedIds.length > 0 ? (
               <span className="saved-count">{savedIds.length}</span>
             ) : null}

@@ -157,6 +157,42 @@
   height: 2px;
   background: #f43f5e;
 }
+.nav-link-vip {
+  color: #fbbf24;
+}
+.nav-link-vip:hover,
+.nav-link-vip.active {
+  color: #fde68a;
+}
+.nav-link-vip.active:after {
+  background: #f59e0b;
+}
+.nav-vip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.14);
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fbbf24;
+  white-space: nowrap;
+}
+.nav-vip-badge-compact {
+  padding: 1px 6px;
+  font-size: 9px;
+}
+.mobile-nav-item-vip {
+  color: #fbbf24;
+}
+.mobile-nav-item-vip.active,
+.mobile-nav-item-vip:hover {
+  color: #fde68a;
+}
 .header-actions {
   display: flex;
   align-items: center;
