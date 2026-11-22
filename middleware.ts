@@ -38,7 +38,8 @@ export function middleware(request: NextRequest) {
     if (
       segment === "terms" ||
       segment === "privacy" ||
-      segment === "report"
+      segment === "report" ||
+      segment === "vip-pass"
     ) {
       const url = request.nextUrl.clone();
       url.pathname = `/en/${segment}`;

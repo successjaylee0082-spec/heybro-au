@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/partners",
     "/community",
+    "/vip-pass",
     "/terms",
     "/privacy",
     "/report",

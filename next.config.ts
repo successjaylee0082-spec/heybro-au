@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
       { source: "/blog/:slug", destination: "/en/partners", permanent: true },
       { source: "/partners", destination: "/en/partners", permanent: true },
       { source: "/community", destination: "/en/community", permanent: true },
+      { source: "/vip-pass", destination: "/en/vip-pass", permanent: false },
       {
         source: "/venue/:slug",
         destination: "/en/venue/:slug",
