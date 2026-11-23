@@ -21,7 +21,7 @@ export function Hero() {
 
   return (
     <section
-      className="hero hero-nightlife relative isolate min-h-[560px] overflow-hidden rounded-[22px] border border-rose-500/30 bg-slate-950 shadow-[0_0_48px_rgba(244,63,94,0.1),inset_0_0_80px_rgba(0,0,0,0.7)] md:min-h-[620px]"
+      className="hero hero-nightlife relative isolate min-h-[420px] overflow-hidden rounded-[22px] border border-rose-500/30 bg-slate-950 shadow-[0_0_48px_rgba(244,63,94,0.1),inset_0_0_80px_rgba(0,0,0,0.7)] sm:min-h-[480px] md:min-h-[620px]"
       aria-label="Hey Bro adult directory hero"
     >
       {/* Clean dark studio base */}
@@ -54,18 +54,18 @@ export function Hero() {
         aria-hidden
       />
 
-      <div className="hero-content relative z-10 max-w-[820px] px-6 pb-9 pt-12 sm:px-10 sm:pt-14 md:px-11">
+      <div className="hero-content relative z-10 max-w-[820px] p-5 sm:p-8 md:px-11 md:pb-9 md:pt-14">
         <div className="eyebrow">
           <span className="eyebrow-dot" />
           {t("heroEyebrow")}
         </div>
-        <h1 className="font-[family-name:var(--font-display)] text-[clamp(2.4rem,5vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.03em] text-slate-50">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold leading-tight tracking-[-0.03em] text-slate-50 sm:text-4xl md:text-6xl md:leading-[1.08]">
           {t("heroTitleBefore")}{" "}
           <span className="bg-gradient-to-r from-rose-300 via-rose-400 to-pink-400 bg-clip-text text-transparent">
             {t("heroTitleAccent")}
           </span>
         </h1>
-        <p className="hero-description mt-3 max-w-[540px] text-[13px] leading-relaxed text-slate-300">
+        <p className="hero-description mt-2 max-w-[540px] text-[12px] leading-relaxed text-slate-300 sm:mt-3 sm:text-[13px]">
           {t("heroDescription")}
         </p>
 

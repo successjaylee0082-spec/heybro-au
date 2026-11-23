@@ -93,8 +93,8 @@ function VipPassBadge({ compact = false }: { compact?: boolean }) {
       className={compact ? "nav-vip-badge nav-vip-badge-compact" : "nav-vip-badge"}
       aria-hidden
     >
-      <Ticket className="h-3 w-3" />
-      <span>50% OFF</span>
+      {compact ? null : <Ticket className="h-3 w-3" />}
+      <span>{compact ? "50%" : "50% OFF"}</span>
     </span>
   );
 }
@@ -117,7 +117,7 @@ export function PrimaryNav({
 
   if (variant === "mobile") {
     return (
-      <nav className="mobile-nav" aria-label="Mobile">
+      <nav className="mobile-nav grid w-full grid-cols-5" aria-label="Mobile">
         {items.map((item) => {
           const Icon = item.id === "community" ? undefined : item.icon;
           const active = item.match(pathname);
@@ -128,11 +128,11 @@ export function PrimaryNav({
               className={
                 active
                   ? item.id === "vip-pass"
-                    ? "mobile-nav-item active mobile-nav-item-vip"
-                    : "mobile-nav-item active"
+                    ? "mobile-nav-item active mobile-nav-item-vip min-w-0 px-1 text-[10px]"
+                    : "mobile-nav-item active min-w-0 px-1 text-[10px]"
                   : item.id === "vip-pass"
-                    ? "mobile-nav-item mobile-nav-item-vip"
-                    : "mobile-nav-item"
+                    ? "mobile-nav-item mobile-nav-item-vip min-w-0 px-1 text-[10px]"
+                    : "mobile-nav-item min-w-0 px-1 text-[10px]"
               }
             >
               {item.id === "community" ? (
@@ -141,12 +141,12 @@ export function PrimaryNav({
                 <Icon
                   className={
                     item.id === "vip-pass"
-                      ? "h-4 w-4 text-amber-400"
-                      : "h-4 w-4"
+                      ? "h-4 w-4 shrink-0 text-amber-400"
+                      : "h-4 w-4 shrink-0"
                   }
                 />
               ) : null}
-              <span>{item.label}</span>
+              <span className="truncate">{item.label}</span>
               {item.id === "vip-pass" ? <VipPassBadge compact /> : null}
               {item.id === "saved" && savedIds.length > 0 ? (
                 <em className="saved-count">{savedIds.length}</em>

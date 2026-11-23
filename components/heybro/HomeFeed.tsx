@@ -129,20 +129,20 @@ export function HomeFeed({
   return (
     <div className="home-feed home-feed-nightlife">
       <div className="city-nav">
-        <div className="city-links">
-          <MapPin className="h-4 w-4" />
+        <div className="city-links flex w-full gap-4 overflow-x-auto whitespace-nowrap px-4 no-scrollbar md:px-0">
+          <MapPin className="hidden h-4 w-4 shrink-0 md:block" />
           {cities.map((item) => (
             <button
               key={item.id}
               type="button"
-              className={city === item.id ? "selected" : undefined}
+              className={city === item.id ? "selected shrink-0" : "shrink-0"}
               onClick={() => setCity(item.id)}
             >
               {item.label}
             </button>
           ))}
         </div>
-        <div className="aussie-note">
+        <div className="aussie-note hidden md:flex">
           <ShieldCheck className="h-3.5 w-3.5" />
           Adult nightlife directory
         </div>

@@ -46,7 +46,7 @@ export function ApplicationShell({
         suppressHydrationWarning
       >
         <Header />
-        <main className="page-shell app-main">{children}</main>
+        <main className="page-shell app-main pb-24 md:pb-0">{children}</main>
         <Footer />
         <MobileNav />
       </div>
